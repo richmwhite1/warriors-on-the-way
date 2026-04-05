@@ -33,7 +33,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protect authenticated routes
-  const protectedPrefixes = ["/home", "/community", "/events", "/me"];
+  const protectedPrefixes = ["/home", "/community", "/events", "/me", "/profile"];
   const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
 
   if (isProtected && !user) {
