@@ -75,6 +75,11 @@ export default async function CommunityPage({ params }: Props) {
               </p>
             </div>
             <div className="flex items-center gap-2">
+              {isMember && (
+                <Link href={`/community/${slug}/events`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Events
+                </Link>
+              )}
               {isAdmin && (
                 <Link href={`/community/${slug}/members`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Members
