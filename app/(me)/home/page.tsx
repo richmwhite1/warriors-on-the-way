@@ -63,6 +63,7 @@ export default async function HomePage() {
                     name={c.name}
                     slug={c.slug}
                     description={c.description}
+                    bannerUrl={c.banner_url}
                     isPrivate={c.is_private}
                     isParent={c.is_parent}
                     memberCount={0}
@@ -88,6 +89,7 @@ export default async function HomePage() {
                     name={c.name}
                     slug={c.slug}
                     description={c.description}
+                    bannerUrl={c.banner_url}
                     isPrivate={c.is_private}
                     isParent={c.is_parent}
                     memberCount={count}
