@@ -12,7 +12,7 @@ import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getActiveMemberCount, getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listCommunityPosts, listParentPushPosts } from "@/lib/queries/posts";
-import { listComments } from "@/lib/queries/comments";
+import { listCommentsByPostIds } from "@/lib/queries/comments";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -38,28 +38,39 @@ export default async function CommunityPage({ params }: Props) {
 
   const memberStatus = membership?.status ?? "none";
   const isAdmin = membership?.role === "admin" || membership?.role === "organizer";
+  const isViewer = membership?.role === "viewer";
   const isMember = memberStatus === "active";
   const isFull = memberCount >= community.member_cap;
 
   const [communityPosts, parentPushPosts] = isMember
     ? await Promise.all([
-        listCommunityPosts(community.id),
-        community.is_parent ? [] : listParentPushPosts(),
+        listCommunityPosts(community.id, user.id),
+        community.is_parent ? [] : listParentPushPosts(user.id),
       ])
     : [[], []];
 
   const allPosts = [...parentPushPosts, ...communityPosts];
-  const commentsByPost = isMember
-    ? Object.fromEntries(
-        await Promise.all(allPosts.map(async (p) => [p.id, await listComments(p.id)]))
-      )
+
+  // Single bulk query for all comments instead of N+1
+  const commentsByPost = isMember && allPosts.length > 0
+    ? await listCommentsByPostIds(allPosts.map((p) => p.id))
     : {};
 
   const isParentAdmin = isAdmin && community.is_parent;
 
+  // Treat "left" the same as "none" for the join button
+  const joinStatus = (memberStatus === "left" ? "none" : memberStatus) as
+    "none" | "active" | "waitlisted" | "pending_approval" | "banned";
+
   return (
     <>
       <AppNav />
+      {community.banner_url && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <div className="w-full h-40 sm:h-56 overflow-hidden">
+          <img src={community.banner_url} alt="" className="w-full h-full object-cover" />
+        </div>
+      )}
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -76,19 +87,26 @@ export default async function CommunityPage({ params }: Props) {
             </div>
             <div className="flex items-center gap-2">
               {isMember && (
-                <Link href={`/community/${slug}/events`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Events
-                </Link>
+                <>
+                  <Link href={`/community/${slug}/events`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                    Events
+                  </Link>
+                  <Link href={`/community/${slug}/members`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                    Members
+                  </Link>
+                </>
               )}
               {isAdmin && (
-                <Link href={`/community/${slug}/members`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Members
+                <Link href={`/community/${slug}/settings`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Settings
                 </Link>
               )}
               <JoinButton
                 communityId={community.id}
                 communitySlug={slug}
-                status={memberStatus as "none" | "active" | "waitlisted" | "pending_approval" | "banned"}
+                communityName={community.name}
+                isPrivate={community.is_private}
+                status={joinStatus}
                 isFull={isFull}
               />
             </div>
@@ -96,19 +114,50 @@ export default async function CommunityPage({ params }: Props) {
           {community.description && (
             <p className="text-muted-foreground text-sm">{community.description}</p>
           )}
+          {community.location && (
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              <span>📍</span> {community.location}
+            </p>
+          )}
+          {isMember && community.telegram_invite_link && (
+            <a
+              href={community.telegram_invite_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-sm text-[#229ED9] hover:underline"
+            >
+              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current shrink-0">
+                <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/>
+              </svg>
+              Get updates on your Telegram!
+            </a>
+          )}
         </div>
 
         <Separator />
 
         {isMember ? (
           <div className="space-y-4">
-            <PostComposer communityId={community.id} isParentAdmin={isParentAdmin} />
+            {!isViewer && <PostComposer communityId={community.id} isParentAdmin={isParentAdmin} />}
+          {isViewer && (
+            <div className="rounded-xl border border-dashed px-4 py-3 text-sm text-muted-foreground text-center">
+              You have view-only access to this community.
+            </div>
+          )}
 
             {parentPushPosts.length > 0 && (
               <div className="space-y-3">
                 {parentPushPosts.map((post) => (
-                  <PostCard key={post.id} post={post} comments={commentsByPost[post.id] ?? []}
-                    communitySlug={slug} currentUserId={user.id} isAdmin={isAdmin} isMember={isMember} />
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    comments={commentsByPost[post.id] ?? []}
+                    communitySlug={slug}
+                    currentUserId={user.id}
+                    isAdmin={isAdmin}
+                    isMember={isMember}
+                    isViewer={isViewer}
+                  />
                 ))}
                 {communityPosts.length > 0 && <Separator />}
               </div>
@@ -120,8 +169,15 @@ export default async function CommunityPage({ params }: Props) {
               </div>
             ) : (
               communityPosts.map((post) => (
-                <PostCard key={post.id} post={post} comments={commentsByPost[post.id] ?? []}
-                  communitySlug={slug} currentUserId={user.id} isAdmin={isAdmin} isMember={isMember} />
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  comments={commentsByPost[post.id] ?? []}
+                  communitySlug={slug}
+                  currentUserId={user.id}
+                  isAdmin={isAdmin}
+                  isMember={isMember}
+                />
               ))
             )}
           </div>

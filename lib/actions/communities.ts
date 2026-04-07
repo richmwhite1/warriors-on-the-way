@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugExists } from "@/lib/queries/communities";
+import { detectNewGroupChatId, sendMessage } from "@/lib/integrations/telegram";
 
 function toSlug(name: string): string {
   return name
@@ -31,8 +32,9 @@ export async function createCommunity(formData: FormData) {
 
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  const location = (formData.get("location") as string)?.trim() || null;
   const is_private = formData.get("is_private") === "true";
-  const members_can_create_events = formData.get("members_can_create_events") !== "false";
+  const members_can_create_events = formData.get("members_can_create_events") === "true";
   const custom_slug = (formData.get("slug") as string)?.trim();
 
   if (!name) throw new Error("Community name is required");
@@ -45,7 +47,7 @@ export async function createCommunity(formData: FormData) {
   // Insert community + membership in a transaction via RPC
   const { data: community, error: communityError } = await supabase
     .from("communities")
-    .insert({ slug, name, description, is_private, members_can_create_events, created_by: user.id })
+    .insert({ slug, name, description, location, is_private, members_can_create_events, created_by: user.id })
     .select("id, slug")
     .single();
 
@@ -67,14 +69,21 @@ export async function updateCommunitySettings(communityId: string, formData: For
 
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  const location = (formData.get("location") as string)?.trim() || null;
   const is_private = formData.get("is_private") === "true";
-  const members_can_create_events = formData.get("members_can_create_events") !== "false";
+  const members_can_create_events = formData.get("members_can_create_events") === "true";
+  const member_cap = Math.min(150, Math.max(1, parseInt(formData.get("member_cap") as string) || 150));
+  const telegram_invite_link = (formData.get("telegram_invite_link") as string)?.trim() || null;
+  const banner_url = (formData.get("banner_url") as string)?.trim() || null;
 
   if (!name) throw new Error("Community name is required");
 
+  const updateData: Record<string, unknown> = { name, description, location, is_private, members_can_create_events, member_cap, telegram_invite_link };
+  if (banner_url !== null) updateData.banner_url = banner_url;
+
   const { data: community, error } = await supabase
     .from("communities")
-    .update({ name, description, is_private, members_can_create_events })
+    .update(updateData)
     .eq("id", communityId)
     .select("slug")
     .single();
@@ -82,4 +91,71 @@ export async function updateCommunitySettings(communityId: string, formData: For
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${community.slug}`);
   revalidatePath(`/community/${community.slug}/settings`);
+}
+
+/**
+ * Called when the organizer clicks "Complete setup" after adding the WoW
+ * Assistant bot to their Telegram group. Uses getUpdates to detect the most
+ * recently added group and saves its chat_id.
+ */
+export async function connectTelegramChannel(communityId: string, communitySlug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  // Verify caller is admin
+  const { data: membership } = await supabase
+    .from("community_members")
+    .select("role")
+    .eq("community_id", communityId)
+    .eq("user_id", user.id)
+    .single();
+  if (!membership || !["admin", "organizer"].includes(membership.role as string)) {
+    throw new Error("Not authorized");
+  }
+
+  const result = await detectNewGroupChatId(communityId);
+  if (!result) {
+    throw new Error(
+      "WoW Assistant wasn't found in any Telegram group yet. Make sure you added it, then try again."
+    );
+  }
+
+  await supabase
+    .from("communities")
+    .update({ telegram_chat_id: result.chatId })
+    .eq("id", communityId);
+
+  // Send a welcome confirmation to the group
+  await sendMessage(
+    result.chatId,
+    `✅ <b>WoW Assistant connected!</b>\n\nThis group is now linked to your Warriors on the Way community. New posts and events will automatically appear here.`
+  );
+
+  revalidatePath(`/community/${communitySlug}/settings`);
+  revalidatePath(`/community/${communitySlug}`);
+  return { chatTitle: result.chatTitle };
+}
+
+export async function disconnectTelegramChannel(communityId: string, communitySlug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: membership } = await supabase
+    .from("community_members")
+    .select("role")
+    .eq("community_id", communityId)
+    .eq("user_id", user.id)
+    .single();
+  if (!membership || !["admin", "organizer"].includes(membership.role as string)) {
+    throw new Error("Not authorized");
+  }
+
+  await supabase
+    .from("communities")
+    .update({ telegram_chat_id: null })
+    .eq("id", communityId);
+
+  revalidatePath(`/community/${communitySlug}/settings`);
 }
