@@ -61,7 +61,7 @@ export function CreateCommunityForm() {
             name="slug"
             maxLength={60}
             placeholder="bay-area-seekers"
-            pattern="[a-z0-9-]+"
+            pattern="[a-z0-9][a-z0-9-]*"
             title="Lowercase letters, numbers, and hyphens only"
           />
         </div>

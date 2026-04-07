@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
 // Deterministic warm gradient per community — consistent across renders
@@ -50,12 +49,11 @@ export function CommunityCard({
         {/* Banner / gradient header */}
         <div className="relative h-28 w-full shrink-0 overflow-hidden">
           {bannerUrl ? (
-            <Image
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
               src={bannerUrl}
               alt=""
-              fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, 50vw"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div
