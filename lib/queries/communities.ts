@@ -13,6 +13,10 @@ export type Community = {
   created_by: string;
   created_at: string;
   member_count?: number;
+  // Phase 4 Telegram integration fields (optional until migration runs)
+  telegram_chat_id?: string | null;
+  telegram_invite_link?: string | null;
+  location?: string | null;
 };
 
 export async function getCommunityBySlug(slug: string): Promise<Community | null> {

@@ -1,16 +1,32 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useOptimistic } from "react";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { deletePost, reportPost } from "@/lib/actions/posts";
+import { deletePost, reportPost, pinPost } from "@/lib/actions/posts";
+import { toggleReaction } from "@/lib/actions/reactions";
 import { createComment, deleteComment } from "@/lib/actions/comments";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import type { Post } from "@/lib/queries/posts";
 import type { Comment } from "@/lib/queries/comments";
+
+type ReactionKey = "like" | "heart" | "fire";
+const REACTIONS: { key: ReactionKey; emoji: string }[] = [
+  { key: "like", emoji: "👍" },
+  { key: "heart", emoji: "❤️" },
+  { key: "fire", emoji: "🔥" },
+];
+
+const TYPE_LABELS: Record<string, string> = {
+  discussion: "Discussion",
+  event: "Event",
+  video: "Video",
+  music: "Music",
+};
 
 type Props = {
   post: Post;
@@ -19,9 +35,13 @@ type Props = {
   currentUserId: string;
   isAdmin: boolean;
   isMember: boolean;
+  isViewer?: boolean;
+  isPinned?: boolean;
 };
 
-export function PostCard({ post, comments, communitySlug, currentUserId, isAdmin, isMember }: Props) {
+export function PostCard({
+  post, comments, communitySlug, currentUserId, isAdmin, isMember, isPinned,
+}: Props) {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -30,11 +50,37 @@ export function PostCard({ post, comments, communitySlug, currentUserId, isAdmin
 
   const isOwn = post.author_id === currentUserId;
   const canDelete = isOwn || isAdmin;
+  const pinned = isPinned ?? post.is_pinned;
 
-  const authorName = (post.author as unknown as { display_name: string })?.display_name
-    ?? (post.author as { display_name?: string })?.display_name
-    ?? "Unknown";
+  const authorName = (post.author as { display_name?: string })?.display_name ?? "Unknown";
   const authorAvatar = (post.author as { avatar_url?: string | null })?.avatar_url ?? null;
+
+  // Reaction counts + current user's reactions
+  const reactionCounts = { like: 0, heart: 0, fire: 0 };
+  const myReactions = { like: false, heart: false, fire: false };
+  for (const r of post.reactions ?? []) {
+    const k = r.type as ReactionKey;
+    if (k in reactionCounts) {
+      reactionCounts[k]++;
+      if (r.user_id === currentUserId) myReactions[k] = true;
+    }
+  }
+
+  // Optimistic reaction state
+  const [optimisticReactions, setOptimisticReactions] = useOptimistic(
+    { counts: reactionCounts, mine: myReactions },
+    (state, { key }: { key: ReactionKey }) => {
+      const wasMine = state.mine[key];
+      return {
+        counts: { ...state.counts, [key]: state.counts[key] + (wasMine ? -1 : 1) },
+        mine: { ...state.mine, [key]: !wasMine },
+      };
+    }
+  );
+
+  const commentCount = Array.isArray(post.comment_count)
+    ? (post.comment_count as unknown as { count: number }[])[0]?.count ?? 0
+    : post.comment_count ?? 0;
 
   function handleDelete() {
     if (!confirm("Delete this post?")) return;
@@ -43,6 +89,25 @@ export function PostCard({ post, comments, communitySlug, currentUserId, isAdmin
         await deletePost(post.id, communitySlug);
         toast.success("Post deleted");
       } catch { toast.error("Failed to delete post"); }
+    });
+  }
+
+  function handlePin() {
+    startTransition(async () => {
+      try {
+        await pinPost(post.id, post.community_id, communitySlug);
+        toast.success(pinned ? "Post unpinned" : "Post pinned");
+      } catch { toast.error("Failed to pin post"); }
+    });
+  }
+
+  function handleReaction(key: ReactionKey) {
+    if (!currentUserId) { toast.error("Sign in to react"); return; }
+    startTransition(async () => {
+      setOptimisticReactions({ key });
+      try {
+        await toggleReaction(post.id, key, communitySlug);
+      } catch { toast.error("Failed to save reaction"); }
     });
   }
 
@@ -71,18 +136,23 @@ export function PostCard({ post, comments, communitySlug, currentUserId, isAdmin
     });
   }
 
-  const commentCount = Array.isArray(post.comment_count)
-    ? (post.comment_count as unknown as { count: number }[])[0]?.count ?? 0
-    : post.comment_count ?? 0;
-
   return (
-    <article className="rounded-2xl border bg-card p-5 space-y-4">
+    <article className={cn(
+      "rounded-2xl border bg-card p-5 space-y-4",
+      pinned && "border-primary/30 bg-primary/5"
+    )}>
+      {/* Pinned indicator */}
+      {pinned && (
+        <div className="flex items-center gap-1.5 -mt-1 text-xs text-primary font-medium">
+          <svg viewBox="0 0 24 24" className="size-3 fill-current"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+          Pinned
+        </div>
+      )}
+
       {/* Parent push banner */}
       {post.push_to_all && (
-        <div className="flex items-center gap-2 -mt-1 -mx-1">
-          <Badge variant="secondary" className="text-xs">
-            From Warriors on the Way
-          </Badge>
+        <div className="-mt-1 -mx-1">
+          <Badge variant="secondary" className="text-xs">From Warriors on the Way</Badge>
         </div>
       )}
 
@@ -106,32 +176,63 @@ export function PostCard({ post, comments, communitySlug, currentUserId, isAdmin
           </div>
         </div>
 
-        <div className="flex items-center gap-1">
-          {canDelete && (
-            <button
-              onClick={handleDelete}
-              disabled={isPending}
-              className="text-xs text-muted-foreground hover:text-destructive transition-colors px-1"
-            >
-              Delete
-            </button>
-          )}
-          {!isOwn && isMember && (
-            <button
-              onClick={() => setShowReport(!showReport)}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
-            >
-              Report
-            </button>
-          )}
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+            {TYPE_LABELS[post.post_type] ?? post.post_type}
+          </Badge>
+          <div className="flex items-center gap-0.5">
+            {isAdmin && (
+              <button
+                onClick={handlePin}
+                disabled={isPending}
+                className={cn(
+                  "text-xs px-1.5 py-0.5 rounded transition-colors",
+                  pinned
+                    ? "text-primary hover:text-muted-foreground"
+                    : "text-muted-foreground hover:text-primary"
+                )}
+              >
+                {pinned ? "Unpin" : "Pin"}
+              </button>
+            )}
+            {canDelete && (
+              <button
+                onClick={handleDelete}
+                disabled={isPending}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors px-1"
+              >
+                Delete
+              </button>
+            )}
+            {!isOwn && isMember && (
+              <button
+                onClick={() => setShowReport(!showReport)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
+              >
+                Report
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Body */}
-      <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.body}</p>
+      {/* Title */}
+      {post.title && (
+        <p className="font-heading font-semibold text-base leading-snug">{post.title}</p>
+      )}
 
-      {/* YouTube embed */}
-      {post.youtube_oembed && (
+      {/* Body */}
+      {post.body && (
+        <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.body}</p>
+      )}
+
+      {/* Embed — new unified format (Spotify or YouTube iframe) */}
+      {post.embed_url && (
+        <EmbedBlock embedUrl={post.embed_url} title={post.title ?? undefined} />
+      )}
+
+      {/* Legacy YouTube (existing posts without embed_url) */}
+      {!post.embed_url && post.youtube_oembed && (
         <YouTubeEmbed
           videoId={post.youtube_oembed.video_id}
           title={post.youtube_oembed.title}
@@ -150,67 +251,151 @@ export function PostCard({ post, comments, communitySlug, currentUserId, isAdmin
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
           />
           <div className="flex gap-2">
-            <Button type="submit" size="sm" disabled={isPending || !reportReason.trim()}>
-              Submit report
-            </Button>
-            <Button type="button" variant="ghost" size="sm" onClick={() => setShowReport(false)}>
-              Cancel
-            </Button>
+            <Button type="submit" size="sm" disabled={isPending || !reportReason.trim()}>Submit report</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setShowReport(false)}>Cancel</Button>
           </div>
         </form>
       )}
 
       <Separator />
 
-      {/* Comments toggle */}
-      <div className="space-y-3">
+      {/* Reactions */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex gap-1.5">
+          {REACTIONS.map(({ key, emoji }) => {
+            const count = optimisticReactions.counts[key];
+            const mine = optimisticReactions.mine[key];
+            return (
+              <button
+                key={key}
+                onClick={() => handleReaction(key)}
+                disabled={isPending}
+                className={cn(
+                  "flex items-center gap-1 px-2.5 py-1 rounded-full text-sm border transition-colors",
+                  mine
+                    ? "bg-primary/10 border-primary/30 text-primary"
+                    : "bg-background border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                )}
+              >
+                <span>{emoji}</span>
+                {count > 0 && <span className="text-xs font-medium">{count}</span>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Comment toggle */}
         <button
           onClick={() => setShowComments(!showComments)}
           className="text-xs text-muted-foreground hover:text-foreground transition-colors"
         >
           {showComments ? "Hide" : "Show"} comments ({commentCount})
         </button>
-
-        {showComments && (
-          <div className="space-y-3 pl-3 border-l-2 border-muted">
-            {comments.map((c) => (
-              <CommentRow
-                key={c.id}
-                comment={c}
-                communitySlug={communitySlug}
-                currentUserId={currentUserId}
-                isAdmin={isAdmin}
-              />
-            ))}
-
-            {isMember && (
-              <form onSubmit={handleComment} className="flex gap-2">
-                <input
-                  value={commentText}
-                  onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Add a comment…"
-                  maxLength={500}
-                  className="flex-1 rounded-lg border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                />
-                <Button type="submit" size="sm" disabled={isPending || !commentText.trim()}>
-                  Post
-                </Button>
-              </form>
-            )}
-          </div>
-        )}
       </div>
+
+      {/* Comments */}
+      {showComments && (
+        <div className="space-y-3 pl-3 border-l-2 border-muted">
+          {comments.map((c) => (
+            <CommentRow
+              key={c.id}
+              comment={c}
+              communitySlug={communitySlug}
+              currentUserId={currentUserId}
+              isAdmin={isAdmin}
+            />
+          ))}
+          {isMember && (
+            <form onSubmit={handleComment} className="flex gap-2">
+              <input
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                placeholder="Add a comment…"
+                maxLength={500}
+                className="flex-1 rounded-lg border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              />
+              <Button type="submit" size="sm" disabled={isPending || !commentText.trim()}>Post</Button>
+            </form>
+          )}
+        </div>
+      )}
     </article>
   );
 }
 
-function CommentRow({
-  comment, communitySlug, currentUserId, isAdmin,
-}: {
-  comment: Comment;
-  communitySlug: string;
-  currentUserId: string;
-  isAdmin: boolean;
+// Unified embed renderer (YouTube iframe + Spotify)
+function EmbedBlock({ embedUrl, title }: { embedUrl: string; title?: string }) {
+  const isSpotify = embedUrl.includes("spotify.com");
+
+  if (isSpotify) {
+    return (
+      <div className="rounded-xl overflow-hidden border">
+        <iframe
+          src={embedUrl}
+          height="152"
+          width="100%"
+          allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+          loading="lazy"
+          className="block"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+      <iframe
+        src={`${embedUrl}${embedUrl.includes("?") ? "&" : "?"}rel=0`}
+        title={title ?? "Video"}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+        loading="lazy"
+        className="absolute inset-0 w-full h-full"
+      />
+    </div>
+  );
+}
+
+// Legacy YouTube click-to-play (for existing posts that have youtube_oembed but no embed_url)
+function YouTubeEmbed({ videoId, title, thumbnailUrl }: {
+  videoId: string; title: string; thumbnailUrl: string;
+}) {
+  const [playing, setPlaying] = useState(false);
+
+  if (playing) {
+    return (
+      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+        <iframe
+          src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+          title={title}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="absolute inset-0 w-full h-full"
+        />
+      </div>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setPlaying(true)}
+      className="relative w-full aspect-video rounded-xl overflow-hidden bg-black group"
+    >
+      <Image src={thumbnailUrl} alt={title} fill className="object-cover group-hover:opacity-80 transition-opacity" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="size-14 rounded-full bg-black/70 flex items-center justify-center group-hover:bg-black/90 transition-colors">
+          <svg viewBox="0 0 24 24" className="size-6 fill-white ml-1"><path d="M8 5v14l11-7z" /></svg>
+        </div>
+      </div>
+      <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent text-left">
+        <p className="text-white text-xs font-medium line-clamp-1">{title}</p>
+      </div>
+    </button>
+  );
+}
+
+function CommentRow({ comment, communitySlug, currentUserId, isAdmin }: {
+  comment: Comment; communitySlug: string; currentUserId: string; isAdmin: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const author = comment.author as { display_name: string; avatar_url?: string | null };
@@ -218,9 +403,8 @@ function CommentRow({
 
   function handleDelete() {
     startTransition(async () => {
-      try {
-        await deleteComment(comment.id, communitySlug);
-      } catch { toast.error("Failed to delete comment"); }
+      try { await deleteComment(comment.id, communitySlug); }
+      catch { toast.error("Failed to delete comment"); }
     });
   }
 
@@ -251,49 +435,5 @@ function CommentRow({
         </button>
       )}
     </div>
-  );
-}
-
-function YouTubeEmbed({ videoId, title, thumbnailUrl }: {
-  videoId: string; title: string; thumbnailUrl: string;
-}) {
-  const [playing, setPlaying] = useState(false);
-
-  if (playing) {
-    return (
-      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
-        <iframe
-          src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
-          title={title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-          className="absolute inset-0 w-full h-full"
-        />
-      </div>
-    );
-  }
-
-  return (
-    <button
-      onClick={() => setPlaying(true)}
-      className="relative w-full aspect-video rounded-xl overflow-hidden bg-black group"
-    >
-      <Image
-        src={thumbnailUrl}
-        alt={title}
-        fill
-        className="object-cover group-hover:opacity-80 transition-opacity"
-      />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="size-14 rounded-full bg-black/70 flex items-center justify-center group-hover:bg-black/90 transition-colors">
-          <svg viewBox="0 0 24 24" className="size-6 fill-white ml-1">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </div>
-      </div>
-      <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent text-left">
-        <p className="text-white text-xs font-medium line-clamp-1">{title}</p>
-      </div>
-    </button>
   );
 }
