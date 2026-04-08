@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listUserCommunities, listPublicCommunities, type UserMembership } from "@/lib/queries/communities";
+import { getActiveMemberCount } from "@/lib/queries/members";
 
 export default async function HomePage() {
   const user = await requireUserProfile().catch(() => null);
@@ -15,6 +16,11 @@ export default async function HomePage() {
     listUserCommunities(user.id),
     listPublicCommunities(),
   ]);
+
+  // Fetch real member counts for joined communities in parallel
+  const myMemberCounts = await Promise.all(
+    myCommunities.map((m) => getActiveMemberCount(m.community.id))
+  );
 
   const myIds = new Set(myCommunities.map((m) => m.community.id));
   const discover = publicCommunities.filter((c) => !myIds.has(c.id));
@@ -55,7 +61,7 @@ export default async function HomePage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {myCommunities.map((m: UserMembership) => {
+              {myCommunities.map((m: UserMembership, i) => {
                 const c = m.community;
                 return (
                   <CommunityCard
@@ -66,7 +72,7 @@ export default async function HomePage() {
                     bannerUrl={c.banner_url}
                     isPrivate={c.is_private}
                     isParent={c.is_parent}
-                    memberCount={0}
+                    memberCount={myMemberCounts[i] ?? 0}
                     memberCap={c.member_cap}
                     role={m.role}
                   />

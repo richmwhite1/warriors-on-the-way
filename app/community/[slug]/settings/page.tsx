@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
+import { listCommunityResources } from "@/lib/queries/resources";
+import { ResourcesAdmin } from "@/components/community/resources-admin";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -29,6 +31,8 @@ export default async function CommunitySettingsPage({ params }: Props) {
   const isAdmin = membership?.role === "admin" || membership?.role === "organizer";
   if (!isAdmin) redirect(`/community/${slug}`);
 
+  const resources = await listCommunityResources(community.id);
+
   return (
     <>
       <AppNav />
@@ -47,6 +51,14 @@ export default async function CommunitySettingsPage({ params }: Props) {
         </div>
 
         <CommunitySettingsForm community={community} />
+
+        <div id="resources" className="pt-4">
+          <ResourcesAdmin
+            communityId={community.id}
+            communitySlug={slug}
+            initialResources={resources}
+          />
+        </div>
       </main>
     </>
   );

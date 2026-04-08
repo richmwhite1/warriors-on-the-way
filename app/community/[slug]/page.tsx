@@ -6,14 +6,16 @@ import { JoinButton } from "@/components/community/join-button";
 import { PostComposer } from "@/components/feed/post-composer";
 import { PostCard } from "@/components/feed/post-card";
 import { FeedFilterBar } from "@/components/feed/feed-filter-bar";
+import { EventCard } from "@/components/events/event-card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { getCommunityBySlug } from "@/lib/queries/communities";
+import { getCommunityBySlug, getParentCommunity } from "@/lib/queries/communities";
 import { getActiveMemberCount, getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listCommunityPosts, listParentPushPosts } from "@/lib/queries/posts";
+import { listCommunityEvents } from "@/lib/queries/events";
 import { listCommentsByPostIds } from "@/lib/queries/comments";
 
 type Props = {
@@ -48,17 +50,23 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const isMember = memberStatus === "active";
   const isFull = memberCount >= community.member_cap;
 
-  const [communityPosts, parentPushPosts] = isMember
+  const [communityPosts, parentPushPosts, communityEvents] = isMember
     ? await Promise.all([
         listCommunityPosts(community.id, user.id, postTypeFilter),
         community.is_parent ? [] : listParentPushPosts(user.id),
+        listCommunityEvents(community.id),
       ])
-    : [[], []];
+    : [[], [], []];
+
+  const parentCommunity = (isMember && !community.is_parent)
+    ? await getParentCommunity()
+    : null;
 
   // Pinned post always shows above the filter bar, regardless of active filter
   const pinnedPost = communityPosts.find((p) => p.is_pinned) ?? null;
   const feedPosts = communityPosts.filter((p) => !p.is_pinned);
   const allPosts = [...parentPushPosts, ...feedPosts];
+  const isEmpty = allPosts.length === 0 && communityEvents.length === 0;
 
   // Single bulk query for all comments instead of N+1
   const allPostsForComments = pinnedPost ? [pinnedPost, ...allPosts] : allPosts;
@@ -94,16 +102,16 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 {isFull && <span className="ml-2 text-destructive font-medium">· Full</span>}
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               {isMember && (
-                <>
-                  <Link href={`/community/${slug}/events`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                    Events
-                  </Link>
-                  <Link href={`/community/${slug}/members`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                    Members
-                  </Link>
-                </>
+                <Link href={`/community/${slug}/members`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Members
+                </Link>
+              )}
+              {isMember && (
+                <Link href={`/community/${slug}/resources`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Resources
+                </Link>
               )}
               {isAdmin && (
                 <Link href={`/community/${slug}/settings`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
@@ -121,13 +129,42 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           {community.description && (
             <p className="text-muted-foreground text-sm">{community.description}</p>
           )}
+
+          {/* Mission statement */}
+          {community.mission && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Mission</p>
+              <p className="text-sm whitespace-pre-wrap">{community.mission}</p>
+            </div>
+          )}
+
+          {/* Parent community: show rules inline */}
+          {community.is_parent && community.rules_md && (
+            <div className="space-y-1">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Community Standards</p>
+              <p className="text-sm whitespace-pre-wrap">{community.rules_md}</p>
+            </div>
+          )}
+
+          {/* Child community: show parent rules collapsed */}
+          {!community.is_parent && parentCommunity?.rules_md && (
+            <details className="rounded-2xl border">
+              <summary className="px-4 py-3 text-sm font-medium cursor-pointer select-none text-muted-foreground hover:text-foreground transition-colors">
+                Community Standards ↓
+              </summary>
+              <div className="px-4 pb-4 pt-2 border-t">
+                <p className="text-xs text-muted-foreground mb-2">Standards all Warriors on the Way communities follow:</p>
+                <p className="text-sm whitespace-pre-wrap">{parentCommunity.rules_md}</p>
+              </div>
+            </details>
+          )}
         </div>
 
         <Separator />
 
         {isMember ? (
           <div className="space-y-4">
-            {!isViewer && <PostComposer communityId={community.id} isParentAdmin={isParentAdmin} />}
+            {!isViewer && <PostComposer communityId={community.id} communitySlug={slug} isParentAdmin={isParentAdmin} />}
             {isViewer && (
               <div className="rounded-xl border border-dashed px-4 py-3 text-sm text-muted-foreground text-center">
                 You have view-only access to this community.
@@ -170,7 +207,17 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {allPosts.length === 0 ? (
+            {/* Events from events table */}
+            {communityEvents.length > 0 && (
+              <div className="space-y-3">
+                {communityEvents.map((event) => (
+                  <EventCard key={event.id} event={event} communitySlug={slug} />
+                ))}
+                {feedPosts.length > 0 && <Separator />}
+              </div>
+            )}
+
+            {isEmpty ? (
               <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
                 {postTypeFilter
                   ? `No ${postTypeFilter} posts yet.`

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function upsertRsvp(
   eventId: string,
@@ -72,6 +73,38 @@ export async function castDateVote(
     }
   }
 
+  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+}
+
+export async function submitGuestRsvp(
+  eventId: string,
+  name: string,
+  email: string | null,
+  status: "yes" | "maybe" | "no",
+  communitySlug: string
+) {
+  const admin = createAdminClient();
+
+  // Verify the event exists and the community allows guest RSVPs
+  const { data: event } = await admin
+    .from("events")
+    .select("id, community_id, communities!inner(allow_guest_rsvp)")
+    .eq("id", eventId)
+    .single();
+
+  if (!event) throw new Error("Event not found");
+
+  const community = (event.communities as unknown as { allow_guest_rsvp: boolean });
+  if (!community.allow_guest_rsvp) throw new Error("Guest RSVPs are not allowed for this event");
+
+  const { error } = await admin.from("guest_rsvps").insert({
+    event_id: eventId,
+    name: name.trim(),
+    email: email?.trim() || null,
+    status,
+  });
+
+  if (error) throw new Error(error.message);
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
 }
 

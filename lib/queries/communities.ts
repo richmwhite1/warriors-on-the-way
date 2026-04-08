@@ -17,6 +17,11 @@ export type Community = {
   telegram_chat_id?: string | null;
   telegram_invite_link?: string | null;
   location?: string | null;
+  // Guest access (optional until migration runs, defaults to true)
+  allow_guest_rsvp?: boolean;
+  // About page content
+  mission?: string | null;
+  rules_md?: string | null;
 };
 
 export async function getCommunityBySlug(slug: string): Promise<Community | null> {
@@ -91,6 +96,16 @@ export async function listUserCommunities(userId: string): Promise<UserMembershi
     .order("joined_at", { ascending: false });
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (data as any) ?? [];
+}
+
+export async function getParentCommunity(): Promise<Community | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("communities")
+    .select("*")
+    .eq("is_parent", true)
+    .single();
+  return data;
 }
 
 export async function slugExists(slug: string): Promise<boolean> {

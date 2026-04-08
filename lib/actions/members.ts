@@ -88,7 +88,9 @@ export async function approveMember(membershipId: string, communitySlug: string)
     .from("community_members")
     .update({ status: "active" })
     .eq("id", membershipId);
+  revalidatePath(`/community/${communitySlug}`);
   revalidatePath(`/community/${communitySlug}/members`);
+  revalidatePath("/home");
 }
 
 export async function denyMember(membershipId: string, communitySlug: string) {
@@ -97,6 +99,7 @@ export async function denyMember(membershipId: string, communitySlug: string) {
     .from("community_members")
     .delete()
     .eq("id", membershipId);
+  revalidatePath(`/community/${communitySlug}`);
   revalidatePath(`/community/${communitySlug}/members`);
 }
 

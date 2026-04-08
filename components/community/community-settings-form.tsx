@@ -292,6 +292,31 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
         </div>
 
         <div className="space-y-1.5">
+          <Label htmlFor="mission">Mission statement</Label>
+          <textarea
+            id="mission" name="mission" rows={4} maxLength={1000}
+            defaultValue={community.mission ?? ""}
+            placeholder="What is the purpose and vision of this community…"
+            className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+          />
+          <p className="text-xs text-muted-foreground">Shown on the community wall below the description.</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="rules_md">Community standards / axioms</Label>
+          <textarea
+            id="rules_md" name="rules_md" rows={6} maxLength={3000}
+            defaultValue={community.rules_md ?? ""}
+            placeholder={"1. First principle\n2. Second principle\n…"}
+            className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none font-mono"
+          />
+          <p className="text-xs text-muted-foreground">
+            Plain text. Shown as &ldquo;Community Standards&rdquo; on this community&apos;s wall.
+            {!community.is_parent && " The parent community's standards are also shown to members."}
+          </p>
+        </div>
+
+        <div className="space-y-1.5">
           <Label htmlFor="location">Location</Label>
           <Input
             id="location" name="location" maxLength={100}
@@ -321,6 +346,23 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
           <div>
             <p className="text-sm font-medium">Members can create events</p>
             <p className="text-xs text-muted-foreground">If off, only admins and organizers can create events</p>
+          </div>
+        </label>
+
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            name="allow_guest_rsvp"
+            value="true"
+            defaultChecked={community.allow_guest_rsvp !== false}
+            className="mt-0.5 rounded"
+          />
+          <div>
+            <p className="text-sm font-medium">Allow guest event access</p>
+            <p className="text-xs text-muted-foreground">
+              Guests can view events and RSVP without signing in — great for sharing with friends.
+              Turn off to require sign-in for all event access.
+            </p>
           </div>
         </label>
       </div>

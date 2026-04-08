@@ -11,6 +11,7 @@ alter table public.posts enable row level security;
 alter table public.comments enable row level security;
 alter table public.reports enable row level security;
 alter table public.events enable row level security;
+alter table public.resources enable row level security;
 alter table public.event_date_options enable row level security;
 alter table public.event_date_votes enable row level security;
 alter table public.rsvps enable row level security;
@@ -98,9 +99,13 @@ create policy "communities: delete by parent admin"
   using (public.is_parent_admin());
 
 -- ─── community_members ──────────────────────────────────────────────────────
-create policy "community_members: read if member"
+create policy "community_members: read own or if active member"
   on public.community_members for select
-  using (public.is_member(community_id) or public.is_parent_admin());
+  using (
+    user_id = auth.uid()
+    or public.is_member(community_id)
+    or public.is_parent_admin()
+  );
 
 create policy "community_members: join"
   on public.community_members for insert
@@ -189,6 +194,15 @@ create policy "reports: read by parent admin"
 create policy "reports: update by parent admin"
   on public.reports for update
   using (public.is_parent_admin());
+
+-- ─── resources ──────────────────────────────────────────────────────────────
+create policy "resources: read if member"
+  on public.resources for select
+  using (public.is_member(community_id) or public.is_parent_admin());
+
+create policy "resources: manage by admin"
+  on public.resources for all
+  using (public.is_admin(community_id) or public.is_parent_admin());
 
 -- ─── events ─────────────────────────────────────────────────────────────────
 create policy "events: read if member"

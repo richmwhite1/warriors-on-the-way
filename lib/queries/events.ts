@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type EventDateOption = {
   id: string;
@@ -44,8 +45,9 @@ export async function listCommunityEvents(communityId: string): Promise<EventRow
   return (data as unknown as EventRow[]) ?? [];
 }
 
-export async function getEventWithDetails(eventId: string, userId: string): Promise<EventRow | null> {
+export async function getEventWithDetails(eventId: string, userId?: string): Promise<EventRow | null> {
   const supabase = await createClient();
+  const admin = createAdminClient();
 
   const { data: event } = await supabase
     .from("events")
@@ -60,8 +62,8 @@ export async function getEventWithDetails(eventId: string, userId: string): Prom
 
   if (!event) return null;
 
-  // RSVP counts
-  const { data: rsvps } = await supabase
+  // Member RSVP counts
+  const { data: rsvps } = await admin
     .from("rsvps")
     .select("status")
     .eq("event_id", eventId);
@@ -73,16 +75,32 @@ export async function getEventWithDetails(eventId: string, userId: string): Prom
     else if (r.status === "maybe") rsvp_counts.maybe++;
   });
 
-  // User's own RSVP
-  const { data: userRsvp } = await supabase
-    .from("rsvps")
-    .select("status, guests")
-    .eq("event_id", eventId)
-    .eq("user_id", userId)
-    .single();
+  // Guest RSVP counts (fold into member counts for unified display)
+  const { data: guestRsvps } = await admin
+    .from("guest_rsvps")
+    .select("status")
+    .eq("event_id", eventId);
+
+  guestRsvps?.forEach((r) => {
+    if (r.status === "yes") rsvp_counts.yes++;
+    else if (r.status === "no") rsvp_counts.no++;
+    else if (r.status === "maybe") rsvp_counts.maybe++;
+  });
+
+  // User's own RSVP (only when authenticated)
+  let userRsvp: { status: string; guests: number } | null = null;
+  if (userId) {
+    const { data } = await supabase
+      .from("rsvps")
+      .select("status, guests")
+      .eq("event_id", eventId)
+      .eq("user_id", userId)
+      .single();
+    userRsvp = data ?? null;
+  }
 
   // Date options + votes
-  const { data: options } = await supabase
+  const { data: options } = await admin
     .from("event_date_options")
     .select(`id, event_id, starts_at, ends_at, votes:event_date_votes(user_id)`)
     .eq("event_id", eventId)
@@ -94,13 +112,15 @@ export async function getEventWithDetails(eventId: string, userId: string): Prom
     starts_at: o.starts_at,
     ends_at: o.ends_at,
     vote_count: (o.votes as { user_id: string }[]).length,
-    user_voted: (o.votes as { user_id: string }[]).some((v) => v.user_id === userId),
+    user_voted: userId
+      ? (o.votes as { user_id: string }[]).some((v) => v.user_id === userId)
+      : false,
   }));
 
   return {
     ...(event as unknown as EventRow),
     rsvp_counts,
-    user_rsvp: userRsvp ?? null,
+    user_rsvp: userRsvp,
     date_options,
   };
 }

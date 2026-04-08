@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { createPost } from "@/lib/actions/posts";
 import { getEmbedMeta } from "@/lib/embed";
@@ -10,6 +11,7 @@ import type { PostType } from "@/lib/queries/posts";
 
 type Props = {
   communityId: string;
+  communitySlug: string;
   isParentAdmin: boolean;
 };
 
@@ -20,7 +22,8 @@ const TYPE_LABELS: Record<PostType, string> = {
   music: "Music",
 };
 
-export function PostComposer({ communityId, isParentAdmin }: Props) {
+export function PostComposer({ communityId, communitySlug, isParentAdmin }: Props) {
+  const router = useRouter();
   const [postType, setPostType] = useState<PostType>("discussion");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -102,10 +105,13 @@ export function PostComposer({ communityId, isParentAdmin }: Props) {
           <button
             key={t}
             type="button"
-            onClick={() => handleTypeChange(t)}
+            onClick={() => t === "event"
+              ? router.push(`/community/${communitySlug}/events/new`)
+              : handleTypeChange(t)
+            }
             className={cn(
               "px-3 py-1 rounded-full text-xs font-medium transition-colors border",
-              postType === t
+              postType === t && t !== "event"
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-background text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
             )}
