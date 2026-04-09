@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugExists } from "@/lib/queries/communities";
-import { registerWebhook, sendMessage } from "@/lib/integrations/telegram";
+import { registerWebhook, sendMessage, detectNewGroupChatId } from "@/lib/integrations/telegram";
 
 function toSlug(name: string): string {
   return name
@@ -115,6 +115,13 @@ export async function setupTelegramWebhook(communityId: string) {
     throw new Error("Not authorized");
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  if (!siteUrl.startsWith("https://")) {
+    // Telegram requires HTTPS — skip registration in local dev.
+    // The webhook will be registered automatically on first production deployment.
+    return;
+  }
+
   const result = await registerWebhook();
   if (!result.ok) {
     throw new Error(result.description ?? "Failed to register Telegram webhook");
@@ -155,18 +162,28 @@ export async function connectTelegramChannel(communityId: string, communitySlug:
     throw new Error("Not authorized");
   }
 
-  // Check if the webhook already auto-connected the group
+  // 1. Check if the webhook already auto-connected the group (production path)
   const { data: community } = await supabase
     .from("communities")
     .select("telegram_chat_id")
     .eq("id", communityId)
     .single();
 
-  const chatId = (community as { telegram_chat_id?: string | null } | null)?.telegram_chat_id;
+  let chatId = (community as { telegram_chat_id?: string | null } | null)?.telegram_chat_id;
+
+  // 2. Fallback: use getUpdates (works locally without HTTPS webhook)
   if (!chatId) {
-    throw new Error(
-      "Not connected yet. Make sure you added the bot to your Telegram group using the link above, then wait a moment and try again."
-    );
+    const result = await detectNewGroupChatId(communityId);
+    if (!result) {
+      throw new Error(
+        "Bot not found in any Telegram group yet. Make sure you added it using the link above, then try again."
+      );
+    }
+    chatId = result.chatId;
+    await supabase
+      .from("communities")
+      .update({ telegram_chat_id: chatId })
+      .eq("id", communityId);
   }
 
   // Send a confirmation message to the group
