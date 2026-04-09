@@ -21,18 +21,18 @@ export default function LandingPage() {
       </nav>
 
       {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="flex flex-col items-center text-center px-6 py-20 sm:py-28 gap-8 bg-gradient-to-b from-[#c4704a]/8 to-transparent">
+      <section className="flex flex-col items-center text-center px-6 py-20 sm:py-28 gap-8 bg-gradient-to-b from-[#c4704a]/10 to-transparent">
         <div className="space-y-5 max-w-2xl">
           <p className="text-xs font-medium text-primary uppercase tracking-widest">
-            A devotional community
+            Another name for lightworkers
           </p>
           <h1 className="text-5xl sm:text-6xl font-heading font-semibold leading-tight">
-            The path is walked<br className="hidden sm:block" /> together.
+            Warriors on the Way
           </h1>
           <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
-            Warriors on the Way brings seekers into small, intimate communities
-            where spiritual friendship deepens through shared experience —
-            hikes, retreats, sound baths, dinners, and the ordinary moments in between.
+            A gathering of lightbringers committed to transforming consciousness,
+            reclaiming institutions, and walking the spiritual path together —
+            in small, intimate communities built for the long journey.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
@@ -43,81 +43,144 @@ export default function LandingPage() {
             Join the path
           </Link>
           <a
-            href="#mission"
+            href="#manifesto"
             className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-full px-8")}
           >
-            Our mission ↓
+            Read the manifesto ↓
           </a>
         </div>
       </section>
 
-      {/* ── What this is ────────────────────────────────────────────────────── */}
-      <section id="mission" className="px-6 py-20 max-w-3xl mx-auto w-full space-y-14">
+      {/* ── Lightworkers Manifesto ───────────────────────────────────────────── */}
+      <section id="manifesto" className="px-6 py-20 max-w-3xl mx-auto w-full space-y-16">
 
-        <div className="space-y-4 text-center">
-          <h2 className="text-3xl sm:text-4xl font-heading font-semibold">
-            What we&apos;re building — and why
-          </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            Modern spiritual life is fragmented. We follow teachers online, attend
-            workshops alone, and rarely encounter others walking the same interior road.
-            Warriors on the Way exists to change that.
+        <div className="text-center space-y-3">
+          <p className="text-xs font-medium text-primary uppercase tracking-widest">
+            The Lightworkers Manifesto
           </p>
+          <h2 className="text-3xl sm:text-4xl font-heading font-semibold">
+            Seán Ó Laoire
+          </h2>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-6">
-          {[
-            {
-              icon: "🔥",
-              title: "Small by design",
-              body: "Each community is capped at 150 people — the size at which genuine relationship is still possible. Within that, smaller circles of 10–15 gather regularly in person.",
-            },
-            {
-              icon: "🧭",
-              title: "Non-dual at the center",
-              body: "We hold no single tradition as final. The understanding that Awareness itself is the ground of all being — that Self and Other are not ultimately separate — is our shared north star.",
-            },
-            {
-              icon: "🤝",
-              title: "Devotion in practice",
-              body: "Philosophy without practice is incomplete. We gather for hikes, retreats, sound baths, shared meals, and contemplative events — because the path is embodied and communal.",
-            },
-          ].map(({ icon, title, body }) => (
-            <div key={title} className="rounded-2xl border bg-card p-6 space-y-3">
-              <div className="text-3xl">{icon}</div>
-              <h3 className="font-heading font-semibold text-lg">{title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+        {/* Part One */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground shrink-0">
+              Part One
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <blockquote className="text-base sm:text-lg leading-relaxed text-foreground space-y-4">
+            <p>
+              We are in a battle for the soul of the planet, and so God is sending
+              in the warriors and lightbringers whose mission is:
+            </p>
+            <ul className="space-y-2 pl-2 border-l-2 border-primary/30 ml-2">
+              {[
+                "To take education away from the child molesters",
+                "To take economics away from the banksters",
+                "To take healing away from Big Pharma",
+                "To take storytelling away from the mass media",
+                "To take entertainment away from Hollywood",
+                "To take food production away from agribusiness",
+                "To take fire away from the military-industrial complex",
+                "To take democracy away from the politicians",
+                "And to take spirituality away from Mecca and from Rome",
+              ].map((line) => (
+                <li key={line} className="pl-4 text-muted-foreground">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </blockquote>
+        </div>
+
+        {/* Part Two */}
+        <div className="space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="h-px flex-1 bg-border" />
+            <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground shrink-0">
+              Part Two
+            </span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <div className="space-y-6 text-base sm:text-lg leading-relaxed">
+            <p className="text-foreground">
+              As a human species, we need a transformation of both our consciousness
+              and our mission. As we move from <em>Homo sapiens sapiens</em> to{" "}
+              <em>Homo spiritualis</em>, avoiding <em>Homo sociopathicus</em> and{" "}
+              <em>Homo artificialis</em>, we must:
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[
+                {
+                  from: "Indoctrination",
+                  to: "Exploration",
+                  domain: "Education",
+                },
+                {
+                  from: "Sensual arousal",
+                  to: "Mystical stimulation",
+                  domain: "Entertainment",
+                },
+                {
+                  from: "Dominion by the elite",
+                  to: "Distribution to all",
+                  domain: "Economics",
+                },
+                {
+                  from: "Dogmatic sectarianism",
+                  to: "Unity identity",
+                  domain: "Religion",
+                },
+                {
+                  from: "Party-affiliated blindness",
+                  to: "Issue-identified solutions",
+                  domain: "Politics",
+                },
+                {
+                  from: "Gaia-destructive profiteering",
+                  to: "Gaia-enhancing gratitude",
+                  domain: "Agriculture",
+                },
+                {
+                  from: "Pharmaceutically controlled disease management",
+                  to: "People-centered, hands-on healthcare",
+                  domain: "Medicine",
+                },
+              ].map(({ from, to, domain }) => (
+                <div
+                  key={domain}
+                  className="rounded-2xl border bg-card p-4 space-y-2"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wider text-primary">
+                    {domain}
+                  </p>
+                  <div className="flex items-start gap-2 text-sm">
+                    <div className="space-y-1 flex-1">
+                      <p className="text-muted-foreground line-through opacity-60">{from}</p>
+                      <p className="font-medium text-foreground">→ {to}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-
-        <div className="rounded-2xl border-2 border-primary/20 bg-primary/5 p-6 sm:p-8 space-y-4">
-          <h3 className="font-heading font-semibold text-xl">How communities work</h3>
-          <ol className="space-y-3 text-sm text-muted-foreground">
-            {[
-              "A Warriors on the Way community is created by an organizer — someone who feels called to host and hold a local circle of seekers.",
-              "Members join the community wall, share reflections, post resources, and coordinate gatherings. Everything lives in one place — not scattered across group chats.",
-              "Events (hikes, retreats, dinners, meditations) are proposed, voted on, and confirmed inside the app. Guests can be invited to individual events without needing an account.",
-              "The parent community — Warriors on the Way itself — provides guidance, broadcasts from the Spiritual Director, and holds the wider network together.",
-            ].map((step, i) => (
-              <li key={i} className="flex gap-3 items-start">
-                <span className="shrink-0 mt-0.5 size-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center">
-                  {i + 1}
-                </span>
-                <span>{step}</span>
-              </li>
-            ))}
-          </ol>
+          </div>
         </div>
       </section>
 
-      {/* ── Spiritual Director ───────────────────────────────────────────────── */}
+      {/* ── Spiritual Director + Audio ───────────────────────────────────────── */}
       <section className="border-t bg-muted/30 px-6 py-20">
         <div className="max-w-3xl mx-auto space-y-10">
 
           <div className="text-center space-y-2">
             <p className="text-xs font-medium text-primary uppercase tracking-widest">
-              Spiritual Director
+              Spiritual Director · Warriors on the Way
             </p>
             <h2 className="text-3xl sm:text-4xl font-heading font-semibold">
               Seán Ó Laoire
@@ -125,46 +188,43 @@ export default function LandingPage() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-8 items-start">
-            {/* Avatar placeholder */}
             <div className="shrink-0 mx-auto sm:mx-0">
               <div className="size-28 rounded-full bg-primary/20 flex items-center justify-center text-5xl select-none">
                 🌀
               </div>
             </div>
-
             <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
               <p>
-                <strong className="text-foreground">Seán Ó Laoire</strong> is an Irish-born
-                priest, scientist, and mystic who has spent five decades at the frontier of
-                consciousness, psychology, and non-dual spirituality. Holding advanced degrees
-                in philosophy, mathematics, theology, and clinical psychology, he approaches
-                the great mysteries with equal parts rigour and wonder.
+                <strong className="text-foreground">Seán Ó Laoire</strong> is an
+                Irish-born priest, scientist, and mystic who has spent five decades
+                at the frontier of consciousness, psychology, and non-dual
+                spirituality. Holding advanced degrees in philosophy, mathematics,
+                theology, and clinical psychology, he approaches the great mysteries
+                with equal parts rigour and wonder.
               </p>
               <p>
-                Author of <em>Souls on Safari</em> and numerous other works, Seán draws from
-                the wellspring of the world&apos;s contemplative traditions — while remaining
-                bound to none — to articulate a vision of human life as a cosmic adventure
-                of awakening. His teaching holds that we are, at root, boundless Awareness
-                temporarily inhabiting form, and that genuine community is one of the most
-                powerful arenas in which that recognition can ripen.
+                Author of <em>Souls on Safari</em> and numerous other works, Seán
+                draws from the wellspring of the world&apos;s contemplative
+                traditions — while remaining bound to none — to articulate a vision
+                of human life as a cosmic adventure of awakening.
               </p>
               <p>
-                As Spiritual Director of Warriors on the Way, Seán provides the philosophical
-                foundation, inspires the community&apos;s mission, and remains a living
-                example of the devotional non-dual path.
+                As Spiritual Director of Warriors on the Way, Seán provides the
+                philosophical foundation and the Lightworkers Manifesto that
+                animates everything we do.
               </p>
             </div>
           </div>
 
-          {/* Audio message */}
+          {/* Audio */}
           <div className="space-y-3">
             <div className="space-y-1">
               <p className="font-heading font-semibold text-lg">
                 Seán on the purpose of Warriors on the Way
               </p>
               <p className="text-sm text-muted-foreground">
-                Recorded in Healdsburg, CA — listen to Seán explain what this
-                community is for and why it matters.
+                Recorded in Healdsburg, CA — hear Seán explain in his own words
+                what this community is for and why it matters right now.
               </p>
             </div>
             <AudioPlayer
@@ -175,15 +235,54 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── CTA ─────────────────────────────────────────────────────────────── */}
-      <section className="px-6 py-20 flex flex-col items-center text-center gap-6">
-        <div className="space-y-3 max-w-lg">
+      {/* ── How communities work ─────────────────────────────────────────────── */}
+      <section className="px-6 py-20 max-w-3xl mx-auto w-full space-y-10">
+        <div className="text-center space-y-3">
           <h2 className="text-3xl sm:text-4xl font-heading font-semibold">
-            Ready to find your circle?
+            How it works
           </h2>
           <p className="text-muted-foreground leading-relaxed">
-            Join an existing community near you, or start one. The path is here —
-            it&apos;s just waiting for people who are ready to walk it together.
+            Warriors on the Way organizes lightworkers into small, local circles
+            where the mission becomes lived experience.
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-3 gap-6">
+          {[
+            {
+              icon: "🔥",
+              title: "Small by design",
+              body: "Each community is capped at 150 people — the size at which genuine relationship and trust are still possible.",
+            },
+            {
+              icon: "🌍",
+              title: "Local and embodied",
+              body: "Hikes, retreats, sound baths, shared meals — because transformation happens in person, not just online.",
+            },
+            {
+              icon: "🤝",
+              title: "Connected upward",
+              body: "Every local community is part of the broader Warriors on the Way network, anchored by the Spiritual Director.",
+            },
+          ].map(({ icon, title, body }) => (
+            <div key={title} className="rounded-2xl border bg-card p-6 space-y-3">
+              <div className="text-3xl">{icon}</div>
+              <h3 className="font-heading font-semibold text-lg">{title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CTA ─────────────────────────────────────────────────────────────── */}
+      <section className="border-t px-6 py-20 flex flex-col items-center text-center gap-6 bg-gradient-to-b from-[#c4704a]/5 to-transparent">
+        <div className="space-y-3 max-w-lg">
+          <h2 className="text-3xl sm:text-4xl font-heading font-semibold">
+            Are you a warrior on the way?
+          </h2>
+          <p className="text-muted-foreground leading-relaxed">
+            If you feel the call to reclaim what has been captured — and to walk
+            that path in community with others — this is your home.
           </p>
         </div>
         <Link
