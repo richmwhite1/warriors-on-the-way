@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { fetchYouTubeOEmbed, extractYouTubeId } from "@/lib/integrations/youtube";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { fetchYouTubeOEmbed } from "@/lib/integrations/youtube";
+import { sendPostNotification } from "@/lib/integrations/telegram";
 import type { PostType } from "@/lib/queries/posts";
 
 export async function createPost(formData: FormData) {
@@ -30,7 +32,6 @@ export async function createPost(formData: FormData) {
   let youtube_url: string | null = null;
   let youtube_oembed = null;
   if (post_type === "video" && embed_url) {
-    // Reconstruct original URL from embed URL for oEmbed fetch
     const videoIdMatch = embed_url.match(/embed\/([a-zA-Z0-9_-]{11})/);
     if (videoIdMatch) {
       const videoId = videoIdMatch[1];
@@ -52,6 +53,65 @@ export async function createPost(formData: FormData) {
   });
 
   if (error) throw new Error(error.message);
+
+  // ── Telegram notifications ──────────────────────────────────────────────────
+  // Use admin client so RLS doesn't filter out communities the user can't see
+  const admin = createAdminClient();
+
+  // Get author display name once
+  const { data: author } = await admin
+    .from("users")
+    .select("display_name")
+    .eq("id", user.id)
+    .single();
+  const authorName = (author as { display_name?: string } | null)?.display_name ?? "A member";
+
+  const postText = body ?? title ?? "";
+
+  if (push_to_all) {
+    // Broadcast: notify every community that has Telegram connected
+    const { data: allCommunities } = await admin
+      .from("communities")
+      .select("id, name, telegram_chat_id")
+      .not("telegram_chat_id", "is", null);
+
+    if (allCommunities) {
+      await Promise.allSettled(
+        (allCommunities as { id: string; name: string; telegram_chat_id: string }[])
+          .filter((c) => c.telegram_chat_id)
+          .map((c) =>
+            sendPostNotification(c.telegram_chat_id, {
+              communityName: c.name,
+              authorName,
+              body: postText,
+              postType: post_type,
+            })
+          )
+      );
+    }
+  } else {
+    // Single community notification
+    const { data: community } = await admin
+      .from("communities")
+      .select("name, telegram_chat_id")
+      .eq("id", community_id)
+      .single();
+
+    const chatId = (community as { name: string; telegram_chat_id?: string | null } | null)?.telegram_chat_id;
+    const communityName = (community as { name: string; telegram_chat_id?: string | null } | null)?.name ?? "";
+
+    if (chatId) {
+      await sendPostNotification(chatId, {
+        communityName,
+        authorName,
+        body: postText,
+        postType: post_type,
+      }).catch(() => {
+        // Don't fail the post if Telegram is unreachable
+      });
+    }
+  }
+  // ───────────────────────────────────────────────────────────────────────────
 
   revalidatePath(`/community/[slug]`, "page");
   revalidatePath("/home");

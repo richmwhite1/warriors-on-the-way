@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { sendEventNotification } from "@/lib/integrations/telegram";
 
 export async function createEvent(formData: FormData) {
   const supabase = await createClient();
@@ -56,14 +58,35 @@ export async function createEvent(formData: FormData) {
     }
   }
 
-  // Get community slug for redirect
-  const { data: community } = await supabase
+  // Get community slug + Telegram chat ID for redirect + notification
+  const admin = createAdminClient();
+  const { data: community } = await admin
     .from("communities")
-    .select("slug")
+    .select("slug, name, telegram_chat_id")
     .eq("id", community_id)
     .single();
 
-  redirect(`/community/${community?.slug}/events/${event.id}`);
+  const communityData = community as {
+    slug: string;
+    name: string;
+    telegram_chat_id?: string | null;
+  } | null;
+
+  // ── Telegram notification ────────────────────────────────────────────────
+  if (communityData?.telegram_chat_id) {
+    await sendEventNotification(communityData.telegram_chat_id, {
+      communityName: communityData.name,
+      title,
+      location,
+      startsAt: starts_at,
+      timezone,
+    }).catch(() => {
+      // Don't block redirect if Telegram is unreachable
+    });
+  }
+  // ────────────────────────────────────────────────────────────────────────
+
+  redirect(`/community/${communityData?.slug}/events/${event.id}`);
 }
 
 export async function updateEvent(eventId: string, formData: FormData) {
