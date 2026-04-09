@@ -109,7 +109,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 </Link>
               )}
               {isMember && (
-                <Link href={`/community/${slug}/resources`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                <Link href="/resources" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Resources
                 </Link>
               )}

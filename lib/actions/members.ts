@@ -19,7 +19,7 @@ export async function joinCommunity(communityId: string, communitySlug: string) 
   // Fetch community to check private/cap
   const { data: community } = await supabase
     .from("communities")
-    .select("is_private, member_cap")
+    .select("is_private, member_cap, is_parent")
     .eq("id", communityId)
     .single();
 
@@ -47,6 +47,31 @@ export async function joinCommunity(communityId: string, communitySlug: string) 
     await supabase
       .from("community_members")
       .insert({ community_id: communityId, user_id: user.id, status });
+  }
+
+  // Auto-join the WoW parent community if this is a sub-community
+  if (!community.is_parent && status === "active") {
+    const { data: parent } = await supabase
+      .from("communities")
+      .select("id, slug")
+      .eq("is_parent", true)
+      .single();
+
+    if (parent && parent.id !== communityId) {
+      const { data: existingParentMembership } = await supabase
+        .from("community_members")
+        .select("id, status")
+        .eq("community_id", parent.id)
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!existingParentMembership) {
+        await supabase
+          .from("community_members")
+          .insert({ community_id: parent.id, user_id: user.id, status: "active" });
+        revalidatePath(`/community/${parent.slug}`);
+      }
+    }
   }
 
   revalidatePath(`/community/${communitySlug}`);

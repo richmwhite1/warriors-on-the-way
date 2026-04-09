@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import type { ResourceCategory } from "@/lib/queries/resources";
+import type { ResourceCategory } from "@/lib/types/resources";
 
 async function assertAdmin(communityId: string) {
   const supabase = await createClient();

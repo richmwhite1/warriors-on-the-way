@@ -77,6 +77,34 @@ export async function detectNewGroupChatId(
   return null;
 }
 
+/**
+ * Registers (or updates) the Telegram webhook URL with the Bot API.
+ * Must be called from a server context. Requires NEXT_PUBLIC_SITE_URL and
+ * optionally TELEGRAM_WEBHOOK_SECRET to authenticate incoming webhook calls.
+ */
+export async function registerWebhook(): Promise<{ ok: boolean; description?: string }> {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!siteUrl) throw new Error("NEXT_PUBLIC_SITE_URL is not set — required to register webhook");
+
+  const webhookUrl = `${siteUrl}/api/telegram/webhook`;
+  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
+
+  const body: Record<string, unknown> = {
+    url: webhookUrl,
+    allowed_updates: ["message", "my_chat_member"],
+    drop_pending_updates: false,
+  };
+  if (secret) body.secret_token = secret;
+
+  const res = await fetch(apiUrl("setWebhook"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+
+  return res.json() as Promise<{ ok: boolean; description?: string }>;
+}
+
 export async function sendMessage(chatId: string, text: string): Promise<void> {
   const res = await fetch(apiUrl("sendMessage"), {
     method: "POST",

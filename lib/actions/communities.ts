@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { slugExists } from "@/lib/queries/communities";
-import { detectNewGroupChatId, sendMessage } from "@/lib/integrations/telegram";
+import { registerWebhook, sendMessage } from "@/lib/integrations/telegram";
 
 function toSlug(name: string): string {
   return name
@@ -96,16 +96,15 @@ export async function updateCommunitySettings(communityId: string, formData: For
 }
 
 /**
- * Called when the organizer clicks "Complete setup" after adding the WoW
- * Assistant bot to their Telegram group. Uses getUpdates to detect the most
- * recently added group and saves its chat_id.
+ * Registers the Telegram webhook with the Bot API so the app automatically
+ * detects when the bot is added to a group. Should be called once per
+ * deployment (or whenever the site URL changes).
  */
-export async function connectTelegramChannel(communityId: string, communitySlug: string) {
+export async function setupTelegramWebhook(communityId: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  // Verify caller is admin
   const { data: membership } = await supabase
     .from("community_members")
     .select("role")
@@ -116,27 +115,69 @@ export async function connectTelegramChannel(communityId: string, communitySlug:
     throw new Error("Not authorized");
   }
 
-  const result = await detectNewGroupChatId(communityId);
-  if (!result) {
+  const result = await registerWebhook();
+  if (!result.ok) {
+    throw new Error(result.description ?? "Failed to register Telegram webhook");
+  }
+}
+
+/**
+ * Returns the Telegram chat ID for a community, or null if not connected.
+ * Used by the settings form to poll for auto-connection after the bot is added.
+ */
+export async function checkTelegramConnected(communityId: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("communities")
+    .select("telegram_chat_id")
+    .eq("id", communityId)
+    .single();
+  return (data as { telegram_chat_id?: string | null } | null)?.telegram_chat_id ?? null;
+}
+
+/**
+ * Sends a test/welcome message to the connected Telegram group.
+ * Called automatically when the webhook handler first connects a group,
+ * but also available here for manual re-confirmation.
+ */
+export async function connectTelegramChannel(communityId: string, communitySlug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: membership } = await supabase
+    .from("community_members")
+    .select("role")
+    .eq("community_id", communityId)
+    .eq("user_id", user.id)
+    .single();
+  if (!membership || !["admin", "organizer"].includes(membership.role as string)) {
+    throw new Error("Not authorized");
+  }
+
+  // Check if the webhook already auto-connected the group
+  const { data: community } = await supabase
+    .from("communities")
+    .select("telegram_chat_id")
+    .eq("id", communityId)
+    .single();
+
+  const chatId = (community as { telegram_chat_id?: string | null } | null)?.telegram_chat_id;
+  if (!chatId) {
     throw new Error(
-      "WoW Assistant wasn't found in any Telegram group yet. Make sure you added it, then try again."
+      "Not connected yet. Make sure you added the bot to your Telegram group using the link above, then wait a moment and try again."
     );
   }
 
-  await supabase
-    .from("communities")
-    .update({ telegram_chat_id: result.chatId })
-    .eq("id", communityId);
-
-  // Send a welcome confirmation to the group
+  // Send a confirmation message to the group
   await sendMessage(
-    result.chatId,
+    chatId,
     `✅ <b>WoW Assistant connected!</b>\n\nThis group is now linked to your Warriors on the Way community. New posts and events will automatically appear here.`
   );
 
   revalidatePath(`/community/${communitySlug}/settings`);
   revalidatePath(`/community/${communitySlug}`);
-  return { chatTitle: result.chatTitle };
+  return { chatId };
 }
 
 export async function disconnectTelegramChannel(communityId: string, communitySlug: string) {

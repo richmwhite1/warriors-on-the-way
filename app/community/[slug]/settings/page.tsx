@@ -52,13 +52,15 @@ export default async function CommunitySettingsPage({ params }: Props) {
 
         <CommunitySettingsForm community={community} />
 
-        <div id="resources" className="pt-4">
-          <ResourcesAdmin
-            communityId={community.id}
-            communitySlug={slug}
-            initialResources={resources}
-          />
-        </div>
+        {community.is_parent && (
+          <div id="resources" className="pt-4">
+            <ResourcesAdmin
+              communityId={community.id}
+              communitySlug={slug}
+              initialResources={resources}
+            />
+          </div>
+        )}
       </main>
     </>
   );

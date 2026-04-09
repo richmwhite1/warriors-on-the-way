@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,8 @@ import {
   updateCommunitySettings,
   connectTelegramChannel,
   disconnectTelegramChannel,
+  setupTelegramWebhook,
+  checkTelegramConnected,
 } from "@/lib/actions/communities";
 import { toast } from "sonner";
 import type { Community } from "@/lib/queries/communities";
@@ -17,13 +19,61 @@ import type { Community } from "@/lib/queries/communities";
 // e.g. NEXT_PUBLIC_TELEGRAM_BOT_USERNAME=WoWAssistantBot
 const BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ?? "WoWAssistantBot";
 
+// Poll every 3 seconds for up to 2 minutes after clicking the deep link
+const POLL_INTERVAL_MS = 3000;
+const POLL_MAX_COUNT = 40; // 40 × 3s = 2 min
+
 export function CommunitySettingsForm({ community }: { community: Community }) {
   const [bannerUrl, setBannerUrl] = useState<string | null>(community.banner_url);
   const [isPending, startTransition] = useTransition();
-  const [botStep, setBotStep] = useState<"idle" | "adding">("idle");
+  // "idle" | "enabling" (registering webhook) | "waiting" (polling for connection)
+  const [botStep, setBotStep] = useState<"idle" | "enabling" | "waiting">("idle");
   const [botConnected, setBotConnected] = useState(!!community.telegram_chat_id);
+  const [polling, setPolling] = useState(false);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pollCountRef = useRef(0);
 
   const hasTelegramLink = !!(community.telegram_invite_link ?? "").trim();
+
+  // Clean up poll on unmount
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  function startPolling() {
+    if (pollRef.current) return; // already polling
+    setPolling(true);
+    pollCountRef.current = 0;
+
+    pollRef.current = setInterval(async () => {
+      pollCountRef.current++;
+      try {
+        const chatId = await checkTelegramConnected(community.id);
+        if (chatId) {
+          clearInterval(pollRef.current!);
+          pollRef.current = null;
+          setPolling(false);
+          setBotConnected(true);
+          setBotStep("idle");
+          toast.success("Connected! Posts and events will auto-appear in your Telegram group.");
+          return;
+        }
+      } catch {
+        // ignore transient errors
+      }
+
+      if (pollCountRef.current >= POLL_MAX_COUNT) {
+        clearInterval(pollRef.current!);
+        pollRef.current = null;
+        setPolling(false);
+        toast.error(
+          "Connection timed out. Make sure you added the bot to your group, then click 'Check connection'."
+        );
+      }
+    }, POLL_INTERVAL_MS);
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,15 +91,34 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
     });
   }
 
-  function handleConnectBot() {
+  function handleEnableBot() {
+    setBotStep("enabling");
     startTransition(async () => {
       try {
-        const result = await connectTelegramChannel(community.id, community.slug);
+        // Register the webhook so Telegram can auto-notify us when the bot is added
+        await setupTelegramWebhook(community.id);
+      } catch (err) {
+        // Webhook registration failure isn't fatal — the manual check still works
+        console.warn("Webhook registration failed:", err);
+      }
+      setBotStep("waiting");
+    });
+  }
+
+  function handleCheckConnection() {
+    startTransition(async () => {
+      try {
+        await connectTelegramChannel(community.id, community.slug);
         setBotConnected(true);
         setBotStep("idle");
-        toast.success(`Connected to "${result.chatTitle}" — posts will auto-appear there.`);
+        if (pollRef.current) {
+          clearInterval(pollRef.current);
+          pollRef.current = null;
+          setPolling(false);
+        }
+        toast.success("Connected! Posts and events will auto-appear in your Telegram group.");
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Connection failed. Make sure you added WoW Assistant first.");
+        toast.error(err instanceof Error ? err.message : "Not connected yet — make sure you added the bot.");
       }
     });
   }
@@ -155,7 +224,7 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
                 <div className="flex items-center gap-2.5">
                   <span className="size-2 rounded-full bg-green-500 shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-medium">WoW Assistant connected</p>
+                    <p className="text-sm font-medium">Bot connected — posts auto-share to Telegram</p>
                     <p className="text-xs text-muted-foreground">
                       New posts and events are automatically shared to your Telegram group.
                     </p>
@@ -184,74 +253,87 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
                   size="sm"
                   variant="outline"
                   className="shrink-0 border-[#229ED9] text-[#229ED9] hover:bg-[#229ED9]/10"
-                  onClick={() => setBotStep("adding")}
+                  onClick={handleEnableBot}
+                  disabled={isPending}
                 >
-                  Push all content to channel →
+                  {isPending ? "Setting up…" : "Push all content to channel →"}
                 </Button>
               </div>
+            ) : botStep === "enabling" ? (
+              /* Registering webhook */
+              <div className="flex items-center gap-2 text-sm text-muted-foreground py-1">
+                <svg className="animate-spin w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                </svg>
+                Setting up connection…
+              </div>
             ) : (
-              /* Two-step setup flow */
+              /* Waiting / polling state */
               <div className="rounded-xl bg-background border p-4 space-y-4">
-                <p className="text-sm font-semibold">Connect WoW Assistant in 2 steps</p>
-
-                <div className="space-y-3">
-                  {/* Step 1 */}
-                  <div className="flex gap-3 items-start">
-                    <span className="shrink-0 size-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center mt-0.5">
-                      1
-                    </span>
-                    <div className="space-y-2 flex-1">
-                      <p className="text-sm">
-                        Add <strong>WoW Assistant</strong> to your Telegram group. It&apos;s the community helper that auto-posts your content.
-                      </p>
-                      {/* tg:// opens the native Telegram app (desktop + mobile).
-                          community.id is the startgroup payload — Telegram fires
-                          /start {id} in the group so we can identify the chat exactly. */}
-                      <a
-                        href={`tg://resolve?domain=${BOT_USERNAME}&startgroup=${community.id}`}
-                        className="inline-flex items-center gap-2 rounded-lg bg-[#229ED9] text-white text-sm font-medium px-4 py-2 hover:opacity-90 transition-opacity"
-                      >
-                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white">
-                          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/>
-                        </svg>
-                        Add WoW Assistant to Telegram
-                      </a>
-                      <p className="text-xs text-muted-foreground">
-                        Opens Telegram — select your community group when prompted.{" "}
-                        <a
-                          href={`https://t.me/${BOT_USERNAME}?startgroup=${community.id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline underline-offset-2 hover:text-foreground transition-colors"
-                        >
-                          Didn&apos;t open? Try browser link.
-                        </a>
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="flex gap-3 items-start">
-                    <span className="shrink-0 size-5 rounded-full bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center mt-0.5">
-                      2
-                    </span>
-                    <div className="space-y-2 flex-1">
-                      <p className="text-sm">Once you&apos;ve added WoW Assistant to your group, tap below to complete the connection.</p>
-                      <Button
-                        type="button"
-                        size="sm"
-                        onClick={handleConnectBot}
-                        disabled={isPending}
-                      >
-                        {isPending ? "Connecting…" : "Complete setup ✓"}
-                      </Button>
-                    </div>
-                  </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold">Add the bot to your Telegram group</p>
+                  <p className="text-xs text-muted-foreground">
+                    Tap below to open Telegram — select your community group when prompted.
+                    The connection happens automatically once the bot is added.
+                  </p>
                 </div>
+
+                {/* Primary deep link — opens native Telegram */}
+                <div className="space-y-2">
+                  <a
+                    href={`tg://resolve?domain=${BOT_USERNAME}&startgroup=${community.id}`}
+                    onClick={startPolling}
+                    className="inline-flex items-center gap-2 rounded-lg bg-[#229ED9] text-white text-sm font-medium px-4 py-2 hover:opacity-90 transition-opacity"
+                  >
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white">
+                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.941z"/>
+                    </svg>
+                    Add @{BOT_USERNAME} to Telegram
+                  </a>
+                  <p className="text-xs text-muted-foreground">
+                    If Telegram doesn&apos;t open,{" "}
+                    <a
+                      href={`https://t.me/${BOT_USERNAME}?startgroup=${community.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline underline-offset-2 hover:text-foreground transition-colors"
+                    >
+                      use this browser link instead
+                    </a>
+                    .
+                  </p>
+                </div>
+
+                {/* Connection status */}
+                {polling ? (
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="size-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                    Waiting for connection… (checking every few seconds)
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={handleCheckConnection}
+                      disabled={isPending}
+                      className="text-xs text-primary underline underline-offset-2 hover:opacity-80 transition-opacity"
+                    >
+                      {isPending ? "Checking…" : "Already added? Check connection"}
+                    </button>
+                  </div>
+                )}
 
                 <button
                   type="button"
-                  onClick={() => setBotStep("idle")}
+                  onClick={() => {
+                    setBotStep("idle");
+                    if (pollRef.current) {
+                      clearInterval(pollRef.current);
+                      pollRef.current = null;
+                      setPolling(false);
+                    }
+                  }}
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Cancel

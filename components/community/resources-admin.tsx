@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createResource, updateResource, deleteResource } from "@/lib/actions/resources";
-import { CATEGORY_LABELS, CATEGORY_ORDER, type Resource, type ResourceCategory } from "@/lib/queries/resources";
+import { CATEGORY_LABELS, CATEGORY_ORDER, type Resource, type ResourceCategory } from "@/lib/types/resources";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
