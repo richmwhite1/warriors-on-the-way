@@ -189,9 +189,12 @@ export default function LandingPage() {
 
           <div className="flex flex-col sm:flex-row gap-8 items-start">
             <div className="shrink-0 mx-auto sm:mx-0">
-              <div className="size-28 rounded-full bg-primary/20 flex items-center justify-center text-5xl select-none">
-                🌀
-              </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/sean-olaoire.webp"
+                alt="Seán Ó Laoire"
+                className="size-36 rounded-full object-cover object-top shadow-md"
+              />
             </div>
             <div className="space-y-4 text-sm leading-relaxed text-muted-foreground">
               <p>
