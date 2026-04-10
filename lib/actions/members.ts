@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getActiveMemberCount, getMembership } from "@/lib/queries/members";
+import { createNotification, notifyCommunityAdmins } from "@/lib/actions/notifications";
 
-export async function joinCommunity(communityId: string, communitySlug: string) {
+export async function joinCommunity(communityId: string, communitySlug: string, inviteToken?: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
@@ -19,20 +20,25 @@ export async function joinCommunity(communityId: string, communitySlug: string) 
   // Fetch community to check private/cap
   const { data: community } = await supabase
     .from("communities")
-    .select("is_private, member_cap, is_parent")
+    .select("is_private, member_cap, is_parent, invite_token")
     .eq("id", communityId)
     .single();
 
   if (!community) throw new Error("Community not found");
 
+  const c = community as typeof community & { invite_token?: string | null };
+
   const activeCount = await getActiveMemberCount(communityId);
   const atCap = activeCount >= community.member_cap;
+
+  // Valid invite token overrides pending_approval for private communities
+  const hasValidInvite = inviteToken && c.invite_token && inviteToken === c.invite_token;
 
   // Determine status
   let status: string;
   if (atCap) {
     status = "waitlisted";
-  } else if (community.is_private) {
+  } else if (community.is_private && !hasValidInvite) {
     status = "pending_approval";
   } else {
     status = "active";
@@ -48,6 +54,19 @@ export async function joinCommunity(communityId: string, communitySlug: string) 
       .from("community_members")
       .insert({ community_id: communityId, user_id: user.id, status });
   }
+
+  // Notify admins
+  const { data: joiner } = await supabase
+    .from("users")
+    .select("display_name")
+    .eq("id", user.id)
+    .single();
+  const notifType = status === "pending_approval" ? "join_request" : "member_joined";
+  await notifyCommunityAdmins(communityId, notifType, {
+    actor_id: user.id,
+    actor_name: joiner?.display_name ?? "Someone",
+    community_slug: communitySlug,
+  }, user.id);
 
   // Auto-join the WoW parent community if this is a sub-community
   if (!community.is_parent && status === "active") {
@@ -109,10 +128,20 @@ export async function leaveCommunity(communityId: string, communitySlug: string)
 
 export async function approveMember(membershipId: string, communitySlug: string) {
   const supabase = await createClient();
-  await supabase
+  const { data: membership } = await supabase
     .from("community_members")
     .update({ status: "active" })
-    .eq("id", membershipId);
+    .eq("id", membershipId)
+    .select("user_id, community_id, community:communities(name)")
+    .single();
+
+  if (membership) {
+    await createNotification(membership.user_id, "member_joined", {
+      community_slug: communitySlug,
+      community_name: (membership.community as { name?: string } | null)?.name ?? communitySlug,
+    });
+  }
+
   revalidatePath(`/community/${communitySlug}`);
   revalidatePath(`/community/${communitySlug}/members`);
   revalidatePath("/home");
@@ -167,10 +196,20 @@ async function promoteFromWaitlist(communityId: string) {
     .single();
 
   if (next) {
-    await supabase
+    const { data: promoted } = await supabase
       .from("community_members")
       .update({ status: "active" })
-      .eq("id", next.id);
+      .eq("id", next.id)
+      .select("user_id, community:communities(name, slug)")
+      .single();
+
+    if (promoted) {
+      const community = promoted.community as { name?: string; slug?: string } | null;
+      await createNotification(promoted.user_id, "waitlist_spot_opened", {
+        community_name: community?.name ?? "",
+        community_slug: community?.slug ?? "",
+      });
+    }
   }
 }
 

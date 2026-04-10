@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { CommunityCard } from "@/components/community/community-card";
+import { DiscoverSearch } from "@/components/community/discover-search";
 import { MissionPanel } from "@/components/home/mission-panel";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
@@ -54,11 +55,23 @@ export default async function HomePage() {
           </div>
 
           {myCommunities.length === 0 ? (
-            <div className="rounded-2xl border border-dashed p-8 text-center space-y-3">
-              <p className="text-muted-foreground">You haven&apos;t joined any communities yet.</p>
-              <Link href="/community/new" className={cn(buttonVariants(), "rounded-full")}>
-                Create your first community
-              </Link>
+            <div className="rounded-2xl border border-dashed p-8 text-center space-y-4">
+              <div className="space-y-1">
+                <p className="font-heading font-semibold">You&apos;re not in any communities yet</p>
+                <p className="text-sm text-muted-foreground">
+                  Create your own or join one below in the Discover section.
+                </p>
+              </div>
+              <div className="flex gap-3 justify-center flex-wrap">
+                <Link href="/community/new" className={cn(buttonVariants(), "rounded-full")}>
+                  Create a community
+                </Link>
+                {discover.length > 0 && (
+                  <a href="#discover" className={cn(buttonVariants({ variant: "outline" }), "rounded-full")}>
+                    Explore communities
+                  </a>
+                )}
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -85,26 +98,9 @@ export default async function HomePage() {
 
         {/* Discover */}
         {discover.length > 0 && (
-          <section className="space-y-4">
+          <section id="discover" className="space-y-4">
             <h2 className="text-lg font-heading font-semibold">Discover communities</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {discover.map((c) => {
-                const count = (c.member_count as unknown as { count: number }[])?.[0]?.count ?? 0;
-                return (
-                  <CommunityCard
-                    key={c.id}
-                    name={c.name}
-                    slug={c.slug}
-                    description={c.description}
-                    bannerUrl={c.banner_url}
-                    isPrivate={c.is_private}
-                    isParent={c.is_parent}
-                    memberCount={count}
-                    memberCap={c.member_cap}
-                  />
-                );
-              })}
-            </div>
+            <DiscoverSearch communities={discover} />
           </section>
         )}
 

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership, getActiveMemberCount } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
-import { getEventWithDetails } from "@/lib/queries/events";
+import { getEventWithDetails, listEventAttendees, type EventAttendee } from "@/lib/queries/events";
 import { cancelEvent } from "@/lib/actions/events";
 
 type Props = { params: Promise<{ slug: string; eventId: string }> };
@@ -40,6 +40,14 @@ export default async function EventDetailPage({ params }: Props) {
         <AppNav />
         <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
           <EventHeader event={event} slug={slug} />
+
+          {event.image_url && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <div className="rounded-2xl overflow-hidden">
+              <img src={event.image_url} alt="" className="w-full max-h-72 object-cover" />
+            </div>
+          )}
+
           <EventMeta event={event} />
 
           {event.description && (
@@ -105,7 +113,10 @@ export default async function EventDetailPage({ params }: Props) {
   const event = await getEventWithDetails(eventId, user.id);
   if (!event) notFound();
 
-  const memberCount = await getActiveMemberCount(community.id);
+  const [memberCount, attendees] = await Promise.all([
+    getActiveMemberCount(community.id),
+    event.status === "confirmed" ? listEventAttendees(eventId) : Promise.resolve([]),
+  ]);
   const isCreator = event.created_by === user.id;
   const canManage = isAdmin || isCreator;
   const isCancelled = event.status === "cancelled";
@@ -117,6 +128,14 @@ export default async function EventDetailPage({ params }: Props) {
       <AppNav />
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <EventHeader event={event} slug={slug} shareUrl={shareUrl} />
+
+        {event.image_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <div className="rounded-2xl overflow-hidden">
+            <img src={event.image_url} alt="" className="w-full max-h-72 object-cover" />
+          </div>
+        )}
+
         <EventMeta event={event} />
 
         {event.description && (
@@ -128,7 +147,10 @@ export default async function EventDetailPage({ params }: Props) {
         <Separator />
 
         {event.rsvp_counts && event.status === "confirmed" && (
-          <RsvpCounts counts={event.rsvp_counts} />
+          <>
+            <RsvpCounts counts={event.rsvp_counts} />
+            {attendees.length > 0 && <AttendeeList attendees={attendees} />}
+          </>
         )}
 
         {event.status === "voting" && event.date_options && event.date_options.length > 0 && (
@@ -298,6 +320,41 @@ function RsvpCounts({
       <span className="text-green-600 font-medium">✓ {counts.yes} going</span>
       <span className="text-muted-foreground">? {counts.maybe} maybe</span>
       <span className="text-muted-foreground">✗ {counts.no} can&apos;t go</span>
+    </div>
+  );
+}
+
+function AttendeeList({ attendees }: { attendees: EventAttendee[] }) {
+  const going = attendees.filter((a) => a.status === "yes");
+  const maybe = attendees.filter((a) => a.status === "maybe");
+
+  return (
+    <div className="space-y-3">
+      {going.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Going</p>
+          <div className="flex flex-wrap gap-2">
+            {going.map((a) => (
+              <a key={a.user_id} href={`/profile/${a.user_id}`} className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-sm hover:bg-muted/50 transition-colors">
+                {a.user.display_name}
+                {a.guests > 0 && <span className="text-xs text-muted-foreground">+{a.guests}</span>}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+      {maybe.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Maybe</p>
+          <div className="flex flex-wrap gap-2">
+            {maybe.map((a) => (
+              <a key={a.user_id} href={`/profile/${a.user_id}`} className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-sm text-muted-foreground hover:bg-muted/50 transition-colors">
+                {a.user.display_name}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

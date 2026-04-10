@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { AppNav } from "@/components/app-nav";
 import { ProfileForm } from "@/components/profile/profile-form";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
+import { PushSubscriptionToggle } from "@/components/profile/push-subscription-toggle";
 import { requireUserProfile } from "@/lib/queries/users";
 import { Separator } from "@/components/ui/separator";
 
@@ -31,6 +32,10 @@ export default async function ProfilePage() {
         <Separator />
 
         <ProfileForm user={user} />
+
+        <Separator />
+
+        <PushSubscriptionToggle />
       </main>
     </>
   );

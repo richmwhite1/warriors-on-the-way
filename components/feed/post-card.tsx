@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { deletePost, reportPost, pinPost } from "@/lib/actions/posts";
+import { deletePost, reportPost, pinPost, updatePost } from "@/lib/actions/posts";
 import { toggleReaction } from "@/lib/actions/reactions";
 import { createComment, deleteComment } from "@/lib/actions/comments";
 import { toast } from "sonner";
@@ -47,6 +47,9 @@ export function PostCard({
   const [isPending, startTransition] = useTransition();
   const [showReport, setShowReport] = useState(false);
   const [reportReason, setReportReason] = useState("");
+  const [editing, setEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(post.title ?? "");
+  const [editBody, setEditBody] = useState(post.body ?? "");
 
   const isOwn = post.author_id === currentUserId;
   const canDelete = isOwn || isAdmin;
@@ -124,6 +127,17 @@ export function PostCard({
     });
   }
 
+  function handleEdit(e: React.FormEvent) {
+    e.preventDefault();
+    startTransition(async () => {
+      try {
+        await updatePost(post.id, communitySlug, { title: editTitle || null, body: editBody || null });
+        setEditing(false);
+        toast.success("Post updated");
+      } catch { toast.error("Failed to update post"); }
+    });
+  }
+
   function handleReport(e: React.FormEvent) {
     e.preventDefault();
     if (!reportReason.trim()) return;
@@ -158,7 +172,7 @@ export function PostCard({
 
       {/* Author row */}
       <div className="flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2.5">
+        <a href={`/profile/${post.author_id}`} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
           <Avatar className="size-8">
             <AvatarImage src={authorAvatar ?? undefined} />
             <AvatarFallback className="text-xs bg-primary/10 text-primary">
@@ -174,7 +188,7 @@ export function PostCard({
               })}
             </p>
           </div>
-        </div>
+        </a>
 
         <div className="flex items-center gap-2">
           <Badge variant="outline" className="text-[10px] px-1.5 py-0">
@@ -193,6 +207,14 @@ export function PostCard({
                 )}
               >
                 {pinned ? "Unpin" : "Pin"}
+              </button>
+            )}
+            {isOwn && (post.post_type === "discussion" || post.post_type === "event") && (
+              <button
+                onClick={() => setEditing(!editing)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
+              >
+                {editing ? "Cancel" : "Edit"}
               </button>
             )}
             {canDelete && (
@@ -238,6 +260,31 @@ export function PostCard({
           title={post.youtube_oembed.title}
           thumbnailUrl={post.youtube_oembed.thumbnail_url}
         />
+      )}
+
+      {/* Inline edit form */}
+      {editing && (
+        <form onSubmit={handleEdit} className="space-y-2 pt-1">
+          {post.title !== null && (
+            <input
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              placeholder="Title"
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            />
+          )}
+          <textarea
+            value={editBody}
+            onChange={(e) => setEditBody(e.target.value)}
+            placeholder="Post body…"
+            rows={3}
+            className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+          />
+          <div className="flex gap-2">
+            <Button type="submit" size="sm" disabled={isPending}>Save</Button>
+            <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(false)}>Cancel</Button>
+          </div>
+        </form>
       )}
 
       {/* Report form */}

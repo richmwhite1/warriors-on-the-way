@@ -1,6 +1,13 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export type EventAttendee = {
+  user_id: string;
+  status: "yes" | "no" | "maybe";
+  guests: number;
+  user: { id: string; display_name: string; avatar_url: string | null };
+};
+
 export type EventDateOption = {
   id: string;
   event_id: string;
@@ -18,6 +25,7 @@ export type EventRow = {
   description: string | null;
   location: string | null;
   virtual_url: string | null;
+  image_url: string | null;
   starts_at: string | null;
   ends_at: string | null;
   timezone: string;
@@ -30,12 +38,23 @@ export type EventRow = {
   date_options?: EventDateOption[];
 };
 
+export async function listEventAttendees(eventId: string): Promise<EventAttendee[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("rsvps")
+    .select(`status, guests, user_id, user:users!user_id(id, display_name, avatar_url)`)
+    .eq("event_id", eventId)
+    .in("status", ["yes", "maybe"])
+    .order("status"); // yes before maybe
+  return (data as unknown as EventAttendee[]) ?? [];
+}
+
 export async function listCommunityEvents(communityId: string): Promise<EventRow[]> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("events")
     .select(`
-      id, community_id, created_by, title, description, location, virtual_url,
+      id, community_id, created_by, title, description, location, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, created_at,
       creator:users!created_by(id, display_name, avatar_url)
     `)
@@ -52,7 +71,7 @@ export async function getEventWithDetails(eventId: string, userId?: string): Pro
   const { data: event } = await supabase
     .from("events")
     .select(`
-      id, community_id, created_by, title, description, location, virtual_url,
+      id, community_id, created_by, title, description, location, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, created_at,
       creator:users!created_by(id, display_name, avatar_url)
     `)

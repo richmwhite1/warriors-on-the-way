@@ -20,7 +20,7 @@ import { listCommentsByPostIds } from "@/lib/queries/comments";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ type?: string }>;
+  searchParams: Promise<{ type?: string; invite?: string }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function CommunityPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { type: postTypeFilter } = await searchParams;
+  const { type: postTypeFilter, invite: inviteToken } = await searchParams;
 
   const user = await requireUserProfile().catch(() => null);
   if (!user) redirect(`/sign-in?next=/community/${slug}`);
@@ -109,7 +109,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 </Link>
               )}
               {isMember && (
-                <Link href="/resources" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                <Link href={`/community/${slug}/resources`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Resources
                 </Link>
               )}
@@ -123,6 +123,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 communitySlug={slug}
                 status={joinStatus}
                 isFull={isFull}
+                inviteToken={inviteToken}
               />
             </div>
           </div>

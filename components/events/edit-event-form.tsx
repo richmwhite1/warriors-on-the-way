@@ -72,7 +72,7 @@ export function EditEventForm({ eventId, communitySlug, initialValues }: Props) 
         <Label>Event image</Label>
         <ImageUpload
           value={imageUrl}
-          onChange={(url) => setImageUrl(url || null)}
+          onChange={(url: string) => setImageUrl(url || null)}
           label="Upload event photo"
         />
       </div>

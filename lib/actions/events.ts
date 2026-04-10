@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEventNotification } from "@/lib/integrations/telegram";
+import { notifyCommunityMembers } from "@/lib/actions/notifications";
 
 export async function createEvent(formData: FormData) {
   const supabase = await createClient();
@@ -86,6 +87,15 @@ export async function createEvent(formData: FormData) {
     }).catch(() => {
       // Don't block redirect if Telegram is unreachable
     });
+  }
+  // ── In-app notifications ─────────────────────────────────────────────────
+  if (communityData) {
+    await notifyCommunityMembers(community_id, "event_created", {
+      event_id: event.id,
+      title,
+      community_slug: communityData.slug,
+      community_name: communityData.name,
+    }, user.id);
   }
   // ────────────────────────────────────────────────────────────────────────
 

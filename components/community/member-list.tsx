@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useTransition } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -108,10 +109,19 @@ function MemberRow({
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <p className="text-sm font-medium truncate">
-            {member.user.display_name}
-            {isSelf && <span className="text-muted-foreground"> (you)</span>}
-          </p>
+          {isSelf ? (
+            <p className="text-sm font-medium truncate">
+              {member.user.display_name}
+              <span className="text-muted-foreground"> (you)</span>
+            </p>
+          ) : (
+            <Link
+              href={`/profile/${member.user.id}`}
+              className="text-sm font-medium truncate hover:underline"
+            >
+              {member.user.display_name}
+            </Link>
+          )}
         </div>
       </div>
 
@@ -122,6 +132,15 @@ function MemberRow({
         >
           {member.role}
         </Badge>
+
+        {!isSelf && (
+          <Link
+            href={`/messages/${member.user.id}`}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
+          >
+            Message
+          </Link>
+        )}
 
         {canManage && (
           <div className="flex gap-1">

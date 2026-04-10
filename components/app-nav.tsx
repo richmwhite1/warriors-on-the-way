@@ -1,12 +1,15 @@
 import Link from "next/link";
 import { signOut } from "@/lib/actions/auth";
 import { requireUserProfile } from "@/lib/queries/users";
+import { getUnreadNotificationCount } from "@/lib/queries/notifications";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { buttonVariants } from "@/components/ui/button-variants";
+import { NotificationBell } from "@/components/notification-bell";
 import { cn } from "@/lib/utils";
 
 export async function AppNav() {
   const user = await requireUserProfile().catch(() => null);
+  const unreadCount = user ? await getUnreadNotificationCount(user.id) : 0;
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
@@ -47,6 +50,7 @@ export async function AppNav() {
 
           {user && (
             <div className="flex items-center gap-2">
+              <NotificationBell initialCount={unreadCount} />
               <Link href="/profile" className="flex items-center gap-2 group">
                 <Avatar className="size-8">
                   <AvatarImage src={user.avatar_url ?? undefined} />

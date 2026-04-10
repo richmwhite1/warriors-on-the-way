@@ -24,9 +24,12 @@ export default async function MembersPage({ params }: Props) {
   if (!community) notFound();
 
   const membership = await getMembership(community.id, user.id);
-  if (!membership || membership.status !== "active") redirect(`/community/${slug}`);
+  const isMember = membership?.status === "active";
 
-  const isAdmin = membership.role === "admin" || membership.role === "organizer";
+  // Private communities: only members can see the list
+  if (community.is_private && !isMember) redirect(`/community/${slug}`);
+
+  const isAdmin = isMember && (membership?.role === "admin" || membership?.role === "organizer");
 
   const [activeMembers, pendingMembers] = await Promise.all([
     listActiveMembers(community.id),

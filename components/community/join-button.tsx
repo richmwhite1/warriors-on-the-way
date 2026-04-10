@@ -10,15 +10,16 @@ type Props = {
   communitySlug: string;
   status: "none" | "active" | "waitlisted" | "pending_approval" | "banned";
   isFull: boolean;
+  inviteToken?: string;
 };
 
-export function JoinButton({ communityId, communitySlug, status, isFull }: Props) {
+export function JoinButton({ communityId, communitySlug, status, isFull, inviteToken }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleJoin() {
     startTransition(async () => {
       try {
-        await joinCommunity(communityId, communitySlug);
+        await joinCommunity(communityId, communitySlug, inviteToken);
         if (isFull) toast.info("You've been added to the waitlist.");
         else toast.success("You've joined the community!");
       } catch (e) {

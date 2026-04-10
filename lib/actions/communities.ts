@@ -199,6 +199,55 @@ export async function connectTelegramChannel(communityId: string, communitySlug:
   return { chatId };
 }
 
+export async function refreshInviteToken(communityId: string, communitySlug: string): Promise<string> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: membership } = await supabase
+    .from("community_members")
+    .select("role")
+    .eq("community_id", communityId)
+    .eq("user_id", user.id)
+    .single();
+  if (!membership || !["admin", "organizer"].includes(membership.role as string)) {
+    throw new Error("Not authorized");
+  }
+
+  // Generate a new UUID token
+  const token = crypto.randomUUID();
+  await supabase
+    .from("communities")
+    .update({ invite_token: token })
+    .eq("id", communityId);
+
+  revalidatePath(`/community/${communitySlug}/settings`);
+  return token;
+}
+
+export async function revokeInviteToken(communityId: string, communitySlug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: membership } = await supabase
+    .from("community_members")
+    .select("role")
+    .eq("community_id", communityId)
+    .eq("user_id", user.id)
+    .single();
+  if (!membership || !["admin", "organizer"].includes(membership.role as string)) {
+    throw new Error("Not authorized");
+  }
+
+  await supabase
+    .from("communities")
+    .update({ invite_token: null })
+    .eq("id", communityId);
+
+  revalidatePath(`/community/${communitySlug}/settings`);
+}
+
 export async function disconnectTelegramChannel(communityId: string, communitySlug: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

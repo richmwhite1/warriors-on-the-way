@@ -158,6 +158,25 @@ export async function pinPost(
   revalidatePath(`/community/${communitySlug}`);
 }
 
+export async function updatePost(
+  postId: string,
+  communitySlug: string,
+  { title, body }: { title: string | null; body: string | null }
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("posts")
+    .update({ title: title || null, body: body || null })
+    .eq("id", postId)
+    .eq("author_id", user.id); // authors can only edit their own
+
+  if (error) throw new Error(error.message);
+  revalidatePath(`/community/${communitySlug}`);
+}
+
 export async function deletePost(postId: string, communitySlug: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
