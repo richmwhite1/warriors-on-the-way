@@ -26,6 +26,8 @@ export default async function EventDetailPage({ params }: Props) {
 
   // ── Guest path (not signed in) ─────────────────────────────────────────────
   if (!user) {
+    // Only block guests if guest RSVPs are explicitly disabled
+    // allow_guest_rsvp defaults to true — null/undefined = allowed
     if (community.allow_guest_rsvp === false) redirect(`/sign-in?next=/community/${slug}/events/${eventId}`);
 
     const event = await getEventWithDetails(eventId);

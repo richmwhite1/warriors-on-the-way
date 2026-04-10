@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { Suspense, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import { signInWithGoogle, signInWithMagicLink } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
-export default function SignInPage() {
+// Isolated so useSearchParams doesn't block the outer page from rendering
+function SignInForm() {
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? undefined;
 
@@ -39,81 +40,74 @@ export default function SignInPage() {
     });
   }
 
+  if (sent) {
+    return (
+      <div className="rounded-2xl border bg-card p-6 text-center space-y-2">
+        <p className="font-heading text-lg text-foreground">Check your inbox</p>
+        <p className="text-sm text-muted-foreground">
+          A sign-in link was sent to{" "}
+          <span className="font-medium text-foreground">{email}</span>.
+          <br />Click it to continue.
+        </p>
+        <button
+          className="text-xs text-muted-foreground underline-offset-2 hover:underline mt-2"
+          onClick={() => setSent(false)}
+        >
+          Use a different email
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl border bg-card p-6 space-y-5">
+      <Button variant="outline" className="w-full gap-2" onClick={handleGoogle} disabled={isPending}>
+        <GoogleIcon />
+        Continue with Google
+      </Button>
+
+      <div className="flex items-center gap-3">
+        <Separator className="flex-1" />
+        <span className="text-xs text-muted-foreground">or</span>
+        <Separator className="flex-1" />
+      </div>
+
+      <form onSubmit={handleMagicLink} className="space-y-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="email">Email address</Label>
+          <Input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+            disabled={isPending}
+          />
+        </div>
+        <Button type="submit" className="w-full" disabled={isPending || !email}>
+          {isPending ? "Sending…" : "Send sign-in link"}
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+export default function SignInPage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm space-y-8">
-        {/* Logo / wordmark */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-heading font-semibold tracking-tight text-foreground">
             Warriors on the Way
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Sign in to join your community
-          </p>
+          <p className="text-sm text-muted-foreground">Sign in to join your community</p>
         </div>
 
-        {sent ? (
-          <div className="rounded-2xl border bg-card p-6 text-center space-y-2">
-            <p className="font-heading text-lg text-foreground">
-              Check your inbox
-            </p>
-            <p className="text-sm text-muted-foreground">
-              A sign-in link was sent to{" "}
-              <span className="font-medium text-foreground">{email}</span>.
-              <br />
-              Click it to continue.
-            </p>
-            <button
-              className="text-xs text-muted-foreground underline-offset-2 hover:underline mt-2"
-              onClick={() => setSent(false)}
-            >
-              Use a different email
-            </button>
-          </div>
-        ) : (
-          <div className="rounded-2xl border bg-card p-6 space-y-5">
-            {/* Google */}
-            <Button
-              variant="outline"
-              className="w-full gap-2"
-              onClick={handleGoogle}
-              disabled={isPending}
-            >
-              <GoogleIcon />
-              Continue with Google
-            </Button>
-
-            <div className="flex items-center gap-3">
-              <Separator className="flex-1" />
-              <span className="text-xs text-muted-foreground">or</span>
-              <Separator className="flex-1" />
-            </div>
-
-            {/* Magic link */}
-            <form onSubmit={handleMagicLink} className="space-y-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="email">Email address</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                  disabled={isPending}
-                />
-              </div>
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isPending || !email}
-              >
-                {isPending ? "Sending…" : "Send sign-in link"}
-              </Button>
-            </form>
-          </div>
-        )}
+        <Suspense fallback={<div className="rounded-2xl border bg-card p-6 h-40 animate-pulse" />}>
+          <SignInForm />
+        </Suspense>
 
         <p className="text-center text-xs text-muted-foreground">
           By signing in you agree to our{" "}

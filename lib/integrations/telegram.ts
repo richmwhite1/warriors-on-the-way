@@ -142,7 +142,7 @@ export async function sendPostNotification(
   const communityUrl = `${siteUrl}/community/${opts.communitySlug}`;
   await sendMessage(
     chatId,
-    `${emoji} <b>${opts.communityName}</b>\n\n${preview}\n\n— ${opts.authorName}\n<a href="${communityUrl}">Join the conversation →</a>`
+    `${emoji} <b>${opts.communityName}</b>\n\n${preview}\n\n— ${opts.authorName} · <a href="${communityUrl}">link</a>`
   );
 }
 
@@ -174,6 +174,6 @@ export async function sendEventNotification(
   const eventUrl = `${siteUrl}/community/${opts.communitySlug}/events/${opts.eventId}`;
   await sendMessage(
     chatId,
-    `📅 New event in <b>${opts.communityName}</b>\n\n<b>${opts.title}</b>\n🗓 ${dateStr}${loc}\n\n<a href="${eventUrl}">View &amp; RSVP →</a>`
+    `📅 <b>${opts.communityName}</b> · New event\n\n<b>${opts.title}</b>\n🗓 ${dateStr}${loc} · <a href="${eventUrl}">link</a>`
   );
 }
