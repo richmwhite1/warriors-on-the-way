@@ -220,24 +220,54 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
           <div className="border-t pt-5 space-y-4">
             {botConnected ? (
               /* Connected state */
-              <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div className="flex items-center gap-2.5">
-                  <span className="size-2 rounded-full bg-green-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium">Bot connected — posts auto-share to Telegram</p>
-                    <p className="text-xs text-muted-foreground">
-                      New posts and events are automatically shared to your Telegram group.
-                    </p>
+              <div className="space-y-4">
+                <div className="flex items-start justify-between gap-4 flex-wrap">
+                  <div className="flex items-center gap-2.5">
+                    <span className="size-2 rounded-full bg-green-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium">Bot connected — posts auto-share to Telegram</p>
+                      <p className="text-xs text-muted-foreground">
+                        New posts and events are automatically shared to your Telegram group.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleDisconnectBot}
+                    disabled={isPending}
+                    className="text-xs text-muted-foreground hover:text-destructive transition-colors shrink-0"
+                  >
+                    Disconnect
+                  </button>
+                </div>
+                {/* Push type filter */}
+                <div className="rounded-xl bg-background border px-4 py-3 space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    Push to Telegram when…
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: "discussion", label: "Discussion posted" },
+                      { value: "video",      label: "Video shared" },
+                      { value: "music",      label: "Music shared" },
+                      { value: "event",      label: "Event created" },
+                    ].map(({ value, label }) => {
+                      const current = community.telegram_push_types ?? ["discussion", "video", "music", "event"];
+                      return (
+                        <label key={value} className="flex items-center gap-2 cursor-pointer text-sm">
+                          <input
+                            type="checkbox"
+                            name="telegram_push_types"
+                            value={value}
+                            defaultChecked={current.includes(value)}
+                            className="rounded border-border"
+                          />
+                          {label}
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleDisconnectBot}
-                  disabled={isPending}
-                  className="text-xs text-muted-foreground hover:text-destructive transition-colors shrink-0"
-                >
-                  Disconnect
-                </button>
               </div>
             ) : botStep === "idle" ? (
               /* Prompt to enable */

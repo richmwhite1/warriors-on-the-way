@@ -124,23 +124,25 @@ export async function sendPostNotification(
   chatId: string,
   opts: {
     communityName: string;
+    communitySlug: string;
     authorName: string;
     body: string;
     postType: string;
   }
 ): Promise<void> {
   const typeEmoji: Record<string, string> = {
-    question: "❓",
-    quote: "💬",
-    checkin: "✅",
-    recommendation: "⭐",
-    general: "📝",
+    discussion: "💬",
+    video: "🎥",
+    music: "🎵",
+    event: "📅",
   };
   const emoji = typeEmoji[opts.postType] ?? "📝";
-  const preview = opts.body.length > 280 ? opts.body.slice(0, 277) + "…" : opts.body;
+  const preview = opts.body.length > 240 ? opts.body.slice(0, 237) + "…" : opts.body;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const communityUrl = `${siteUrl}/community/${opts.communitySlug}`;
   await sendMessage(
     chatId,
-    `${emoji} <b>${opts.communityName}</b>\n\n${preview}\n\n— ${opts.authorName}`
+    `${emoji} <b>${opts.communityName}</b>\n\n${preview}\n\n— ${opts.authorName}\n<a href="${communityUrl}">Join the conversation →</a>`
   );
 }
 

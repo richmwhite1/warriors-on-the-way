@@ -22,6 +22,8 @@ export type Community = {
   // About page content
   mission?: string | null;
   rules_md?: string | null;
+  // Per-community Telegram push type filter
+  telegram_push_types?: string[] | null;
 };
 
 export async function getCommunityBySlug(slug: string): Promise<Community | null> {

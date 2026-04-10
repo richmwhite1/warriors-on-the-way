@@ -69,19 +69,24 @@ export async function createPost(formData: FormData) {
   const postText = body ?? title ?? "";
 
   if (push_to_all) {
-    // Broadcast: notify every community that has Telegram connected
+    // Broadcast: notify every community that has Telegram connected AND allows this post type
     const { data: allCommunities } = await admin
       .from("communities")
-      .select("id, name, telegram_chat_id")
+      .select("id, slug, name, telegram_chat_id, telegram_push_types")
       .not("telegram_chat_id", "is", null);
 
     if (allCommunities) {
       await Promise.allSettled(
-        (allCommunities as { id: string; name: string; telegram_chat_id: string }[])
-          .filter((c) => c.telegram_chat_id)
+        (allCommunities as { id: string; slug: string; name: string; telegram_chat_id: string; telegram_push_types: string[] | null }[])
+          .filter((c) => {
+            if (!c.telegram_chat_id) return false;
+            const allowed = c.telegram_push_types ?? ["discussion", "video", "music", "event"];
+            return allowed.includes(post_type);
+          })
           .map((c) =>
             sendPostNotification(c.telegram_chat_id, {
               communityName: c.name,
+              communitySlug: c.slug,
               authorName,
               body: postText,
               postType: post_type,
@@ -93,16 +98,18 @@ export async function createPost(formData: FormData) {
     // Single community notification
     const { data: community } = await admin
       .from("communities")
-      .select("name, telegram_chat_id")
+      .select("slug, name, telegram_chat_id, telegram_push_types")
       .eq("id", community_id)
       .single();
 
-    const chatId = (community as { name: string; telegram_chat_id?: string | null } | null)?.telegram_chat_id;
-    const communityName = (community as { name: string; telegram_chat_id?: string | null } | null)?.name ?? "";
+    const c = community as { slug: string; name: string; telegram_chat_id?: string | null; telegram_push_types?: string[] | null } | null;
+    const chatId = c?.telegram_chat_id;
+    const allowed = c?.telegram_push_types ?? ["discussion", "video", "music", "event"];
 
-    if (chatId) {
+    if (chatId && allowed.includes(post_type)) {
       await sendPostNotification(chatId, {
-        communityName,
+        communityName: c!.name,
+        communitySlug: c!.slug,
         authorName,
         body: postText,
         postType: post_type,

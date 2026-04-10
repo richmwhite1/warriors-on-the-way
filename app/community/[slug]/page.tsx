@@ -34,7 +34,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const { type: postTypeFilter } = await searchParams;
 
   const user = await requireUserProfile().catch(() => null);
-  if (!user) redirect("/sign-in");
+  if (!user) redirect(`/sign-in?next=/community/${slug}`);
 
   const community = await getCommunityBySlug(slug);
   if (!community) notFound();

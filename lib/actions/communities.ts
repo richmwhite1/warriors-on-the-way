@@ -77,10 +77,12 @@ export async function updateCommunitySettings(communityId: string, formData: For
   const banner_url = (formData.get("banner_url") as string)?.trim() || null;
   const mission = (formData.get("mission") as string)?.trim() || null;
   const rules_md = (formData.get("rules_md") as string)?.trim() || null;
+  const rawPushTypes = formData.getAll("telegram_push_types") as string[];
+  const telegram_push_types = rawPushTypes.length > 0 ? rawPushTypes : ["discussion", "video", "music", "event"];
 
   if (!name) throw new Error("Community name is required");
 
-  const updateData: Record<string, unknown> = { name, description, location, is_private, members_can_create_events, allow_guest_rsvp, member_cap, telegram_invite_link, mission, rules_md };
+  const updateData: Record<string, unknown> = { name, description, location, is_private, members_can_create_events, allow_guest_rsvp, member_cap, telegram_invite_link, mission, rules_md, telegram_push_types };
   if (banner_url !== null) updateData.banner_url = banner_url;
 
   const { data: community, error } = await supabase

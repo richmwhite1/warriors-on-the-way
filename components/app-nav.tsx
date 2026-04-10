@@ -29,6 +29,13 @@ export async function AppNav() {
           </Link>
 
           <Link
+            href="/install"
+            className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Install app
+          </Link>
+
+          <Link
             href="/community/new"
             className={cn(
               buttonVariants({ variant: "outline", size: "sm" }),
