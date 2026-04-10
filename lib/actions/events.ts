@@ -16,6 +16,7 @@ export async function createEvent(formData: FormData) {
   const description = (formData.get("description") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
+  const image_url = (formData.get("image_url") as string)?.trim() || null;
   const timezone = (formData.get("timezone") as string) || "UTC";
   const mode = formData.get("mode") as string; // "confirmed" | "voting"
   const vote_threshold = parseInt(formData.get("vote_threshold") as string) || 75;
@@ -37,7 +38,7 @@ export async function createEvent(formData: FormData) {
 
   const { data: event, error } = await supabase
     .from("events")
-    .insert({ community_id, created_by: user.id, title, description, location, virtual_url, timezone, starts_at, ends_at, status, vote_threshold })
+    .insert({ community_id, created_by: user.id, title, description, location, virtual_url, image_url, timezone, starts_at, ends_at, status, vote_threshold })
     .select("id")
     .single();
 

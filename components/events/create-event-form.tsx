@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ImageUpload } from "@/components/ui/image-upload";
 import { createEvent } from "@/lib/actions/events";
 import { toast } from "sonner";
 
@@ -19,6 +20,7 @@ type Props = { communityId: string; communitySlug: string };
 export function CreateEventForm({ communityId }: Props) {
   const [mode, setMode] = useState<"confirmed" | "voting">("confirmed");
   const [dateOptions, setDateOptions] = useState([{ starts_at: "", ends_at: "" }]);
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -26,6 +28,7 @@ export function CreateEventForm({ communityId }: Props) {
     const fd = new FormData(e.currentTarget);
     fd.set("community_id", communityId);
     fd.set("mode", mode);
+    if (imageUrl) fd.set("image_url", imageUrl);
     startTransition(async () => {
       try {
         await createEvent(fd);
@@ -48,6 +51,15 @@ export function CreateEventForm({ communityId }: Props) {
           id="description" name="description" rows={3} maxLength={1000}
           placeholder="What to expect, what to bring…"
           className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+        />
+      </div>
+
+      <div className="space-y-1.5">
+        <Label>Event image</Label>
+        <ImageUpload
+          value={imageUrl}
+          onChange={(url) => setImageUrl(url || null)}
+          label="Upload event photo"
         />
       </div>
 
