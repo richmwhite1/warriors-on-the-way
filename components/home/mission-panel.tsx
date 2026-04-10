@@ -16,12 +16,12 @@ const MISSION_POINTS = [
 ];
 
 const SHIFTS = [
-  { domain: "Education",     from: "Indoctrination",                    to: "Exploration" },
-  { domain: "Entertainment", from: "Sensual arousal",                   to: "Mystical stimulation" },
-  { domain: "Economics",     from: "Dominion by the elite",             to: "Distribution to all" },
-  { domain: "Religion",      from: "Dogmatic sectarianism",             to: "Unity identity" },
-  { domain: "Politics",      from: "Party-affiliated blindness",        to: "Issue-identified solutions" },
-  { domain: "Agriculture",   from: "Gaia-destructive profiteering",     to: "Gaia-enhancing gratitude" },
+  { domain: "Education",     from: "Indoctrination",                              to: "Exploration" },
+  { domain: "Entertainment", from: "Sensual arousal",                             to: "Mystical stimulation" },
+  { domain: "Economics",     from: "Dominion by the elite",                       to: "Distribution to all" },
+  { domain: "Religion",      from: "Dogmatic sectarianism",                       to: "Unity identity" },
+  { domain: "Politics",      from: "Party-affiliated blindness",                  to: "Issue-identified solutions" },
+  { domain: "Agriculture",   from: "Gaia-destructive profiteering",               to: "Gaia-enhancing gratitude" },
   { domain: "Medicine",      from: "Pharmaceutically controlled disease management", to: "People-centered, hands-on healthcare" },
 ];
 
@@ -61,7 +61,7 @@ function Row({
       </button>
 
       {open && (
-        <div className="pb-4">
+        <div className="pb-5">
           {children}
         </div>
       )}
@@ -84,55 +84,64 @@ export function MissionPanel() {
           alt="Seán Ó Laoire"
           className="size-8 rounded-full object-cover object-top shrink-0 opacity-90"
         />
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-muted-foreground leading-none mb-0.5">
-            Seán Ó Laoire · Lightworkers Manifesto
-          </p>
-        </div>
-        <Link
-          href="/"
-          className="text-xs text-primary hover:underline shrink-0"
-        >
+        <p className="flex-1 text-xs text-muted-foreground">
+          Seán Ó Laoire · Lightworkers Manifesto
+        </p>
+        <Link href="/" className="text-xs text-primary hover:underline shrink-0">
           Full text →
         </Link>
       </div>
 
-      {/* Accordion rows */}
+      {/* Accordion */}
       <div className="border-t border-border/60">
+
+        {/* The Mission */}
         <Row label="The Mission" open={missionOpen} onToggle={() => setMissionOpen(v => !v)}>
-          <ul className="space-y-2">
+          <ul className="space-y-2.5">
             {MISSION_POINTS.map((point) => (
-              <li key={point} className="flex items-start gap-2.5">
-                <span className="mt-[3px] size-1.5 rounded-full bg-primary shrink-0" />
-                <span className="text-sm text-foreground leading-snug font-medium">{point}</span>
+              <li key={point} className="flex items-start gap-3">
+                <span className="mt-[5px] size-1.5 rounded-full bg-primary shrink-0" />
+                <span className="text-sm font-medium text-foreground leading-snug">{point}</span>
               </li>
             ))}
           </ul>
         </Row>
 
+        {/* The Why */}
         <Row label="The Why" open={whyOpen} onToggle={() => setWhyOpen(v => !v)}>
-          <div className="space-y-2.5">
-            {SHIFTS.map(({ domain, from, to }) => (
-              <div key={domain} className="flex items-start gap-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-primary w-20 shrink-0 pt-0.5">
-                  {domain}
-                </span>
-                <div className="text-sm leading-snug">
-                  <span className="text-muted-foreground line-through opacity-60">{from}</span>
-                  <span className="text-muted-foreground mx-1.5">→</span>
-                  <span className="font-semibold text-foreground">{to}</span>
-                </div>
-              </div>
-            ))}
+          <div className="space-y-5">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              As a human species, we need a transformation of both our consciousness and our mission.
+              As we move from <em className="text-foreground">Homo sapiens sapiens</em> to{" "}
+              <em className="text-foreground font-semibold">Homo spiritualis</em>,
+              avoiding <em className="text-foreground">Homo sociopathicus</em> and{" "}
+              <em className="text-foreground">Homo artificialis</em>, we must:
+            </p>
+            <ul className="space-y-3">
+              {SHIFTS.map(({ domain, from, to }) => (
+                <li key={domain} className="flex items-start gap-3">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary w-24 shrink-0 pt-0.5">
+                    {domain}
+                  </span>
+                  <span className="text-sm leading-snug">
+                    <span className="text-muted-foreground line-through opacity-50">{from}</span>
+                    <span className="text-muted-foreground mx-1.5">→</span>
+                    <span className="font-semibold text-foreground">{to}</span>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         </Row>
 
+        {/* The How */}
         <Row label="The How" open={howOpen} onToggle={() => setHowOpen(v => !v)} last>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Communities challenge and support one another to raise collective consciousness.
             Create a community · invite members to gatherings · post discussions · share music &amp; video.
           </p>
         </Row>
+
       </div>
     </section>
   );

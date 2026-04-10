@@ -77,6 +77,8 @@ export async function createEvent(formData: FormData) {
   if (communityData?.telegram_chat_id) {
     await sendEventNotification(communityData.telegram_chat_id, {
       communityName: communityData.name,
+      communitySlug: communityData.slug,
+      eventId: event.id,
       title,
       location,
       startsAt: starts_at,
@@ -99,6 +101,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const description = (formData.get("description") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
+  const image_url = (formData.get("image_url") as string)?.trim() || null;
   const dateStr = formData.get("starts_at") as string;
   const endsStr = formData.get("ends_at") as string;
   const starts_at = dateStr ? new Date(dateStr).toISOString() : null;
@@ -106,7 +109,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
 
   const { data: event, error } = await supabase
     .from("events")
-    .update({ title, description, location, virtual_url, starts_at, ends_at })
+    .update({ title, description, location, virtual_url, image_url, starts_at, ends_at })
     .eq("id", eventId)
     .select("community_id")
     .single();

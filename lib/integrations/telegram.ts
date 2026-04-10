@@ -149,6 +149,8 @@ export async function sendEventNotification(
   chatId: string,
   opts: {
     communityName: string;
+    communitySlug: string;
+    eventId: string;
     title: string;
     location: string | null;
     startsAt: string | null;
@@ -166,8 +168,10 @@ export async function sendEventNotification(
       })
     : "Date TBD";
   const loc = opts.location ? `\n📍 ${opts.location}` : "";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const eventUrl = `${siteUrl}/community/${opts.communitySlug}/events/${opts.eventId}`;
   await sendMessage(
     chatId,
-    `📅 New event in <b>${opts.communityName}</b>\n\n<b>${opts.title}</b>\n🗓 ${dateStr}${loc}`
+    `📅 New event in <b>${opts.communityName}</b>\n\n<b>${opts.title}</b>\n🗓 ${dateStr}${loc}\n\n<a href="${eventUrl}">View &amp; RSVP →</a>`
   );
 }
