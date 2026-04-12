@@ -50,7 +50,7 @@ export async function AppNav() {
 
           {user && (
             <div className="flex items-center gap-2">
-              <NotificationBell initialCount={unreadCount} />
+              <NotificationBell initialCount={unreadCount} userId={user.id} />
               <Link href="/profile" className="flex items-center gap-2 group">
                 <Avatar className="size-8">
                   <AvatarImage src={user.avatar_url ?? undefined} />

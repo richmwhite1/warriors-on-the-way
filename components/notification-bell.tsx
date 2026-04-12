@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
-export function NotificationBell({ initialCount }: { initialCount: number }) {
+export function NotificationBell({ initialCount, userId }: { initialCount: number; userId: string }) {
   const [count, setCount] = useState(initialCount);
 
   useEffect(() => {
@@ -13,43 +13,35 @@ export function NotificationBell({ initialCount }: { initialCount: number }) {
 
   useEffect(() => {
     const supabase = createClient();
-    let channel: ReturnType<typeof supabase.channel> | null = null;
+    const channel = supabase
+      .channel(`nb-${userId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        () => setCount((c) => c + 1)
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${userId}`,
+        },
+        (payload) => {
+          const updated = payload.new as { read_at: string | null };
+          if (updated.read_at) setCount((c) => Math.max(0, c - 1));
+        }
+      )
+      .subscribe();
 
-    supabase.auth.getUser().then(({ data }) => {
-      const userId = data.user?.id ?? null;
-      if (!userId) return;
-
-      channel = supabase
-        .channel("notification-bell")
-        .on(
-          "postgres_changes",
-          {
-            event: "INSERT",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${userId}`,
-          },
-          () => setCount((c) => c + 1)
-        )
-        .on(
-          "postgres_changes",
-          {
-            event: "UPDATE",
-            schema: "public",
-            table: "notifications",
-            filter: `user_id=eq.${userId}`,
-          },
-          (payload) => {
-            // If a notification was just marked read, decrement (floor at 0)
-            const updated = payload.new as { read_at: string | null };
-            if (updated.read_at) setCount((c) => Math.max(0, c - 1));
-          }
-        )
-        .subscribe();
-    });
-
-    return () => { if (channel) supabase.removeChannel(channel); };
-  }, []);
+    return () => { supabase.removeChannel(channel); };
+  }, [userId]);
 
   return (
     <Link

@@ -1,5 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 
+export type TaskClaim = {
+  id: string;
+  user_id: string;
+  user: { display_name: string };
+};
+
 export type EventTask = {
   id: string;
   event_id: string;
@@ -11,6 +17,7 @@ export type EventTask = {
   created_at: string;
   assignee: { display_name: string } | null;
   creator: { display_name: string };
+  claims: TaskClaim[];
 };
 
 export type EventExpense = {
@@ -44,7 +51,8 @@ export async function getEventTasks(eventId: string): Promise<EventTask[]> {
     .select(`
       id, event_id, created_by, title, assigned_to, completed, completed_at, created_at,
       assignee:users!event_tasks_assigned_to_fkey(display_name),
-      creator:users!event_tasks_created_by_fkey(display_name)
+      creator:users!event_tasks_created_by_fkey(display_name),
+      claims:event_task_claims(id, user_id, user:users(display_name))
     `)
     .eq("event_id", eventId)
     .order("created_at", { ascending: true });
@@ -60,7 +68,7 @@ export async function getEventExpenses(eventId: string): Promise<EventExpense[]>
       payer:users!event_expenses_paid_by_fkey(display_name, venmo_handle),
       splits:expense_splits(
         id, expense_id, user_id, amount, paid, paid_at, confirmed, confirmed_at,
-        member:users!expense_splits_user_id_fkey(display_name, venmo_handle)
+        member:users(display_name, venmo_handle)
       )
     `)
     .eq("event_id", eventId)

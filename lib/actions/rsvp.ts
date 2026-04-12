@@ -138,6 +138,84 @@ export async function submitGuestRsvp(
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
 }
 
+export async function setRsvpPaymentStatus(
+  eventId: string,
+  targetUserId: string,
+  paymentStatus: "unpaid" | "paid" | "waived",
+  communitySlug: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const admin = createAdminClient();
+  const { data: event } = await admin
+    .from("events")
+    .select("community_id")
+    .eq("id", eventId)
+    .single();
+  if (!event) throw new Error("Event not found");
+
+  const { data: membership } = await admin
+    .from("community_members")
+    .select("role")
+    .eq("community_id", event.community_id)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+
+  if (!membership || !["admin", "organizer"].includes(membership.role)) {
+    throw new Error("Not authorized");
+  }
+
+  const { error } = await admin
+    .from("rsvps")
+    .update({ payment_status: paymentStatus })
+    .eq("event_id", eventId)
+    .eq("user_id", targetUserId);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+}
+
+export async function toggleCheckIn(
+  eventId: string,
+  targetUserId: string,
+  checkedIn: boolean,
+  communitySlug: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const admin = createAdminClient();
+  const { data: event } = await admin
+    .from("events")
+    .select("community_id")
+    .eq("id", eventId)
+    .single();
+  if (!event) throw new Error("Event not found");
+
+  const { data: membership } = await admin
+    .from("community_members")
+    .select("role")
+    .eq("community_id", event.community_id)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+
+  if (!membership || !["admin", "organizer"].includes(membership.role)) {
+    throw new Error("Not authorized");
+  }
+
+  const { error } = await admin
+    .from("rsvps")
+    .update({ checked_in_at: checkedIn ? new Date().toISOString() : null })
+    .eq("event_id", eventId)
+    .eq("user_id", targetUserId);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+}
+
 export async function removeDateVote(
   optionId: string,
   communitySlug: string,

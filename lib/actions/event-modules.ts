@@ -6,6 +6,41 @@ import { createNotification } from "@/lib/actions/notifications";
 
 // ── Tasks ──────────────────────────────────────────────────────────────────
 
+export async function claimTask(
+  taskId: string,
+  communitySlug: string,
+  eventId: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase.from("event_task_claims").insert({
+    task_id: taskId,
+    user_id: user.id,
+  });
+  if (error) throw new Error(error.message);
+  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+}
+
+export async function unclaimTask(
+  taskId: string,
+  communitySlug: string,
+  eventId: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("event_task_claims")
+    .delete()
+    .eq("task_id", taskId)
+    .eq("user_id", user.id);
+  if (error) throw new Error(error.message);
+  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+}
+
 export async function createEventTask(
   eventId: string,
   title: string,

@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createEventTask, toggleEventTask, deleteEventTask } from "@/lib/actions/event-modules";
+import { claimTask, unclaimTask, createEventTask, deleteEventTask } from "@/lib/actions/event-modules";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { EventTask } from "@/lib/queries/event-modules";
@@ -41,10 +41,15 @@ export function EventTasksPanel({ eventId, communitySlug, tasks, members, curren
     });
   }
 
-  function handleToggle(task: EventTask) {
+  function handleClaim(task: EventTask) {
+    const myClaim = task.claims.find((c) => c.user_id === currentUserId);
     startTransition(async () => {
       try {
-        await toggleEventTask(task.id, !task.completed, communitySlug, eventId);
+        if (myClaim) {
+          await unclaimTask(task.id, communitySlug, eventId);
+        } else {
+          await claimTask(task.id, communitySlug, eventId);
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to update task");
       }
@@ -62,51 +67,26 @@ export function EventTasksPanel({ eventId, communitySlug, tasks, members, curren
     });
   }
 
-  const done = tasks.filter((t) => t.completed);
-  const todo = tasks.filter((t) => !t.completed);
-
   return (
     <div className="space-y-3">
       {tasks.length === 0 && (
         <p className="text-sm text-muted-foreground">No tasks yet. Add one below.</p>
       )}
 
-      {/* To-do */}
-      {todo.length > 0 && (
-        <div className="space-y-2">
-          {todo.map((task) => (
-            <TaskRow
-              key={task.id}
-              task={task}
-              currentUserId={currentUserId}
-              isAdmin={isAdmin}
-              onToggle={() => handleToggle(task)}
-              onDelete={() => handleDelete(task.id)}
-              isPending={isPending}
-            />
-          ))}
-        </div>
-      )}
+      <div className="space-y-2">
+        {tasks.map((task) => (
+          <TaskRow
+            key={task.id}
+            task={task}
+            currentUserId={currentUserId}
+            isAdmin={isAdmin}
+            onClaim={() => handleClaim(task)}
+            onDelete={() => handleDelete(task.id)}
+            isPending={isPending}
+          />
+        ))}
+      </div>
 
-      {/* Done */}
-      {done.length > 0 && (
-        <div className="space-y-2 opacity-60">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Done ({done.length})</p>
-          {done.map((task) => (
-            <TaskRow
-              key={task.id}
-              task={task}
-              currentUserId={currentUserId}
-              isAdmin={isAdmin}
-              onToggle={() => handleToggle(task)}
-              onDelete={() => handleDelete(task.id)}
-              isPending={isPending}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Add form */}
       {showForm ? (
         <form onSubmit={handleAdd} className="space-y-2 pt-1">
           <Input
@@ -144,50 +124,57 @@ export function EventTasksPanel({ eventId, communitySlug, tasks, members, curren
 }
 
 function TaskRow({
-  task, currentUserId, isAdmin, onToggle, onDelete, isPending,
+  task, currentUserId, isAdmin, onClaim, onDelete, isPending,
 }: {
   task: EventTask;
   currentUserId: string;
   isAdmin: boolean;
-  onToggle: () => void;
+  onClaim: () => void;
   onDelete: () => void;
   isPending: boolean;
 }) {
+  const isClaimed = task.claims.some((c) => c.user_id === currentUserId);
   const canDelete = task.created_by === currentUserId || isAdmin;
+  const claimantNames = task.claims.map((c) => c.user.display_name);
 
   return (
-    <div className="flex items-center gap-3 group">
+    <div className="flex items-start gap-3 group">
       <button
-        onClick={onToggle}
+        onClick={onClaim}
         disabled={isPending}
+        title={isClaimed ? "Unclaim task" : "I'm on it"}
         className={cn(
-          "size-5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
-          task.completed
+          "mt-0.5 size-5 rounded border-2 shrink-0 flex items-center justify-center transition-colors",
+          isClaimed
             ? "bg-primary border-primary text-primary-foreground"
             : "border-muted-foreground hover:border-primary"
         )}
       >
-        {task.completed && (
+        {isClaimed && (
           <svg viewBox="0 0 24 24" className="size-3 fill-current"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
         )}
       </button>
 
       <div className="flex-1 min-w-0">
-        <span className={cn("text-sm", task.completed && "line-through text-muted-foreground")}>
-          {task.title}
-        </span>
-        {task.assignee && (
+        <span className="text-sm">{task.title}</span>
+
+        {/* Show who's handling it */}
+        {claimantNames.length > 0 ? (
           <span className="text-xs text-muted-foreground ml-1.5">
-            → {task.assignee.display_name}
+            — {claimantNames.join(", ")}
           </span>
-        )}
+        ) : task.assignee ? (
+          <span className="text-xs text-muted-foreground ml-1.5">
+            assigned to {task.assignee.display_name}
+          </span>
+        ) : null}
       </div>
 
       {canDelete && (
         <button
           onClick={onDelete}
           disabled={isPending}
-          className="text-xs text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+          className="text-xs text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5"
         >
           ×
         </button>

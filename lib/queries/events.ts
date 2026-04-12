@@ -5,6 +5,8 @@ export type EventAttendee = {
   user_id: string;
   status: "yes" | "no" | "maybe";
   guests: number;
+  payment_status: "unpaid" | "paid" | "waived";
+  checked_in_at: string | null;
   user: { id: string; display_name: string; avatar_url: string | null };
 };
 
@@ -35,7 +37,7 @@ export type EventRow = {
   expenses_enabled: boolean;
   registration_fee: number | null;
   created_at: string;
-  creator: { id: string; display_name: string; avatar_url: string | null };
+  creator: { id: string; display_name: string; avatar_url: string | null; venmo_handle: string | null };
   rsvp_counts?: { yes: number; no: number; maybe: number };
   user_rsvp?: { status: string; guests: number } | null;
   date_options?: EventDateOption[];
@@ -45,7 +47,7 @@ export async function listEventAttendees(eventId: string): Promise<EventAttendee
   const admin = createAdminClient();
   const { data } = await admin
     .from("rsvps")
-    .select(`status, guests, user_id, user:users!user_id(id, display_name, avatar_url)`)
+    .select(`status, guests, user_id, payment_status, checked_in_at, user:users!user_id(id, display_name, avatar_url)`)
     .eq("event_id", eventId)
     .in("status", ["yes", "maybe"])
     .order("status"); // yes before maybe
@@ -59,7 +61,7 @@ export async function listCommunityEvents(communityId: string): Promise<EventRow
     .select(`
       id, community_id, created_by, title, description, location, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
-      creator:users!created_by(id, display_name, avatar_url)
+      creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("community_id", communityId)
     .is("deleted_at", null)
@@ -76,7 +78,7 @@ export async function getEventWithDetails(eventId: string, userId?: string): Pro
     .select(`
       id, community_id, created_by, title, description, location, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
-      creator:users!created_by(id, display_name, avatar_url)
+      creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("id", eventId)
     .is("deleted_at", null)

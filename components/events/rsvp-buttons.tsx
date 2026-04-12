@@ -9,13 +9,28 @@ type Props = {
   eventId: string;
   communitySlug: string;
   current: { status: string; guests: number } | null;
+  registrationFee?: number | null;
+  creatorVenmo?: string | null;
 };
 
-export function RsvpButtons({ eventId, communitySlug, current }: Props) {
+export function RsvpButtons({ eventId, communitySlug, current, registrationFee, creatorVenmo }: Props) {
   const [guests, setGuests] = useState(current?.guests ?? 0);
+  const [showFeeGate, setShowFeeGate] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  const hasFee = !!registrationFee && registrationFee > 0;
+  // Only gate if they haven't already RSVPed yes
+  const needsFeeGate = hasFee && current?.status !== "yes";
+
   function handleRsvp(status: "yes" | "no" | "maybe") {
+    if (status === "yes" && needsFeeGate) {
+      setShowFeeGate(true);
+      return;
+    }
+    submitRsvp(status);
+  }
+
+  function submitRsvp(status: "yes" | "no" | "maybe") {
     startTransition(async () => {
       try {
         await upsertRsvp(eventId, status, status === "yes" ? guests : 0, communitySlug);
@@ -23,6 +38,7 @@ export function RsvpButtons({ eventId, communitySlug, current }: Props) {
           status === "yes" ? "You're going!" :
           status === "maybe" ? "Marked as maybe" : "Marked as not going"
         );
+        if (status === "yes") setShowFeeGate(false);
       } catch { toast.error("Failed to update RSVP"); }
     });
   }
@@ -59,6 +75,47 @@ export function RsvpButtons({ eventId, communitySlug, current }: Props) {
             onBlur={() => handleRsvp("yes")}
             className="w-16 rounded-lg border bg-background px-2 py-1 text-sm text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
+        </div>
+      )}
+
+      {/* Registration fee gate */}
+      {showFeeGate && (
+        <div className="rounded-xl border bg-card p-4 space-y-3">
+          <p className="text-sm font-medium">Registration fee required</p>
+          <p className="text-sm text-muted-foreground">
+            This event has a <span className="font-medium text-foreground">${registrationFee!.toFixed(2)}</span> registration fee.
+          </p>
+          {creatorVenmo ? (
+            <p className="text-sm">
+              Please pay via Venmo:{" "}
+              <a
+                href={`https://venmo.com/${creatorVenmo}?txn=pay&amount=${registrationFee}&note=${encodeURIComponent("Event registration fee")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline"
+              >
+                @{creatorVenmo}
+              </a>
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground">Contact the event organizer for payment details.</p>
+          )}
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              disabled={isPending}
+              onClick={() => submitRsvp("yes")}
+            >
+              {isPending ? "Saving…" : "I've paid — confirm RSVP"}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => setShowFeeGate(false)}
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       )}
     </div>

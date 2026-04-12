@@ -14,8 +14,9 @@ import { cn } from "@/lib/utils";
 import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership, getActiveMemberCount, listActiveMembers } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
-import { getEventWithDetails, listEventAttendees, type EventAttendee } from "@/lib/queries/events";
+import { getEventWithDetails, listEventAttendees } from "@/lib/queries/events";
 import { getEventTasks, getEventExpenses } from "@/lib/queries/event-modules";
+import { AttendeeList } from "@/components/events/attendee-list";
 import { cancelEvent } from "@/lib/actions/events";
 import { toggleEventModule } from "@/lib/actions/event-modules";
 
@@ -162,7 +163,15 @@ export default async function EventDetailPage({ params }: Props) {
         {event.rsvp_counts && event.status === "confirmed" && (
           <>
             <RsvpCounts counts={event.rsvp_counts} />
-            {attendees.length > 0 && <AttendeeList attendees={attendees} />}
+            {attendees.length > 0 && (
+              <AttendeeList
+                attendees={attendees}
+                isAdmin={isAdmin}
+                registrationFee={event.registration_fee}
+                eventId={eventId}
+                communitySlug={slug}
+              />
+            )}
           </>
         )}
 
@@ -180,7 +189,13 @@ export default async function EventDetailPage({ params }: Props) {
         {event.status === "confirmed" && !isCancelled && (
           <div className="space-y-2">
             <p className="text-sm font-medium">Your RSVP</p>
-            <RsvpButtons eventId={event.id} communitySlug={slug} current={event.user_rsvp ?? null} />
+            <RsvpButtons
+              eventId={event.id}
+              communitySlug={slug}
+              current={event.user_rsvp ?? null}
+              registrationFee={event.registration_fee}
+              creatorVenmo={event.creator.venmo_handle}
+            />
           </div>
         )}
 
@@ -280,6 +295,7 @@ export default async function EventDetailPage({ params }: Props) {
                 expenses={expenses}
                 members={memberList}
                 currentUserId={user.id}
+                eventStartsAt={event.starts_at}
               />
             </div>
           </>
@@ -410,37 +426,3 @@ function RsvpCounts({
   );
 }
 
-function AttendeeList({ attendees }: { attendees: EventAttendee[] }) {
-  const going = attendees.filter((a) => a.status === "yes");
-  const maybe = attendees.filter((a) => a.status === "maybe");
-
-  return (
-    <div className="space-y-3">
-      {going.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Going</p>
-          <div className="flex flex-wrap gap-2">
-            {going.map((a) => (
-              <a key={a.user_id} href={`/profile/${a.user_id}`} className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-sm hover:bg-muted/50 transition-colors">
-                {a.user.display_name}
-                {a.guests > 0 && <span className="text-xs text-muted-foreground">+{a.guests}</span>}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-      {maybe.length > 0 && (
-        <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Maybe</p>
-          <div className="flex flex-wrap gap-2">
-            {maybe.map((a) => (
-              <a key={a.user_id} href={`/profile/${a.user_id}`} className="flex items-center gap-1.5 rounded-full border bg-card px-3 py-1 text-sm text-muted-foreground hover:bg-muted/50 transition-colors">
-                {a.user.display_name}
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
