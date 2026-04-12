@@ -25,7 +25,7 @@ export function getEmbedMeta(rawUrl: string): EmbedMeta | null {
       if (!videoId) return null;
       return {
         type: "video",
-        embedUrl: `https://www.youtube.com/embed/${videoId}`,
+        embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}`,
         thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
       };
     }

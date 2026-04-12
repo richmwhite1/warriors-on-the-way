@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,21 +18,28 @@ const TIMEZONES = [
 
 type Props = { communityId: string; communitySlug: string };
 
-export function CreateEventForm({ communityId }: Props) {
+export function CreateEventForm({ communityId, communitySlug }: Props) {
+  const router = useRouter();
   const [mode, setMode] = useState<"confirmed" | "voting">("confirmed");
   const [dateOptions, setDateOptions] = useState([{ starts_at: "", ends_at: "" }]);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [tasksEnabled, setTasksEnabled] = useState(false);
+  const [expensesEnabled, setExpensesEnabled] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     fd.set("community_id", communityId);
+    fd.set("community_slug", communitySlug);
     fd.set("mode", mode);
+    fd.set("tasks_enabled", String(tasksEnabled));
+    fd.set("expenses_enabled", String(expensesEnabled));
     if (imageUrl) fd.set("image_url", imageUrl);
     startTransition(async () => {
       try {
-        await createEvent(fd);
+        const { eventId, communitySlug: slug } = await createEvent(fd);
+        router.push(`/community/${slug}/events/${eventId}`);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to create event");
       }
@@ -74,12 +82,26 @@ export function CreateEventForm({ communityId }: Props) {
         </div>
       </div>
 
-      <div className="space-y-1.5">
-        <Label htmlFor="timezone">Timezone</Label>
-        <select id="timezone" name="timezone" defaultValue="America/Los_Angeles"
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>)}
-        </select>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="registration_fee">Registration fee ($)</Label>
+          <Input
+            id="registration_fee"
+            name="registration_fee"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00 (free)"
+          />
+          <p className="text-xs text-muted-foreground">Leave blank for free events</p>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="timezone">Timezone</Label>
+          <select id="timezone" name="timezone" defaultValue="America/Los_Angeles"
+            className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>)}
+          </select>
+        </div>
       </div>
 
       {/* Date mode toggle */}
@@ -140,6 +162,35 @@ export function CreateEventForm({ communityId }: Props) {
           </div>
         </div>
       )}
+
+      {/* Optional modules */}
+      <fieldset className="space-y-3 rounded-xl border p-4">
+        <legend className="text-sm font-medium px-1">Optional modules</legend>
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={tasksEnabled}
+            onChange={(e) => setTasksEnabled(e.target.checked)}
+          />
+          <div>
+            <p className="text-sm font-medium">Tasks</p>
+            <p className="text-xs text-muted-foreground">Assign volunteer tasks to attendees</p>
+          </div>
+        </label>
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            className="mt-0.5"
+            checked={expensesEnabled}
+            onChange={(e) => setExpensesEnabled(e.target.checked)}
+          />
+          <div>
+            <p className="text-sm font-medium">Shared expenses</p>
+            <p className="text-xs text-muted-foreground">Track and split costs with Venmo links</p>
+          </div>
+        </label>
+      </fieldset>
 
       <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? "Creating…" : "Create event"}

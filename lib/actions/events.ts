@@ -2,17 +2,20 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+// redirect is used by updateEvent (not createEvent — createEvent returns the URL)
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEventNotification } from "@/lib/integrations/telegram";
 import { notifyCommunityMembers } from "@/lib/actions/notifications";
 
-export async function createEvent(formData: FormData) {
+export async function createEvent(formData: FormData): Promise<{ eventId: string; communitySlug: string }> {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
   const community_id = formData.get("community_id") as string;
+  // community_slug is passed from the form so redirect never depends on a DB lookup
+  const community_slug_from_form = (formData.get("community_slug") as string) || "";
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
@@ -21,6 +24,9 @@ export async function createEvent(formData: FormData) {
   const timezone = (formData.get("timezone") as string) || "UTC";
   const mode = formData.get("mode") as string; // "confirmed" | "voting"
   const vote_threshold = parseInt(formData.get("vote_threshold") as string) || 75;
+  const registration_fee = parseFloat(formData.get("registration_fee") as string) || 0;
+  const tasks_enabled = formData.get("tasks_enabled") === "true";
+  const expenses_enabled = formData.get("expenses_enabled") === "true";
 
   if (!title) throw new Error("Title is required");
 
@@ -39,7 +45,13 @@ export async function createEvent(formData: FormData) {
 
   const { data: event, error } = await supabase
     .from("events")
-    .insert({ community_id, created_by: user.id, title, description, location, virtual_url, image_url, timezone, starts_at, ends_at, status, vote_threshold })
+    .insert({
+      community_id, created_by: user.id, title, description, location, virtual_url,
+      image_url, timezone, starts_at, ends_at, status, vote_threshold,
+      registration_fee: registration_fee > 0 ? registration_fee : null,
+      tasks_enabled,
+      expenses_enabled,
+    })
     .select("id")
     .single();
 
@@ -99,7 +111,9 @@ export async function createEvent(formData: FormData) {
   }
   // ────────────────────────────────────────────────────────────────────────
 
-  redirect(`/community/${communityData?.slug}/events/${event.id}`);
+  // Use slug from form first (always available), fall back to DB lookup
+  const finalSlug = communityData?.slug || community_slug_from_form;
+  return { eventId: event.id, communitySlug: finalSlug };
 }
 
 export async function updateEvent(eventId: string, formData: FormData) {

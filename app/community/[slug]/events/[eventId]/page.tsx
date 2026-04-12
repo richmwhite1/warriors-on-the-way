@@ -343,6 +343,7 @@ function EventMeta({
     timezone: string;
     location: string | null;
     virtual_url: string | null;
+    registration_fee?: number | null;
   };
 }) {
   return (
@@ -385,6 +386,11 @@ function EventMeta({
         >
           <span>🔗</span> Join virtually
         </a>
+      )}
+      {event.registration_fee != null && event.registration_fee > 0 && (
+        <p className="text-sm font-medium flex items-center gap-1.5">
+          <span>💵</span> ${event.registration_fee.toFixed(2)} registration fee
+        </p>
       )}
     </div>
   );
