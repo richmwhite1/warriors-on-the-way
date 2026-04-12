@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchYouTubeOEmbed } from "@/lib/integrations/youtube";
 import { sendPostNotification } from "@/lib/integrations/telegram";
+import { notifyCommunityMembers } from "@/lib/actions/notifications";
 import type { PostType } from "@/lib/queries/posts";
 
 export async function createPost(formData: FormData) {
@@ -119,6 +120,22 @@ export async function createPost(formData: FormData) {
     }
   }
   // ───────────────────────────────────────────────────────────────────────────
+
+  // In-app push notification to community members (skip for push_to_all broadcasts)
+  if (!push_to_all) {
+    const { data: community } = await createAdminClient()
+      .from("communities")
+      .select("slug, name")
+      .eq("id", community_id)
+      .single();
+    if (community) {
+      const c = community as { slug: string; name: string };
+      await notifyCommunityMembers(community_id, "post_created", {
+        community_name: c.name,
+        community_slug: c.slug,
+      }, user.id);
+    }
+  }
 
   revalidatePath(`/community/[slug]`, "page");
   revalidatePath("/home");

@@ -109,7 +109,7 @@ export async function sendMessage(chatId: string, text: string): Promise<void> {
   const res = await fetch(apiUrl("sendMessage"), {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML" }),
+    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "HTML", disable_web_page_preview: true }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
@@ -142,7 +142,7 @@ export async function sendPostNotification(
   const communityUrl = `${siteUrl}/community/${opts.communitySlug}`;
   await sendMessage(
     chatId,
-    `${emoji} <b>${opts.communityName}</b>\n\n${preview}\n\n— ${opts.authorName} · <a href="${communityUrl}">link</a>`
+    `${emoji} <b>${opts.communityName}</b>\n\n${preview}\n\n<a href="${communityUrl}">link</a>`
   );
 }
 

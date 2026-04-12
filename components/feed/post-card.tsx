@@ -151,10 +151,13 @@ export function PostCard({
   }
 
   return (
-    <article className={cn(
-      "rounded-2xl border bg-card p-5 space-y-4",
-      pinned && "border-primary/30 bg-primary/5"
-    )}>
+    <article
+      id={`post-${post.id}`}
+      className={cn(
+        "rounded-2xl border bg-card p-5 space-y-4",
+        pinned && "border-primary/30 bg-primary/5"
+      )}
+    >
       {/* Pinned indicator */}
       {pinned && (
         <div className="flex items-center gap-1.5 -mt-1 text-xs text-primary font-medium">
@@ -386,7 +389,7 @@ function EmbedBlock({ embedUrl, title }: { embedUrl: string; title?: string }) {
           height="352"
           width="100%"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-          loading="lazy"
+          allowFullScreen
           className="block"
         />
       </div>

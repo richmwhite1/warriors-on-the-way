@@ -37,7 +37,7 @@ export function getEmbedMeta(rawUrl: string): EmbedMeta | null {
         const [spotifyType, spotifyId] = parts;
         return {
           type: "music",
-          embedUrl: `https://open.spotify.com/embed/${spotifyType}/${spotifyId}?utm_source=generator&theme=0`,
+          embedUrl: `https://open.spotify.com/embed/${spotifyType}/${spotifyId}?utm_source=generator`,
           thumbnailUrl: null,
         };
       }

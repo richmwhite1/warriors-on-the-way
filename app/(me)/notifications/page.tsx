@@ -13,6 +13,7 @@ const TYPE_LABELS: Record<string, string> = {
   event_updated: "Event updated",
   event_cancelled: "Event cancelled",
   rsvp_reminder: "RSVP reminder",
+  rsvp_created: "New RSVP",
   post_created: "New post",
   comment_on_post: "New comment",
   member_joined: "New member",
@@ -20,6 +21,8 @@ const TYPE_LABELS: Record<string, string> = {
   join_request: "Join request",
   report_actioned: "Report actioned",
   dm_received: "New message",
+  expense_paid: "Payment received",
+  expense_confirmed: "Payment confirmed",
 };
 
 function notificationSummary(type: string, payload: Record<string, unknown>): string {
@@ -36,6 +39,16 @@ function notificationSummary(type: string, payload: Record<string, unknown>): st
       return (payload.actor_name as string)
         ? `${payload.actor_name} commented on your post`
         : "Someone commented on your post";
+    case "rsvp_created":
+      return (payload.actor_name as string)
+        ? `${payload.actor_name} is attending ${(payload.event_title as string) ?? "your event"}`
+        : "Someone RSVPed to your event";
+    case "expense_paid":
+      return (payload.actor_name as string)
+        ? `${payload.actor_name} paid you for ${(payload.description as string) ?? "an expense"}`
+        : "Someone paid you for an expense";
+    case "expense_confirmed":
+      return `Your payment for ${(payload.description as string) ?? "an expense"} was confirmed`;
     case "member_joined":
       return (payload.actor_name as string)
         ? `${payload.actor_name} joined your community`
@@ -63,11 +76,11 @@ function notificationLink(type: string, payload: Record<string, unknown>): strin
   if (type === "dm_received" && payload.actor_id) {
     return `/messages/${payload.actor_id}`;
   }
+  if (type === "comment_on_post" && payload.community_slug && payload.post_id) {
+    return `/community/${payload.community_slug}#post-${payload.post_id}`;
+  }
   if (payload.community_slug && payload.event_id) {
     return `/community/${payload.community_slug}/events/${payload.event_id}`;
-  }
-  if (payload.community_slug && payload.post_id) {
-    return `/community/${payload.community_slug}`;
   }
   if (payload.community_slug) {
     return `/community/${payload.community_slug}`;

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createNotification } from "@/lib/actions/notifications";
 
 export async function upsertRsvp(
   eventId: string,
@@ -21,6 +22,35 @@ export async function upsertRsvp(
 
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+
+  // Notify event organizer when someone RSVPs yes (best-effort)
+  if (status === "yes") {
+    try {
+      const admin = createAdminClient();
+      const { data: event } = await admin
+        .from("events")
+        .select("created_by, title")
+        .eq("id", eventId)
+        .single();
+
+      if (event && event.created_by !== user.id) {
+        const { data: rsvpUser } = await admin
+          .from("users")
+          .select("display_name")
+          .eq("id", user.id)
+          .single();
+
+        await createNotification(event.created_by, "rsvp_created", {
+          actor_name: (rsvpUser as { display_name?: string } | null)?.display_name ?? "Someone",
+          event_title: (event as { title?: string }).title ?? "your event",
+          event_id: eventId,
+          community_slug: communitySlug,
+        });
+      }
+    } catch {
+      // best-effort
+    }
+  }
 }
 
 export async function castDateVote(

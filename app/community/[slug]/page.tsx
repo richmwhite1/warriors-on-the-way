@@ -131,20 +131,28 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             <p className="text-muted-foreground text-sm">{community.description}</p>
           )}
 
-          {/* Mission statement */}
+          {/* Mission statement — collapsible */}
           {community.mission && (
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Mission</p>
-              <p className="text-sm whitespace-pre-wrap">{community.mission}</p>
-            </div>
+            <details className="rounded-2xl border">
+              <summary className="px-4 py-3 text-sm font-medium cursor-pointer select-none text-muted-foreground hover:text-foreground transition-colors">
+                Mission ↓
+              </summary>
+              <div className="px-4 pb-4 pt-2 border-t">
+                <p className="text-sm whitespace-pre-wrap">{community.mission}</p>
+              </div>
+            </details>
           )}
 
-          {/* Parent community: show rules inline */}
+          {/* Parent community: show rules collapsed */}
           {community.is_parent && community.rules_md && (
-            <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Community Standards</p>
-              <p className="text-sm whitespace-pre-wrap">{community.rules_md}</p>
-            </div>
+            <details className="rounded-2xl border">
+              <summary className="px-4 py-3 text-sm font-medium cursor-pointer select-none text-muted-foreground hover:text-foreground transition-colors">
+                Community Standards ↓
+              </summary>
+              <div className="px-4 pb-4 pt-2 border-t">
+                <p className="text-sm whitespace-pre-wrap">{community.rules_md}</p>
+              </div>
+            </details>
           )}
 
           {/* Child community: show parent rules collapsed */}

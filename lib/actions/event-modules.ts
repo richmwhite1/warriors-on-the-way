@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createNotification } from "@/lib/actions/notifications";
 
 // ── Tasks ──────────────────────────────────────────────────────────────────
 
@@ -134,6 +135,37 @@ export async function markSplitPaid(
     .eq("user_id", user.id);
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+
+  // Notify the expense payer that their money is on the way (best-effort)
+  try {
+    const { data: split } = await supabase
+      .from("expense_splits")
+      .select("expense_id")
+      .eq("id", splitId)
+      .single();
+    if (split) {
+      const { data: expense } = await supabase
+        .from("event_expenses")
+        .select("paid_by, description")
+        .eq("id", split.expense_id)
+        .single();
+      if (expense && expense.paid_by !== user.id) {
+        const { data: payer } = await supabase
+          .from("users")
+          .select("display_name")
+          .eq("id", user.id)
+          .single();
+        await createNotification(expense.paid_by, "expense_paid", {
+          actor_name: (payer as { display_name?: string } | null)?.display_name ?? "Someone",
+          description: (expense as { description?: string }).description ?? "an expense",
+          event_id: eventId,
+          community_slug: communitySlug,
+        });
+      }
+    }
+  } catch {
+    // best-effort
+  }
 }
 
 export async function confirmSplitReceived(
@@ -148,7 +180,7 @@ export async function confirmSplitReceived(
   // Only the payer of the expense can confirm receipt
   const { data: split } = await supabase
     .from("expense_splits")
-    .select("expense_id")
+    .select("expense_id, user_id")
     .eq("id", splitId)
     .single();
 
@@ -156,11 +188,13 @@ export async function confirmSplitReceived(
 
   const { data: expense } = await supabase
     .from("event_expenses")
-    .select("paid_by")
+    .select("paid_by, description")
     .eq("id", split.expense_id)
     .single();
 
   if (expense?.paid_by !== user.id) throw new Error("Only the payer can confirm receipt");
+
+  const splitUserId = (split as { user_id?: string }).user_id;
 
   const { error } = await supabase
     .from("expense_splits")
@@ -168,6 +202,19 @@ export async function confirmSplitReceived(
     .eq("id", splitId);
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+
+  // Notify the person whose payment was confirmed (best-effort)
+  if (splitUserId && splitUserId !== user.id) {
+    try {
+      await createNotification(splitUserId, "expense_confirmed", {
+        description: (expense as { description?: string }).description ?? "an expense",
+        event_id: eventId,
+        community_slug: communitySlug,
+      });
+    } catch {
+      // best-effort
+    }
+  }
 }
 
 // ── Toggle modules (admin/organizer/creator only) ─────────────────────────
