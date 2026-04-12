@@ -85,6 +85,24 @@ export function ProfileForm({ user }: { user: UserProfile }) {
         </select>
       </div>
 
+      <div className="space-y-1.5">
+        <Label htmlFor="venmo_handle">Venmo username</Label>
+        <div className="relative">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">@</span>
+          <Input
+            id="venmo_handle"
+            name="venmo_handle"
+            defaultValue={user.venmo_handle ?? ""}
+            maxLength={40}
+            placeholder="your-venmo"
+            className="pl-7"
+          />
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Shows next to your name on event expense splits so members can pay you.
+        </p>
+      </div>
+
       <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
         {isPending ? "Saving…" : "Save profile"}
       </Button>

@@ -18,6 +18,7 @@ export type MemberWithProfile = {
     id: string;
     display_name: string;
     avatar_url: string | null;
+    venmo_handle: string | null;
   };
 };
 
@@ -41,7 +42,7 @@ export async function listActiveMembers(communityId: string): Promise<MemberWith
     .from("community_members")
     .select(`
       id, role, status, joined_at,
-      user:users(id, display_name, avatar_url)
+      user:users(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("community_id", communityId)
     .eq("status", "active")
@@ -55,7 +56,7 @@ export async function listWaitlistedMembers(communityId: string): Promise<Member
     .from("community_members")
     .select(`
       id, role, status, joined_at,
-      user:users(id, display_name, avatar_url)
+      user:users(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("community_id", communityId)
     .in("status", ["waitlisted", "pending_approval"])

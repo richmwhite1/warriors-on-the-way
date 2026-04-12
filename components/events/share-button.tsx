@@ -16,9 +16,14 @@ export function ShareButton({ title, text, url, size = "sm", variant = "outline"
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
+    // Ensure absolute URL so it works when shared outside the app
+    const absoluteUrl = url.startsWith("/")
+      ? `${window.location.origin}${url}`
+      : url;
+
     if (typeof navigator !== "undefined" && navigator.share) {
       try {
-        await navigator.share({ title, text, url });
+        await navigator.share({ title, text, url: absoluteUrl });
         return;
       } catch {
         // User cancelled or share failed — fall through to clipboard
@@ -27,7 +32,7 @@ export function ShareButton({ title, text, url, size = "sm", variant = "outline"
 
     // Clipboard fallback
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(absoluteUrl);
       setCopied(true);
       toast.success("Link copied to clipboard");
       setTimeout(() => setCopied(false), 2000);

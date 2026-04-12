@@ -42,7 +42,7 @@ type Props = {
 export function PostCard({
   post, comments, communitySlug, currentUserId, isAdmin, isMember, isPinned,
 }: Props) {
-  const [showComments, setShowComments] = useState(false);
+  const [showComments, setShowComments] = useState(true);
   const [commentText, setCommentText] = useState("");
   const [isPending, startTransition] = useTransition();
   const [showReport, setShowReport] = useState(false);
@@ -341,7 +341,7 @@ export function PostCard({
       </div>
 
       {/* Comments */}
-      {showComments && (
+      {showComments && comments.length > 0 && (
         <div className="space-y-3 pl-3 border-l-2 border-muted">
           {comments.map((c) => (
             <CommentRow
@@ -352,34 +352,38 @@ export function PostCard({
               isAdmin={isAdmin}
             />
           ))}
-          {isMember && (
-            <form onSubmit={handleComment} className="flex gap-2">
-              <input
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                placeholder="Add a comment…"
-                maxLength={500}
-                className="flex-1 rounded-lg border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              />
-              <Button type="submit" size="sm" disabled={isPending || !commentText.trim()}>Post</Button>
-            </form>
-          )}
         </div>
+      )}
+
+      {/* Comment input — always visible for members */}
+      {isMember && (
+        <form onSubmit={handleComment} className="flex gap-2">
+          <input
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            placeholder="Add a comment…"
+            maxLength={500}
+            className="flex-1 rounded-lg border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          />
+          <Button type="submit" size="sm" disabled={isPending || !commentText.trim()}>Post</Button>
+        </form>
       )}
     </article>
   );
 }
 
-// Unified embed renderer (YouTube iframe + Spotify)
+// Unified embed renderer (YouTube click-to-play + Spotify full player)
 function EmbedBlock({ embedUrl, title }: { embedUrl: string; title?: string }) {
+  const [playing, setPlaying] = useState(false);
   const isSpotify = embedUrl.includes("spotify.com");
 
   if (isSpotify) {
+    // Full-height player lets users sign in to Spotify and stream
     return (
       <div className="rounded-xl overflow-hidden border">
         <iframe
           src={embedUrl}
-          height="152"
+          height="352"
           width="100%"
           allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
           loading="lazy"
@@ -389,17 +393,43 @@ function EmbedBlock({ embedUrl, title }: { embedUrl: string; title?: string }) {
     );
   }
 
+  // YouTube — extract video ID for thumbnail, click-to-play avoids bot detection
+  const ytMatch = embedUrl.match(/embed\/([^?&/]+)/);
+  const videoId = ytMatch?.[1];
+  const thumbUrl = videoId ? `https://img.youtube.com/vi/${videoId}/hqdefault.jpg` : null;
+
+  if (playing || !thumbUrl) {
+    return (
+      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+        <iframe
+          src={`${embedUrl}${embedUrl.includes("?") ? "&" : "?"}rel=0&autoplay=1`}
+          title={title ?? "Video"}
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+          className="absolute inset-0 w-full h-full"
+        />
+      </div>
+    );
+  }
+
   return (
-    <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
-      <iframe
-        src={`${embedUrl}${embedUrl.includes("?") ? "&" : "?"}rel=0`}
-        title={title ?? "Video"}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen
-        loading="lazy"
-        className="absolute inset-0 w-full h-full"
-      />
-    </div>
+    <button
+      onClick={() => setPlaying(true)}
+      className="relative w-full aspect-video rounded-xl overflow-hidden bg-black group"
+    >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={thumbUrl} alt={title ?? "Video"} className="absolute inset-0 w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="size-16 rounded-full bg-black/70 flex items-center justify-center group-hover:bg-black/90 transition-colors">
+          <svg viewBox="0 0 24 24" className="size-7 fill-white ml-1"><path d="M8 5v14l11-7z" /></svg>
+        </div>
+      </div>
+      {title && (
+        <div className="absolute bottom-0 inset-x-0 p-3 bg-gradient-to-t from-black/70 to-transparent text-left">
+          <p className="text-white text-xs font-medium line-clamp-1">{title}</p>
+        </div>
+      )}
+    </button>
   );
 }
 

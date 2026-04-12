@@ -5,15 +5,19 @@ import { RsvpButtons } from "@/components/events/rsvp-buttons";
 import { GuestRsvpForm } from "@/components/events/guest-rsvp-form";
 import { ShareButton } from "@/components/events/share-button";
 import { VotingPanel } from "@/components/events/voting-panel";
+import { EventTasksPanel } from "@/components/events/event-tasks-panel";
+import { EventExpensesPanel } from "@/components/events/event-expenses-panel";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { getCommunityBySlug } from "@/lib/queries/communities";
-import { getMembership, getActiveMemberCount } from "@/lib/queries/members";
+import { getMembership, getActiveMemberCount, listActiveMembers } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
 import { getEventWithDetails, listEventAttendees, type EventAttendee } from "@/lib/queries/events";
+import { getEventTasks, getEventExpenses } from "@/lib/queries/event-modules";
 import { cancelEvent } from "@/lib/actions/events";
+import { toggleEventModule } from "@/lib/actions/event-modules";
 
 type Props = { params: Promise<{ slug: string; eventId: string }> };
 
@@ -113,13 +117,22 @@ export default async function EventDetailPage({ params }: Props) {
   const event = await getEventWithDetails(eventId, user.id);
   if (!event) notFound();
 
-  const [memberCount, attendees] = await Promise.all([
+  const [memberCount, attendees, allMembers, tasks, expenses] = await Promise.all([
     getActiveMemberCount(community.id),
     event.status === "confirmed" ? listEventAttendees(eventId) : Promise.resolve([]),
+    listActiveMembers(community.id),
+    getEventTasks(eventId),
+    getEventExpenses(eventId),
   ]);
   const isCreator = event.created_by === user.id;
   const canManage = isAdmin || isCreator;
   const isCancelled = event.status === "cancelled";
+
+  const memberList = allMembers.map((m) => ({
+    id: m.user.id,
+    display_name: m.user.display_name,
+    venmo_handle: m.user.venmo_handle,
+  }));
 
   const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/community/${slug}/events/${eventId}`;
 
@@ -201,6 +214,73 @@ export default async function EventDetailPage({ params }: Props) {
                   Cancel event
                 </button>
               </form>
+            </div>
+
+            {/* Module toggles for admin/creator */}
+            <div className="flex gap-2 flex-wrap pt-1">
+              <form action={async () => {
+                "use server";
+                await toggleEventModule(eventId, "tasks_enabled", !event.tasks_enabled, slug);
+              }}>
+                <button
+                  type="submit"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    event.tasks_enabled && "border-primary text-primary"
+                  )}
+                >
+                  {event.tasks_enabled ? "✓ Tasks on" : "Enable tasks"}
+                </button>
+              </form>
+              <form action={async () => {
+                "use server";
+                await toggleEventModule(eventId, "expenses_enabled", !event.expenses_enabled, slug);
+              }}>
+                <button
+                  type="submit"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "sm" }),
+                    event.expenses_enabled && "border-primary text-primary"
+                  )}
+                >
+                  {event.expenses_enabled ? "✓ Expenses on" : "Enable expenses"}
+                </button>
+              </form>
+            </div>
+          </>
+        )}
+
+        {/* Tasks module */}
+        {event.tasks_enabled && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <p className="text-sm font-medium">Tasks</p>
+              <EventTasksPanel
+                eventId={eventId}
+                communitySlug={slug}
+                tasks={tasks}
+                members={memberList}
+                currentUserId={user.id}
+                isAdmin={isAdmin}
+              />
+            </div>
+          </>
+        )}
+
+        {/* Expenses module */}
+        {event.expenses_enabled && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <p className="text-sm font-medium">Expenses</p>
+              <EventExpensesPanel
+                eventId={eventId}
+                communitySlug={slug}
+                expenses={expenses}
+                members={memberList}
+                currentUserId={user.id}
+              />
             </div>
           </>
         )}

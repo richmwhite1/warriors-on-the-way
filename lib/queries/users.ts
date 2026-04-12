@@ -6,6 +6,7 @@ export type UserProfile = {
   bio: string | null;
   avatar_url: string | null;
   timezone: string;
+  venmo_handle: string | null;
   created_at: string;
 };
 
@@ -21,7 +22,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   const supabase = await createClient();
   const { data } = await supabase
     .from("users")
-    .select("id, display_name, bio, avatar_url, timezone, created_at")
+    .select("id, display_name, bio, avatar_url, timezone, venmo_handle, created_at")
     .eq("id", userId)
     .single();
   return data;
@@ -36,7 +37,7 @@ export async function requireUserProfile(): Promise<UserProfile> {
 
   const { data } = await supabase
     .from("users")
-    .select("id, display_name, bio, avatar_url, timezone, created_at")
+    .select("id, display_name, bio, avatar_url, timezone, venmo_handle, created_at")
     .eq("id", user.id)
     .single();
 

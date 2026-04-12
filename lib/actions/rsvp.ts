@@ -94,8 +94,8 @@ export async function submitGuestRsvp(
 
   if (!event) throw new Error("Event not found");
 
-  const community = (event.communities as unknown as { allow_guest_rsvp: boolean });
-  if (!community.allow_guest_rsvp) throw new Error("Guest RSVPs are not allowed for this event");
+  const community = (event.communities as unknown as { allow_guest_rsvp: boolean | null });
+  if (community.allow_guest_rsvp === false) throw new Error("Guest RSVPs are not allowed for this event");
 
   const { error } = await admin.from("guest_rsvps").insert({
     event_id: eventId,

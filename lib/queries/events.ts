@@ -31,6 +31,8 @@ export type EventRow = {
   timezone: string;
   status: "draft" | "voting" | "confirmed" | "cancelled";
   vote_threshold: number;
+  tasks_enabled: boolean;
+  expenses_enabled: boolean;
   created_at: string;
   creator: { id: string; display_name: string; avatar_url: string | null };
   rsvp_counts?: { yes: number; no: number; maybe: number };
@@ -55,7 +57,7 @@ export async function listCommunityEvents(communityId: string): Promise<EventRow
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
       creator:users!created_by(id, display_name, avatar_url)
     `)
     .eq("community_id", communityId)
@@ -72,7 +74,7 @@ export async function getEventWithDetails(eventId: string, userId?: string): Pro
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
       creator:users!created_by(id, display_name, avatar_url)
     `)
     .eq("id", eventId)
