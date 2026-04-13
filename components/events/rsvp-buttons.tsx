@@ -30,10 +30,10 @@ export function RsvpButtons({ eventId, communitySlug, current, registrationFee, 
     submitRsvp(status);
   }
 
-  function submitRsvp(status: "yes" | "no" | "maybe") {
+  function submitRsvp(status: "yes" | "no" | "maybe", throughFeeGate = false) {
     startTransition(async () => {
       try {
-        await upsertRsvp(eventId, status, status === "yes" ? guests : 0, communitySlug);
+        await upsertRsvp(eventId, status, status === "yes" ? guests : 0, communitySlug, throughFeeGate);
         toast.success(
           status === "yes" ? "You're going!" :
           status === "maybe" ? "Marked as maybe" : "Marked as not going"
@@ -72,6 +72,7 @@ export function RsvpButtons({ eventId, communitySlug, current, registrationFee, 
             max={10}
             value={guests}
             onChange={(e) => setGuests(Number(e.target.value))}
+            onFocus={(e) => e.target.select()}
             onBlur={() => handleRsvp("yes")}
             className="w-16 rounded-lg border bg-background px-2 py-1 text-sm text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
@@ -104,7 +105,7 @@ export function RsvpButtons({ eventId, communitySlug, current, registrationFee, 
             <Button
               size="sm"
               disabled={isPending}
-              onClick={() => submitRsvp("yes")}
+              onClick={() => submitRsvp("yes", true)}
             >
               {isPending ? "Saving…" : "I've paid — confirm RSVP"}
             </Button>

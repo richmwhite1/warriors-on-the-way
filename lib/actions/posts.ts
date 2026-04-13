@@ -208,6 +208,59 @@ export async function deletePost(postId: string, communitySlug: string) {
   revalidatePath(`/community/${communitySlug}`);
 }
 
+export async function repostPost(
+  postId: string,
+  targetCommunityId: string,
+  targetCommunitySlug: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  // Verify the user is an active member of the target community
+  const { data: membership } = await supabase
+    .from("community_members")
+    .select("role")
+    .eq("community_id", targetCommunityId)
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .single();
+  if (!membership) throw new Error("You're not a member of that community");
+
+  // Fetch original post + community name for attribution
+  const admin = createAdminClient();
+  const { data: original } = await admin
+    .from("posts")
+    .select("post_type, title, body, embed_url, youtube_url, youtube_oembed, communities!community_id(name)")
+    .eq("id", postId)
+    .is("deleted_at", null)
+    .single();
+  if (!original) throw new Error("Post not found");
+
+  const sourceName = (original.communities as unknown as { name: string } | null)?.name ?? "another community";
+  const attribution = `[Reposted from ${sourceName}]`;
+  const newBody = original.body
+    ? `${original.body}\n\n${attribution}`
+    : attribution;
+
+  const { error } = await supabase.from("posts").insert({
+    community_id: targetCommunityId,
+    author_id: user.id,
+    post_type: original.post_type,
+    title: original.title,
+    body: newBody,
+    embed_url: original.embed_url,
+    youtube_url: original.youtube_url,
+    youtube_oembed: original.youtube_oembed,
+    push_to_all: false,
+  });
+
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/community/${targetCommunitySlug}`);
+  revalidatePath("/home");
+}
+
 export async function reportPost(postId: string, reason: string) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();

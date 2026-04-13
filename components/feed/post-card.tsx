@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { deletePost, reportPost, pinPost, updatePost } from "@/lib/actions/posts";
+import { deletePost, reportPost, pinPost, updatePost, repostPost } from "@/lib/actions/posts";
 import { toggleReaction } from "@/lib/actions/reactions";
 import { createComment, deleteComment } from "@/lib/actions/comments";
 import { toast } from "sonner";
@@ -28,6 +28,8 @@ const TYPE_LABELS: Record<string, string> = {
   music: "Music",
 };
 
+type UserCommunity = { id: string; name: string; slug: string };
+
 type Props = {
   post: Post;
   comments: Comment[];
@@ -37,10 +39,11 @@ type Props = {
   isMember: boolean;
   isViewer?: boolean;
   isPinned?: boolean;
+  userCommunities?: UserCommunity[];
 };
 
 export function PostCard({
-  post, comments, communitySlug, currentUserId, isAdmin, isMember, isPinned,
+  post, comments, communitySlug, currentUserId, isAdmin, isMember, isPinned, userCommunities,
 }: Props) {
   const [showComments, setShowComments] = useState(true);
   const [commentText, setCommentText] = useState("");
@@ -50,6 +53,7 @@ export function PostCard({
   const [editing, setEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(post.title ?? "");
   const [editBody, setEditBody] = useState(post.body ?? "");
+  const [showRepost, setShowRepost] = useState(false);
 
   const isOwn = post.author_id === currentUserId;
   const canDelete = isOwn || isAdmin;
@@ -150,6 +154,19 @@ export function PostCard({
     });
   }
 
+  function handleRepost(target: UserCommunity) {
+    startTransition(async () => {
+      try {
+        await repostPost(post.id, target.id, target.slug);
+        setShowRepost(false);
+        toast.success(`Reposted to ${target.name}`);
+      } catch (err) { toast.error(err instanceof Error ? err.message : "Failed to repost"); }
+    });
+  }
+
+  // Communities the user can repost to (all except the current one)
+  const repostTargets = (userCommunities ?? []).filter((c) => c.id !== post.community_id);
+
   return (
     <article
       id={`post-${post.id}`}
@@ -229,6 +246,14 @@ export function PostCard({
                 Delete
               </button>
             )}
+            {isMember && repostTargets.length > 0 && (
+              <button
+                onClick={() => setShowRepost(!showRepost)}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
+              >
+                Repost
+              </button>
+            )}
             {!isOwn && isMember && (
               <button
                 onClick={() => setShowReport(!showReport)}
@@ -288,6 +313,25 @@ export function PostCard({
             <Button type="button" variant="ghost" size="sm" onClick={() => setEditing(false)}>Cancel</Button>
           </div>
         </form>
+      )}
+
+      {/* Repost picker */}
+      {showRepost && repostTargets.length > 0 && (
+        <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+          <p className="text-xs font-medium text-muted-foreground">Share to another group:</p>
+          <div className="flex flex-wrap gap-2">
+            {repostTargets.map((target) => (
+              <button
+                key={target.id}
+                onClick={() => handleRepost(target)}
+                disabled={isPending}
+                className="text-xs px-3 py-1.5 rounded-full border border-border hover:border-primary hover:text-primary transition-colors"
+              >
+                {target.name}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Report form */}

@@ -26,6 +26,7 @@ type Props = {
   memberCount: number;
   memberCap: number;
   role?: string;
+  postCount?: number;
 };
 
 export function CommunityCard({
@@ -38,6 +39,7 @@ export function CommunityCard({
   memberCount,
   memberCap,
   role,
+  postCount,
 }: Props) {
   const isFull = memberCount >= memberCap;
   const pct = Math.round((memberCount / memberCap) * 100);
@@ -100,7 +102,14 @@ export function CommunityCard({
           {/* Member bar */}
           <div className="space-y-1 mt-auto">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{memberCount} members</span>
+              <span className="flex items-center gap-2">
+                <span>{memberCount} members</span>
+                {postCount !== undefined && postCount > 0 && (
+                  <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                    {postCount} posts
+                  </span>
+                )}
+              </span>
               <span className={isFull ? "text-destructive font-medium" : ""}>
                 {isFull ? "Full" : `${memberCap - memberCount} spots left`}
               </span>

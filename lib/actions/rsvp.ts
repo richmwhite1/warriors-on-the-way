@@ -4,24 +4,33 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createNotification } from "@/lib/actions/notifications";
+import { rebalanceGroupExpensesForNewAttendee } from "@/lib/actions/event-modules";
 
 export async function upsertRsvp(
   eventId: string,
   status: "yes" | "no" | "maybe",
   guests: number,
-  communitySlug: string
+  communitySlug: string,
+  paymentSent?: boolean   // true when the user explicitly clicked through the fee gate
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const { error } = await supabase.from("rsvps").upsert(
-    { event_id: eventId, user_id: user.id, status, guests },
-    { onConflict: "event_id,user_id" }
-  );
+  const row: Record<string, unknown> = { event_id: eventId, user_id: user.id, status, guests };
+  if (paymentSent) row.payment_status = "sent";
+
+  const { error } = await supabase.from("rsvps").upsert(row, { onConflict: "event_id,user_id" });
 
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+
+  // Auto-rebalance any group-split expenses when a new attendee says yes
+  if (status === "yes") {
+    await rebalanceGroupExpensesForNewAttendee(eventId, user.id, communitySlug).catch(() => {
+      // best-effort — don't fail the RSVP
+    });
+  }
 
   // Notify event organizer when someone RSVPs yes (best-effort)
   if (status === "yes") {
@@ -141,7 +150,7 @@ export async function submitGuestRsvp(
 export async function setRsvpPaymentStatus(
   eventId: string,
   targetUserId: string,
-  paymentStatus: "unpaid" | "paid" | "waived",
+  paymentStatus: "unpaid" | "sent" | "confirmed" | "waived",
   communitySlug: string
 ) {
   const supabase = await createClient();

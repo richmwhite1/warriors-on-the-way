@@ -120,7 +120,7 @@ export default async function EventDetailPage({ params }: Props) {
 
   const [memberCount, attendees, allMembers, tasks, expenses] = await Promise.all([
     getActiveMemberCount(community.id),
-    event.status === "confirmed" ? listEventAttendees(eventId) : Promise.resolve([]),
+    listEventAttendees(eventId),
     listActiveMembers(community.id),
     getEventTasks(eventId),
     getEventExpenses(eventId),
@@ -134,6 +134,11 @@ export default async function EventDetailPage({ params }: Props) {
     display_name: m.user.display_name,
     venmo_handle: m.user.venmo_handle,
   }));
+
+  // Yes-RSVPs are the natural "group" for shared expenses
+  const attendeeList = attendees
+    .filter((a) => a.status === "yes")
+    .map((a) => ({ id: a.user_id, display_name: a.user.display_name }));
 
   const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/community/${slug}/events/${eventId}`;
 
@@ -294,6 +299,7 @@ export default async function EventDetailPage({ params }: Props) {
                 communitySlug={slug}
                 expenses={expenses}
                 members={memberList}
+                attendees={attendeeList}
                 currentUserId={user.id}
                 eventStartsAt={event.starts_at}
               />

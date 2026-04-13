@@ -4,24 +4,38 @@ import { AppNav } from "@/components/app-nav";
 import { CommunityCard } from "@/components/community/community-card";
 import { DiscoverSearch } from "@/components/community/discover-search";
 import { MissionPanel } from "@/components/home/mission-panel";
+import { PostCard } from "@/components/feed/post-card";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listUserCommunities, listPublicCommunities, type UserMembership } from "@/lib/queries/communities";
 import { getActiveMemberCount } from "@/lib/queries/members";
+import { listPersonalFeed } from "@/lib/queries/posts";
+import { listCommentsByPostIds } from "@/lib/queries/comments";
 
 export default async function HomePage() {
   const user = await requireUserProfile().catch(() => null);
   if (!user) redirect("/sign-in");
 
-  const [myCommunities, publicCommunities] = await Promise.all([
+  const [myCommunities, publicCommunities, feedPosts] = await Promise.all([
     listUserCommunities(user.id),
     listPublicCommunities(),
+    listPersonalFeed(user.id),
   ]);
 
   const myMemberCounts = await Promise.all(
     myCommunities.map((m) => getActiveMemberCount(m.community.id))
   );
+
+  const commentsByPost = feedPosts.length > 0
+    ? await listCommentsByPostIds(feedPosts.map((p) => p.id))
+    : {};
+
+  const userCommunities = myCommunities.map((m) => ({
+    id: m.community.id,
+    name: m.community.name,
+    slug: m.community.slug,
+  }));
 
   const myIds = new Set(myCommunities.map((m) => m.community.id));
   const discover = publicCommunities.filter((c) => !myIds.has(c.id));
@@ -41,6 +55,39 @@ export default async function HomePage() {
 
         {/* ── Mission reminder ──────────────────────────────────────────────── */}
         <MissionPanel />
+
+        {/* Personal feed */}
+        {feedPosts.length > 0 && (
+          <section className="space-y-4">
+            <h2 className="text-lg font-heading font-semibold">Recent activity</h2>
+            <div className="space-y-3">
+              {feedPosts.map((post) => {
+                const community = post.community as { name: string; slug: string } | undefined;
+                return (
+                  <div key={post.id}>
+                    {community && (
+                      <Link
+                        href={`/community/${community.slug}`}
+                        className="text-xs text-muted-foreground hover:text-primary transition-colors mb-1 inline-block"
+                      >
+                        {community.name}
+                      </Link>
+                    )}
+                    <PostCard
+                      post={post}
+                      comments={commentsByPost[post.id] ?? []}
+                      communitySlug={community?.slug ?? ""}
+                      currentUserId={user.id}
+                      isAdmin={false}
+                      isMember={true}
+                      userCommunities={userCommunities}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
 
         {/* My communities */}
         <section className="space-y-4">

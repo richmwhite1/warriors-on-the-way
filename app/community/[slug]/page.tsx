@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { getCommunityBySlug, getParentCommunity } from "@/lib/queries/communities";
+import { getCommunityBySlug, getParentCommunity, listUserCommunities } from "@/lib/queries/communities";
 import { getActiveMemberCount, getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listCommunityPosts, listParentPushPosts } from "@/lib/queries/posts";
@@ -50,13 +50,17 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const isMember = memberStatus === "active";
   const isFull = memberCount >= community.member_cap;
 
-  const [communityPosts, parentPushPosts, communityEvents] = isMember
+  const [communityPosts, parentPushPosts, communityEvents, userMemberships] = isMember
     ? await Promise.all([
         listCommunityPosts(community.id, user.id, postTypeFilter),
         community.is_parent ? [] : listParentPushPosts(user.id),
         listCommunityEvents(community.id),
+        listUserCommunities(user.id),
       ])
-    : [[], [], []];
+    : [[], [], [], []];
+
+  const userCommunities = (userMemberships as Awaited<ReturnType<typeof listUserCommunities>>)
+    .map((m) => ({ id: m.community.id, name: m.community.name, slug: m.community.slug }));
 
   const parentCommunity = (isMember && !community.is_parent)
     ? await getParentCommunity()
@@ -190,6 +194,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 isAdmin={isAdmin}
                 isMember={isMember}
                 isPinned
+                userCommunities={userCommunities}
               />
             )}
 
@@ -210,6 +215,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                     currentUserId={user.id}
                     isAdmin={isAdmin}
                     isMember={isMember}
+                    userCommunities={userCommunities}
                   />
                 ))}
                 {feedPosts.length > 0 && <Separator />}
@@ -242,6 +248,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   currentUserId={user.id}
                   isAdmin={isAdmin}
                   isMember={isMember}
+                  userCommunities={userCommunities}
                 />
               ))
             )}

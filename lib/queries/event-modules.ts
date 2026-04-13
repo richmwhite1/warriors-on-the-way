@@ -27,6 +27,7 @@ export type EventExpense = {
   description: string;
   amount: number;
   paid_by: string;
+  is_group_split: boolean;
   created_at: string;
   payer: { display_name: string; venmo_handle: string | null };
   splits: ExpenseSplit[];
@@ -64,7 +65,7 @@ export async function getEventExpenses(eventId: string): Promise<EventExpense[]>
   const { data } = await supabase
     .from("event_expenses")
     .select(`
-      id, event_id, created_by, description, amount, paid_by, created_at,
+      id, event_id, created_by, description, amount, paid_by, is_group_split, created_at,
       payer:users!event_expenses_paid_by_fkey(display_name, venmo_handle),
       splits:expense_splits(
         id, expense_id, user_id, amount, paid, paid_at, confirmed, confirmed_at,

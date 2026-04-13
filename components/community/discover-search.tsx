@@ -13,6 +13,7 @@ type Community = {
   is_parent: boolean;
   member_cap: number;
   member_count: unknown;
+  post_count: unknown;
 };
 
 export function DiscoverSearch({ communities }: { communities: Community[] }) {
@@ -42,6 +43,7 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {filtered.map((c) => {
             const count = (c.member_count as { count: number }[])?.[0]?.count ?? 0;
+            const posts = (c.post_count as { count: number }[])?.[0]?.count ?? 0;
             return (
               <CommunityCard
                 key={c.id}
@@ -53,6 +55,7 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
                 isParent={c.is_parent}
                 memberCount={count}
                 memberCap={c.member_cap}
+                postCount={posts}
               />
             );
           })}

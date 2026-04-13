@@ -50,7 +50,8 @@ type NotificationType =
   | "report_actioned"
   | "dm_received"
   | "expense_paid"
-  | "expense_confirmed";
+  | "expense_confirmed"
+  | "expense_reminder";
 
 const PUSH_TITLES: Partial<Record<NotificationType, string>> = {
   dm_received: "New message",
@@ -64,6 +65,7 @@ const PUSH_TITLES: Partial<Record<NotificationType, string>> = {
   report_actioned: "Report reviewed",
   expense_paid: "Payment received",
   expense_confirmed: "Payment confirmed",
+  expense_reminder: "Payment reminder",
 };
 
 function pushBody(type: NotificationType, payload: Record<string, unknown>): string {
@@ -79,6 +81,7 @@ function pushBody(type: NotificationType, payload: Record<string, unknown>): str
     case "report_actioned": return "A report you filed was reviewed";
     case "expense_paid": return `${payload.actor_name ?? "Someone"} paid you for ${payload.description ?? "an expense"}`;
     case "expense_confirmed": return `Your payment for ${payload.description ?? "an expense"} was confirmed`;
+    case "expense_reminder": return `You owe $${payload.amount ?? "?"} for ${payload.description ?? "an expense"} at ${payload.event_title ?? "an event"}`;
     default: return "You have a new notification";
   }
 }

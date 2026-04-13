@@ -100,7 +100,8 @@ export async function createEventExpense(
   description: string,
   amount: number,
   splitUserIds: string[],
-  communitySlug: string
+  communitySlug: string,
+  isGroupSplit = false
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -114,6 +115,7 @@ export async function createEventExpense(
       description: description.trim(),
       amount,
       paid_by: user.id,
+      is_group_split: isGroupSplit,
     })
     .select("id")
     .single();
@@ -133,6 +135,62 @@ export async function createEventExpense(
       }))
     );
     if (splitError) throw new Error(splitError.message);
+  }
+
+  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+}
+
+// Called when a new user RSVPs yes — adds them to group-split expenses and rebalances
+// amounts evenly. Expenses are locked once the event starts, so rebalancing only
+// happens during the planning phase.
+export async function rebalanceGroupExpensesForNewAttendee(
+  eventId: string,
+  newUserId: string,
+  communitySlug: string
+) {
+  const supabase = await createClient();
+
+  // Don't touch expenses once the event has started (they're locked)
+  const { data: event } = await supabase
+    .from("events")
+    .select("starts_at")
+    .eq("id", eventId)
+    .single();
+
+  if (event?.starts_at && new Date(event.starts_at) < new Date()) return;
+
+  // Find all group-split expenses for this event
+  const { data: expenses } = await supabase
+    .from("event_expenses")
+    .select("id, amount, paid_by, splits:expense_splits(id, user_id)")
+    .eq("event_id", eventId)
+    .eq("is_group_split", true);
+
+  if (!expenses || expenses.length === 0) return;
+
+  for (const exp of expenses) {
+    const splits = exp.splits as { id: string; user_id: string }[];
+
+    // Skip if new user is already the payer or already has a split
+    if (exp.paid_by === newUserId) continue;
+    if (splits.some((s) => s.user_id === newUserId)) continue;
+
+    // New total = existing splits + payer + new user
+    const newTotal = splits.length + 2;
+    const newEach = Math.round((exp.amount / newTotal) * 100) / 100;
+
+    // Rebalance all existing splits
+    await supabase
+      .from("expense_splits")
+      .update({ amount: newEach })
+      .eq("expense_id", exp.id);
+
+    // Add the new attendee
+    await supabase.from("expense_splits").insert({
+      expense_id: exp.id,
+      user_id: newUserId,
+      amount: newEach,
+    });
   }
 
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
@@ -250,6 +308,55 @@ export async function confirmSplitReceived(
       // best-effort
     }
   }
+}
+
+// Payer sends reminders to everyone who still has an unpaid split after the event starts.
+export async function sendExpenseReminders(
+  eventId: string,
+  communitySlug: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  // Fetch event title for notification body
+  const { data: event } = await supabase
+    .from("events")
+    .select("title, starts_at")
+    .eq("id", eventId)
+    .single();
+
+  if (!event?.starts_at || new Date(event.starts_at) > new Date()) {
+    throw new Error("Reminders can only be sent after the event starts");
+  }
+
+  // Fetch all unpaid splits for expenses paid by the current user
+  const { data: expenses } = await supabase
+    .from("event_expenses")
+    .select("id, description, splits:expense_splits(user_id, amount, paid, confirmed)")
+    .eq("event_id", eventId)
+    .eq("paid_by", user.id);
+
+  if (!expenses?.length) return 0;
+
+  let sent = 0;
+  for (const exp of expenses) {
+    const splits = exp.splits as { user_id: string; amount: number; paid: boolean; confirmed: boolean }[];
+    const unpaid = splits.filter((s) => !s.paid && !s.confirmed);
+    for (const split of unpaid) {
+      await createNotification(split.user_id, "expense_reminder", {
+        amount: split.amount.toFixed(2),
+        description: exp.description,
+        event_title: event.title,
+        event_id: eventId,
+        community_slug: communitySlug,
+      });
+      sent++;
+    }
+  }
+
+  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+  return sent;
 }
 
 // ── Toggle modules (admin/organizer/creator only) ─────────────────────────

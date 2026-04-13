@@ -5,7 +5,7 @@ export type EventAttendee = {
   user_id: string;
   status: "yes" | "no" | "maybe";
   guests: number;
-  payment_status: "unpaid" | "paid" | "waived";
+  payment_status: "unpaid" | "sent" | "confirmed" | "waived";
   checked_in_at: string | null;
   user: { id: string; display_name: string; avatar_url: string | null };
 };
