@@ -480,15 +480,17 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
       </div>
 
       {/* ── Size ────────────────────────────────────────────────────────────── */}
-      <div className="space-y-4">
-        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Size</h2>
-        <div className="space-y-1.5">
-          <Label htmlFor="member_cap">Member cap</Label>
-          <Input id="member_cap" name="member_cap" type="number" min={1} max={150}
-            defaultValue={community.member_cap} className="w-24" />
-          <p className="text-xs text-muted-foreground">Max 150. New joiners go to waitlist when full.</p>
+      {!community.is_parent && (
+        <div className="space-y-4">
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Size</h2>
+          <div className="space-y-1.5">
+            <Label htmlFor="member_cap">Member cap</Label>
+            <Input id="member_cap" name="member_cap" type="number" min={1} max={150}
+              defaultValue={community.member_cap} className="w-24" />
+            <p className="text-xs text-muted-foreground">Max 150. New joiners go to waitlist when full.</p>
+          </div>
         </div>
-      </div>
+      )}
 
       <Button type="submit" disabled={isPending}>
         {isPending ? "Saving…" : "Save settings"}

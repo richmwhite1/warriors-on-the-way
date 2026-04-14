@@ -9,7 +9,7 @@ export type Community = {
   is_parent: boolean;
   is_private: boolean;
   members_can_create_events: boolean;
-  member_cap: number;
+  member_cap: number | null;
   created_by: string;
   created_at: string;
   member_count?: number;
@@ -82,7 +82,7 @@ export type UserMembership = {
     banner_url: string | null;
     is_parent: boolean;
     is_private: boolean;
-    member_cap: number;
+    member_cap: number | null;
     created_at: string;
   };
 };

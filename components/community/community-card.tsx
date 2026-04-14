@@ -24,7 +24,7 @@ type Props = {
   isPrivate: boolean;
   isParent: boolean;
   memberCount: number;
-  memberCap: number;
+  memberCap: number | null;
   role?: string;
   postCount?: number;
   distance?: number; // km, shown when proximity sort is active
@@ -43,8 +43,8 @@ export function CommunityCard({
   postCount,
   distance,
 }: Props) {
-  const isFull = memberCount >= memberCap;
-  const pct = Math.round((memberCount / memberCap) * 100);
+  const isFull = !isParent && memberCap != null && memberCount >= memberCap;
+  const pct = isParent || memberCap == null ? 0 : Math.round((memberCount / memberCap) * 100);
 
   return (
     <Link href={`/community/${slug}`} className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl">
@@ -117,16 +117,20 @@ export function CommunityCard({
                   </span>
                 )}
               </span>
-              <span className={isFull ? "text-destructive font-medium" : ""}>
-                {isFull ? "Full" : `${memberCap - memberCount} spots left`}
-              </span>
+              {!isParent && (
+                <span className={isFull ? "text-destructive font-medium" : ""}>
+                  {isFull ? "Full" : memberCap != null ? `${memberCap - memberCount} spots left` : ""}
+                </span>
+              )}
             </div>
-            <div className="h-1 rounded-full bg-muted overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${isFull ? "bg-destructive" : "bg-primary"}`}
-                style={{ width: `${Math.min(pct, 100)}%` }}
-              />
-            </div>
+            {!isParent && (
+              <div className="h-1 rounded-full bg-muted overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all ${isFull ? "bg-destructive" : "bg-primary"}`}
+                  style={{ width: `${Math.min(pct, 100)}%` }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

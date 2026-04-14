@@ -29,7 +29,7 @@ export async function joinCommunity(communityId: string, communitySlug: string, 
   const c = community as typeof community & { invite_token?: string | null };
 
   const activeCount = await getActiveMemberCount(communityId);
-  const atCap = activeCount >= community.member_cap;
+  const atCap = !community.is_parent && community.member_cap != null && activeCount >= community.member_cap;
 
   // Valid invite token overrides pending_approval for private communities
   const hasValidInvite = inviteToken && c.invite_token && inviteToken === c.invite_token;

@@ -87,13 +87,21 @@ export async function updateCommunitySettings(communityId: string, formData: For
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
+  const { data: existing } = await supabase
+    .from("communities")
+    .select("is_parent")
+    .eq("id", communityId)
+    .single();
+
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
   const is_private = formData.get("is_private") === "true";
   const members_can_create_events = formData.get("members_can_create_events") === "true";
   const allow_guest_rsvp = formData.get("allow_guest_rsvp") === "true";
-  const member_cap = Math.min(150, Math.max(1, parseInt(formData.get("member_cap") as string) || 150));
+  const member_cap = existing?.is_parent
+    ? null
+    : Math.min(150, Math.max(1, parseInt(formData.get("member_cap") as string) || 150));
   const telegram_invite_link = (formData.get("telegram_invite_link") as string)?.trim() || null;
   const banner_url = (formData.get("banner_url") as string)?.trim() || null;
   const mission = (formData.get("mission") as string)?.trim() || null;
