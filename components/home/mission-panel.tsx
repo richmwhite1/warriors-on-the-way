@@ -79,11 +79,18 @@ export function MissionPanel() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/sean-olaoire.webp"
-          alt="Seán Ó Laoire"
-          className="size-8 rounded-full object-cover object-top shrink-0 opacity-90"
-        />
+        <a
+          href="https://www.spiritsinspacesuits.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0"
+        >
+          <img
+            src="/sean-olaoire.webp"
+            alt="Seán Ó Laoire — Spirits in Space Suits"
+            className="size-8 rounded-full object-cover object-top opacity-90 hover:opacity-100 transition-opacity ring-1 ring-primary/20 hover:ring-primary/60"
+          />
+        </a>
         <p className="flex-1 text-xs text-muted-foreground">
           Seán Ó Laoire · Lightworkers Manifesto
         </p>

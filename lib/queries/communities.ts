@@ -24,6 +24,9 @@ export type Community = {
   rules_md?: string | null;
   // Per-community Telegram push type filter
   telegram_push_types?: string[] | null;
+  // Geocoded coordinates for proximity search
+  latitude?: number | null;
+  longitude?: number | null;
 };
 
 export async function getCommunityBySlug(slug: string): Promise<Community | null> {
@@ -56,7 +59,7 @@ export async function listPublicCommunities() {
     .from("communities")
     .select(`
       id, slug, name, description, banner_url, is_parent,
-      is_private, member_cap, created_at,
+      is_private, member_cap, created_at, latitude, longitude,
       member_count:community_members(count),
       post_count:posts(count)
     `)

@@ -67,6 +67,17 @@ export function CreateCommunityForm() {
         </div>
       </div>
 
+      <div className="space-y-1.5">
+        <Label htmlFor="location">Location</Label>
+        <Input
+          id="location"
+          name="location"
+          maxLength={100}
+          placeholder="e.g. San Francisco, CA"
+        />
+        <p className="text-xs text-muted-foreground">Helps people find your community nearby</p>
+      </div>
+
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium">Settings</legend>
         <label className="flex items-center gap-3 cursor-pointer">

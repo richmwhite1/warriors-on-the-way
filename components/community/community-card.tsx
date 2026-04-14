@@ -27,6 +27,7 @@ type Props = {
   memberCap: number;
   role?: string;
   postCount?: number;
+  distance?: number; // km, shown when proximity sort is active
 };
 
 export function CommunityCard({
@@ -40,6 +41,7 @@ export function CommunityCard({
   memberCap,
   role,
   postCount,
+  distance,
 }: Props) {
   const isFull = memberCount >= memberCap;
   const pct = Math.round((memberCount / memberCap) * 100);
@@ -107,6 +109,11 @@ export function CommunityCard({
                 {postCount !== undefined && postCount > 0 && (
                   <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
                     {postCount} posts
+                  </span>
+                )}
+                {distance !== undefined && (
+                  <span className="text-[10px] font-medium bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
+                    {distance < 1 ? "< 1 km" : `${Math.round(distance)} km`}
                   </span>
                 )}
               </span>

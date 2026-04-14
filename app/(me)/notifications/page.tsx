@@ -23,6 +23,8 @@ const TYPE_LABELS: Record<string, string> = {
   dm_received: "New message",
   expense_paid: "Payment received",
   expense_confirmed: "Payment confirmed",
+  expense_reminder: "Payment reminder",
+  add_venmo: "Action needed",
 };
 
 function notificationSummary(type: string, payload: Record<string, unknown>): string {
@@ -49,6 +51,10 @@ function notificationSummary(type: string, payload: Record<string, unknown>): st
         : "Someone paid you for an expense";
     case "expense_confirmed":
       return `Your payment for ${(payload.description as string) ?? "an expense"} was confirmed`;
+    case "expense_reminder":
+      return `You owe $${(payload.amount as string) ?? "?"} for ${(payload.description as string) ?? "an expense"} — tap to pay`;
+    case "add_venmo":
+      return "Add your Venmo handle to your profile so others can pay you for shared expenses";
     case "member_joined":
       return (payload.actor_name as string)
         ? `${payload.actor_name} joined your community`
@@ -73,6 +79,9 @@ function notificationSummary(type: string, payload: Record<string, unknown>): st
 }
 
 function notificationLink(type: string, payload: Record<string, unknown>): string | null {
+  if (type === "add_venmo") {
+    return "/profile";
+  }
   if (type === "dm_received" && payload.actor_id) {
     return `/messages/${payload.actor_id}`;
   }

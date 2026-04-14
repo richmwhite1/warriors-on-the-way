@@ -25,11 +25,12 @@ type Props = {
   members: Member[];
   attendees: Attendee[];
   currentUserId: string;
+  currentUserVenmo: string | null;
   eventStartsAt?: string | null;
 };
 
 export function EventExpensesPanel({
-  eventId, communitySlug, expenses, members, attendees, currentUserId, eventStartsAt,
+  eventId, communitySlug, expenses, members, attendees, currentUserId, currentUserVenmo, eventStartsAt,
 }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [description, setDescription] = useState("");
@@ -41,6 +42,12 @@ export function EventExpensesPanel({
   const isLocked = !!eventStartsAt && new Date(eventStartsAt) < new Date();
   const otherMembers = members.filter((m) => m.id !== currentUserId);
   const groupAttendees = attendees.filter((a) => a.id !== currentUserId);
+
+  // Show Venmo prompt when the current user is in any expense but hasn't added Venmo
+  const isInAnyExpense = expenses.some(
+    (e) => e.paid_by === currentUserId || e.splits.some((s) => s.user_id === currentUserId)
+  );
+  const showVenmoPrompt = isInAnyExpense && !currentUserVenmo;
 
   // Does the current user pay for anything (i.e., are they a payer on any expense)?
   const myExpenses = expenses.filter((e) => e.paid_by === currentUserId);
@@ -119,6 +126,19 @@ export function EventExpensesPanel({
 
   return (
     <div className="space-y-4">
+      {showVenmoPrompt && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 px-4 py-3 flex items-start gap-3">
+          <span className="text-amber-500 mt-0.5 shrink-0">⚠</span>
+          <div className="text-sm">
+            <span className="font-medium text-amber-800 dark:text-amber-300">Add your Venmo</span>
+            <span className="text-amber-700 dark:text-amber-400"> so others can pay you back. </span>
+            <a href="/profile" className="font-medium text-amber-800 dark:text-amber-300 underline underline-offset-2">
+              Update profile →
+            </a>
+          </div>
+        </div>
+      )}
+
       {expenses.length === 0 && (
         <p className="text-sm text-muted-foreground">No expenses yet.</p>
       )}

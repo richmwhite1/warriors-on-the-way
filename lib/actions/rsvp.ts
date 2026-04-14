@@ -30,6 +30,42 @@ export async function upsertRsvp(
     await rebalanceGroupExpensesForNewAttendee(eventId, user.id, communitySlug).catch(() => {
       // best-effort — don't fail the RSVP
     });
+
+    // Notify all group expense members who are missing a Venmo handle
+    try {
+      const admin = createAdminClient();
+      const { data: groupExpenses } = await admin
+        .from("event_expenses")
+        .select("id, paid_by, splits:expense_splits(user_id)")
+        .eq("event_id", eventId)
+        .eq("is_group_split", true);
+
+      if (groupExpenses?.length) {
+        const userIds = new Set<string>();
+        for (const exp of groupExpenses) {
+          userIds.add(exp.paid_by as string);
+          const splits = exp.splits as { user_id: string }[];
+          splits.forEach((s) => userIds.add(s.user_id));
+        }
+
+        const { data: expenseUsers } = await admin
+          .from("users")
+          .select("id, venmo_handle")
+          .in("id", [...userIds]);
+
+        const missing = expenseUsers?.filter((u) => !u.venmo_handle) ?? [];
+        await Promise.allSettled(
+          missing.map((u) =>
+            createNotification(u.id, "add_venmo", {
+              event_id: eventId,
+              community_slug: communitySlug,
+            })
+          )
+        );
+      }
+    } catch {
+      // best-effort
+    }
   }
 
   // Notify event organizer when someone RSVPs yes (best-effort)

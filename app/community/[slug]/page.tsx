@@ -1,3 +1,23 @@
+// Sean's YouTube channel ID — set this once you have the channel URL
+// Find it at: youtube.com/@channelname → view source → look for "channelId"
+const SEAN_YOUTUBE_CHANNEL_ID = "UCSEABr_YYaS6MLSAXE6Tuzw";
+
+async function getLatestYouTubeVideoId(channelId: string): Promise<string | null> {
+  if (!channelId) return null;
+  try {
+    const res = await fetch(
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
+      { next: { revalidate: 3600 } } // re-fetch at most once per hour
+    );
+    if (!res.ok) return null;
+    const xml = await res.text();
+    const match = xml.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
+    return match?.[1] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -39,9 +59,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const community = await getCommunityBySlug(slug);
   if (!community) notFound();
 
-  const [membership, memberCount] = await Promise.all([
+  const [membership, memberCount, latestVideoId] = await Promise.all([
     getMembership(community.id, user.id),
     getActiveMemberCount(community.id),
+    community.is_parent ? getLatestYouTubeVideoId(SEAN_YOUTUBE_CHANNEL_ID) : Promise.resolve(null),
   ]);
 
   const memberStatus = membership?.status ?? "none";
@@ -170,6 +191,22 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 <p className="text-sm whitespace-pre-wrap">{parentCommunity.rules_md}</p>
               </div>
             </details>
+          )}
+
+          {/* Latest video from Seán — only on the parent (Warriors on the Way) community */}
+          {community.is_parent && latestVideoId && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Latest from Seán</p>
+              <div className="aspect-video rounded-2xl overflow-hidden border">
+                <iframe
+                  src={`https://www.youtube.com/embed/${latestVideoId}`}
+                  title="Latest video from Seán Ó Laoire"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </div>
           )}
         </div>
 

@@ -6,6 +6,21 @@ import { createClient } from "@/lib/supabase/server";
 import { slugExists } from "@/lib/queries/communities";
 import { registerWebhook, sendMessage, detectNewGroupChatId } from "@/lib/integrations/telegram";
 
+async function geocodeLocation(location: string): Promise<{ latitude: number; longitude: number } | null> {
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(location)}&format=json&limit=1`,
+      { headers: { "User-Agent": "WarriorsOnTheWay/1.0" }, signal: AbortSignal.timeout(5000) }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) return null;
+    return { latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) };
+  } catch {
+    return null;
+  }
+}
+
 function toSlug(name: string): string {
   return name
     .toLowerCase()
@@ -32,6 +47,7 @@ export async function createCommunity(formData: FormData) {
 
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  const location = (formData.get("location") as string)?.trim() || null;
   const is_private = formData.get("is_private") === "true";
   const members_can_create_events = formData.get("members_can_create_events") === "true";
   const custom_slug = (formData.get("slug") as string)?.trim();
@@ -43,10 +59,15 @@ export async function createCommunity(formData: FormData) {
 
   const slug = await uniqueSlug(baseSlug);
 
+  const coords = location ? await geocodeLocation(location) : null;
+
   // Insert community + membership in a transaction via RPC
   const { data: community, error: communityError } = await supabase
     .from("communities")
-    .insert({ slug, name, description, is_private, members_can_create_events, created_by: user.id })
+    .insert({
+      slug, name, description, location, is_private, members_can_create_events, created_by: user.id,
+      ...(coords ?? {}),
+    })
     .select("id, slug")
     .single();
 
@@ -82,7 +103,14 @@ export async function updateCommunitySettings(communityId: string, formData: For
 
   if (!name) throw new Error("Community name is required");
 
-  const updateData: Record<string, unknown> = { name, description, location, is_private, members_can_create_events, allow_guest_rsvp, member_cap, telegram_invite_link, mission, rules_md, telegram_push_types };
+  const coords = location ? await geocodeLocation(location) : null;
+
+  const updateData: Record<string, unknown> = {
+    name, description, location, is_private, members_can_create_events,
+    allow_guest_rsvp, member_cap, telegram_invite_link, mission, rules_md, telegram_push_types,
+    latitude: coords?.latitude ?? null,
+    longitude: coords?.longitude ?? null,
+  };
   if (banner_url !== null) updateData.banner_url = banner_url;
 
   const { data: community, error } = await supabase

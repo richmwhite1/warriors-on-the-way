@@ -301,6 +301,7 @@ export default async function EventDetailPage({ params }: Props) {
                 members={memberList}
                 attendees={attendeeList}
                 currentUserId={user.id}
+                currentUserVenmo={user.venmo_handle}
                 eventStartsAt={event.starts_at}
               />
             </div>

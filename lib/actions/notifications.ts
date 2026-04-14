@@ -51,7 +51,8 @@ type NotificationType =
   | "dm_received"
   | "expense_paid"
   | "expense_confirmed"
-  | "expense_reminder";
+  | "expense_reminder"
+  | "add_venmo";
 
 const PUSH_TITLES: Partial<Record<NotificationType, string>> = {
   dm_received: "New message",
@@ -66,6 +67,7 @@ const PUSH_TITLES: Partial<Record<NotificationType, string>> = {
   expense_paid: "Payment received",
   expense_confirmed: "Payment confirmed",
   expense_reminder: "Payment reminder",
+  add_venmo: "Add your Venmo",
 };
 
 function pushBody(type: NotificationType, payload: Record<string, unknown>): string {
@@ -82,11 +84,15 @@ function pushBody(type: NotificationType, payload: Record<string, unknown>): str
     case "expense_paid": return `${payload.actor_name ?? "Someone"} paid you for ${payload.description ?? "an expense"}`;
     case "expense_confirmed": return `Your payment for ${payload.description ?? "an expense"} was confirmed`;
     case "expense_reminder": return `You owe $${payload.amount ?? "?"} for ${payload.description ?? "an expense"} at ${payload.event_title ?? "an event"}`;
+    case "add_venmo": return `Add your Venmo handle so group expense payments are easy`;
     default: return "You have a new notification";
   }
 }
 
 function buildUrl(type: NotificationType, payload: Record<string, unknown>): string {
+  if (type === "add_venmo") {
+    return "/profile";
+  }
   if (type === "comment_on_post" && payload.community_slug && payload.post_id) {
     return `/community/${payload.community_slug}#post-${payload.post_id}`;
   }
