@@ -486,7 +486,7 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
           <div className="space-y-1.5">
             <Label htmlFor="member_cap">Member cap</Label>
             <Input id="member_cap" name="member_cap" type="number" min={1} max={150}
-              defaultValue={community.member_cap} className="w-24" />
+              defaultValue={community.member_cap ?? 150} className="w-24" />
             <p className="text-xs text-muted-foreground">Max 150. New joiners go to waitlist when full.</p>
           </div>
         </div>
