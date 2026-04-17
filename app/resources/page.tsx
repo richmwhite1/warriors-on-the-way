@@ -3,6 +3,7 @@ import { AppNav } from "@/components/app-nav";
 import { listParentResources } from "@/lib/queries/resources";
 import { getParentCommunity } from "@/lib/queries/communities";
 import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/types/resources";
+import { CALIBRATION_GROUPS } from "@/lib/data/calibrations";
 
 export const metadata = {
   title: "Resources · Warriors on the Way",
@@ -18,6 +19,16 @@ const CATEGORY_ICONS: Record<string, string> = {
   video: "🎥",
 };
 
+// Colour for calibration badge based on level
+function levelColor(level: number): string {
+  if (level >= 900) return "text-amber-500 bg-amber-500/10 border-amber-500/20";
+  if (level >= 800) return "text-yellow-500 bg-yellow-500/10 border-yellow-500/20";
+  if (level >= 700) return "text-lime-500 bg-lime-500/10 border-lime-500/20";
+  if (level >= 600) return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
+  if (level >= 500) return "text-sky-500 bg-sky-500/10 border-sky-500/20";
+  return "text-muted-foreground bg-muted border-border";
+}
+
 export default async function ResourcesPage() {
   const [resources, parent] = await Promise.all([
     listParentResources(),
@@ -31,7 +42,7 @@ export default async function ResourcesPage() {
   return (
     <>
       <AppNav />
-      <main className="max-w-2xl mx-auto px-4 py-10 space-y-10">
+      <main className="max-w-2xl mx-auto px-4 py-10 space-y-12">
 
         {/* Header */}
         <div className="space-y-3">
@@ -43,54 +54,104 @@ export default async function ResourcesPage() {
           </p>
         </div>
 
-        {/* Resource sections */}
-        {grouped.length === 0 ? (
-          <div className="rounded-2xl border border-dashed p-12 text-center text-muted-foreground">
-            Resources are being curated — check back soon.
-          </div>
-        ) : (
-          grouped.map(({ cat, items }) => (
-            <section key={cat} className="space-y-4">
-              <div className="flex items-center gap-2">
-                <span className="text-xl">{CATEGORY_ICONS[cat]}</span>
-                <h2 className="text-lg font-heading font-semibold">{CATEGORY_LABELS[cat]}</h2>
-              </div>
-
-              <div className="space-y-3">
-                {items.map((r) => (
-                  <div
-                    key={r.id}
-                    className="rounded-2xl border bg-card p-5 space-y-2 hover:border-foreground/20 transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="space-y-0.5 min-w-0">
-                        <p className="font-medium leading-snug">{r.title}</p>
-                        {r.author && (
-                          <p className="text-sm text-muted-foreground">by {r.author}</p>
-                        )}
-                      </div>
-                      {r.url && (
-                        <a
-                          href={r.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="shrink-0 text-sm font-medium text-primary hover:underline underline-offset-2"
-                        >
-                          Visit ↗
-                        </a>
+        {/* DB-sourced resource sections */}
+        {grouped.map(({ cat, items }) => (
+          <section key={cat} className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">{CATEGORY_ICONS[cat]}</span>
+              <h2 className="text-lg font-heading font-semibold">{CATEGORY_LABELS[cat]}</h2>
+            </div>
+            <div className="space-y-3">
+              {items.map((r) => (
+                <div
+                  key={r.id}
+                  className="rounded-2xl border bg-card p-5 space-y-2 hover:border-foreground/20 transition-colors"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="font-medium leading-snug">{r.title}</p>
+                      {r.author && (
+                        <p className="text-sm text-muted-foreground">by {r.author}</p>
                       )}
                     </div>
-                    {r.description && (
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        {r.description}
-                      </p>
+                    {r.url && (
+                      <a
+                        href={r.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="shrink-0 text-sm font-medium text-primary hover:underline underline-offset-2"
+                      >
+                        Visit ↗
+                      </a>
                     )}
                   </div>
-                ))}
+                  {r.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      {r.description}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {/* ── Sacred Texts Calibrations ──────────────────────────────── */}
+        <section className="space-y-6">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🕊️</span>
+              <h2 className="text-lg font-heading font-semibold">Sacred Texts Calibrations</h2>
+            </div>
+            <p className="text-sm text-muted-foreground pl-8">
+              Consciousness levels as calibrated by Dr. David R. Hawkins
+            </p>
+          </div>
+
+          <div className="space-y-8">
+            {CALIBRATION_GROUPS.map((group) => (
+              <div key={group.range} className="space-y-3">
+                {/* Group header */}
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                    Level {group.range}
+                  </span>
+                  <div className="h-px flex-1 bg-border" />
+                </div>
+
+                {/* Items */}
+                <div className="space-y-2">
+                  {group.items.map((item) => (
+                    <div
+                      key={`${item.title}-${item.level}`}
+                      className="flex items-start gap-3 rounded-xl border bg-card px-4 py-3"
+                    >
+                      {/* Calibration badge */}
+                      <span
+                        className={`shrink-0 mt-0.5 text-xs font-bold tabular-nums px-2 py-0.5 rounded-full border ${levelColor(item.level)}`}
+                      >
+                        {item.level}
+                      </span>
+
+                      {/* Title + meta */}
+                      <div className="min-w-0 space-y-0.5">
+                        <p className="text-sm font-medium leading-snug">{item.title}</p>
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                          {item.author && (
+                            <span className="text-xs text-muted-foreground">by {item.author}</span>
+                          )}
+                          {item.note && (
+                            <span className="text-xs text-muted-foreground italic">{item.note}</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </section>
-          ))
-        )}
+            ))}
+          </div>
+        </section>
 
         {/* Footer CTA */}
         <div className="rounded-2xl border bg-muted/40 p-6 text-center space-y-3">
