@@ -3,7 +3,7 @@ import { AppNav } from "@/components/app-nav";
 import { listParentResources } from "@/lib/queries/resources";
 import { getParentCommunity } from "@/lib/queries/communities";
 import { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/types/resources";
-import { CALIBRATION_GROUPS } from "@/lib/data/calibrations";
+import { SACRED_TEXT_GROUPS, TEACHER_GROUPS, type CalibrationGroup } from "@/lib/data/calibrations";
 
 export const metadata = {
   title: "Resources · Warriors on the Way",
@@ -27,6 +27,58 @@ function levelColor(level: number): string {
   if (level >= 600) return "text-emerald-500 bg-emerald-500/10 border-emerald-500/20";
   if (level >= 500) return "text-sky-500 bg-sky-500/10 border-sky-500/20";
   return "text-muted-foreground bg-muted border-border";
+}
+
+function CalibrationSection({ icon, title, groups }: { icon: string; title: string; groups: CalibrationGroup[] }) {
+  return (
+    <section className="space-y-6">
+      <div className="space-y-1">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">{icon}</span>
+          <h2 className="text-lg font-heading font-semibold">{title}</h2>
+        </div>
+        <p className="text-sm text-muted-foreground pl-8">
+          Consciousness levels as calibrated by Dr. David R. Hawkins
+        </p>
+      </div>
+
+      <div className="space-y-8">
+        {groups.map((group) => (
+          <div key={group.range} className="space-y-3">
+            <div className="flex items-center gap-3">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                Level {group.range}{group.label ? ` · ${group.label}` : ""}
+              </span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <div className="space-y-2">
+              {group.items.map((item) => (
+                <div
+                  key={`${item.title}-${item.level}`}
+                  className="flex items-start gap-3 rounded-xl border bg-card px-4 py-3"
+                >
+                  <span className={`shrink-0 mt-0.5 text-xs font-bold tabular-nums px-2 py-0.5 rounded-full border ${levelColor(item.level)}`}>
+                    {item.level.toLocaleString()}
+                  </span>
+                  <div className="min-w-0 space-y-0.5">
+                    <p className="text-sm font-medium leading-snug">{item.title}</p>
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                      {item.author && (
+                        <span className="text-xs text-muted-foreground">by {item.author}</span>
+                      )}
+                      {item.note && (
+                        <span className="text-xs text-muted-foreground italic">{item.note}</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default async function ResourcesPage() {
@@ -97,61 +149,18 @@ export default async function ResourcesPage() {
         ))}
 
         {/* ── Sacred Texts Calibrations ──────────────────────────────── */}
-        <section className="space-y-6">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xl">🕊️</span>
-              <h2 className="text-lg font-heading font-semibold">Sacred Texts Calibrations</h2>
-            </div>
-            <p className="text-sm text-muted-foreground pl-8">
-              Consciousness levels as calibrated by Dr. David R. Hawkins
-            </p>
-          </div>
+        <CalibrationSection
+          icon="🕊️"
+          title="Sacred Texts Calibrations"
+          groups={SACRED_TEXT_GROUPS}
+        />
 
-          <div className="space-y-8">
-            {CALIBRATION_GROUPS.map((group) => (
-              <div key={group.range} className="space-y-3">
-                {/* Group header */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-                    Level {group.range}
-                  </span>
-                  <div className="h-px flex-1 bg-border" />
-                </div>
-
-                {/* Items */}
-                <div className="space-y-2">
-                  {group.items.map((item) => (
-                    <div
-                      key={`${item.title}-${item.level}`}
-                      className="flex items-start gap-3 rounded-xl border bg-card px-4 py-3"
-                    >
-                      {/* Calibration badge */}
-                      <span
-                        className={`shrink-0 mt-0.5 text-xs font-bold tabular-nums px-2 py-0.5 rounded-full border ${levelColor(item.level)}`}
-                      >
-                        {item.level}
-                      </span>
-
-                      {/* Title + meta */}
-                      <div className="min-w-0 space-y-0.5">
-                        <p className="text-sm font-medium leading-snug">{item.title}</p>
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                          {item.author && (
-                            <span className="text-xs text-muted-foreground">by {item.author}</span>
-                          )}
-                          {item.note && (
-                            <span className="text-xs text-muted-foreground italic">{item.note}</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
+        {/* ── Spiritual Teachers Calibrations ────────────────────────── */}
+        <CalibrationSection
+          icon="✨"
+          title="Spiritual Teachers Calibrations"
+          groups={TEACHER_GROUPS}
+        />
 
         {/* Footer CTA */}
         <div className="rounded-2xl border bg-muted/40 p-6 text-center space-y-3">
