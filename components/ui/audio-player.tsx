@@ -20,6 +20,7 @@ export function AudioPlayer({ src, label }: Props) {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -29,13 +30,15 @@ export function AudioPlayer({ src, label }: Props) {
     const onTime = () => setCurrentTime(audio.currentTime);
     const onEnded = () => setPlaying(false);
     const onWaiting = () => setLoading(true);
-    const onPlaying = () => setLoading(false);
+    const onPlaying = () => { setLoading(false); setFailed(false); };
+    const onError = () => { setLoading(false); setPlaying(false); setFailed(true); };
 
     audio.addEventListener("loadedmetadata", onLoaded);
     audio.addEventListener("timeupdate", onTime);
     audio.addEventListener("ended", onEnded);
     audio.addEventListener("waiting", onWaiting);
     audio.addEventListener("playing", onPlaying);
+    audio.addEventListener("error", onError);
 
     return () => {
       audio.removeEventListener("loadedmetadata", onLoaded);
@@ -43,6 +46,7 @@ export function AudioPlayer({ src, label }: Props) {
       audio.removeEventListener("ended", onEnded);
       audio.removeEventListener("waiting", onWaiting);
       audio.removeEventListener("playing", onPlaying);
+      audio.removeEventListener("error", onError);
     };
   }, []);
 
@@ -68,6 +72,19 @@ export function AudioPlayer({ src, label }: Props) {
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
+  if (failed) {
+    return (
+      <div className="rounded-2xl border bg-card p-5 space-y-2">
+        {label && (
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            {label}
+          </p>
+        )}
+        <p className="text-sm text-muted-foreground">Audio unavailable. Please try again later.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="rounded-2xl border bg-card p-5 space-y-4">
       {label && (
@@ -77,7 +94,7 @@ export function AudioPlayer({ src, label }: Props) {
       )}
 
       {/* Waveform-style decoration */}
-      <div className="flex items-center gap-[3px] h-8 opacity-40">
+      <div className="flex items-center gap-[3px] h-8 opacity-40" aria-hidden="true">
         {Array.from({ length: 40 }).map((_, i) => {
           const h = [40, 55, 70, 90, 75, 60, 85, 95, 65, 50,
                      80, 70, 55, 90, 100, 75, 60, 85, 70, 55,

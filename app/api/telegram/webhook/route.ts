@@ -8,12 +8,10 @@ const UUID_RE =
 
 export async function POST(request: NextRequest) {
   // Validate the Telegram secret token (set when registering the webhook)
+  // Fail closed: if the secret is not configured, reject all requests
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (secret) {
-    const incoming = request.headers.get("X-Telegram-Bot-Api-Secret-Token");
-    if (incoming !== secret) {
-      return NextResponse.json({ ok: false }, { status: 403 });
-    }
+  if (!secret || request.headers.get("X-Telegram-Bot-Api-Secret-Token") !== secret) {
+    return NextResponse.json({ ok: false }, { status: 403 });
   }
 
   let update: Record<string, unknown>;

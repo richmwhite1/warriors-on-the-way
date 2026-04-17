@@ -69,7 +69,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const isAdmin = membership?.role === "admin" || membership?.role === "organizer";
   const isViewer = false; // viewer role not yet implemented
   const isMember = memberStatus === "active";
-  const isFull = memberCount >= community.member_cap;
+  const isFull = memberCount >= (community.member_cap ?? 150);
 
   const [communityPosts, parentPushPosts, communityEvents, userMemberships] = isMember
     ? await Promise.all([

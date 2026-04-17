@@ -2,6 +2,7 @@
 
 import { Suspense, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { signInWithGoogle, signInWithMagicLink } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,11 +99,21 @@ export default function SignInPage() {
   return (
     <main className="min-h-screen flex items-center justify-center px-4 py-16">
       <div className="w-full max-w-sm space-y-8">
+        <Link
+          href="/"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Warriors on the Way
+        </Link>
+
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-heading font-semibold tracking-tight text-foreground">
             Warriors on the Way
           </h1>
-          <p className="text-sm text-muted-foreground">Sign in to join your community</p>
+          <p className="text-sm text-muted-foreground">Sign in to find or start a community near you</p>
         </div>
 
         <Suspense fallback={<div className="rounded-2xl border bg-card p-6 h-40 animate-pulse" />}>
