@@ -25,6 +25,13 @@ export async function AppNav() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <Link
+            href="/consciousness-map"
+            className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Consciousness Map
+          </Link>
+
+          <Link
             href="/resources"
             className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors"
           >

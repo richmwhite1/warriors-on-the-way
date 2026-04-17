@@ -48,6 +48,67 @@ export default async function HomePage() {
           <p className="text-muted-foreground mt-1">The path is walked together.</p>
         </div>
 
+        {/* ── Portal links ─────────────────────────────────────────────────── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <a
+            href="/sean"
+            className="group relative rounded-2xl overflow-hidden h-28 flex flex-col justify-end p-4"
+            style={{ background: "linear-gradient(155deg, #0d0905 0%, #1c1309 60%, #110d07 100%)" }}
+          >
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse 80% 120% at 20% 120%, #D4AF3722 0%, transparent 60%)" }}
+            />
+            <p
+              className="text-[9px] font-bold uppercase tracking-[0.3em] mb-0.5"
+              style={{ color: "#D4AF3790" }}
+            >
+              Spiritual Director
+            </p>
+            <div className="flex items-end justify-between">
+              <p
+                className="font-bold text-stone-100 leading-tight"
+                style={{ fontFamily: "var(--font-display, var(--font-heading))", fontSize: "1.1rem" }}
+              >
+                Seán Ó Laoire
+              </p>
+              <span className="text-stone-600 text-xs group-hover:text-stone-400 transition-colors">
+                Visit →
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-600 mt-0.5">Transmissions · Chronicles · Live Q&amp;A</p>
+          </a>
+
+          <a
+            href="/consciousness-map"
+            className="group relative rounded-2xl overflow-hidden h-28 flex flex-col justify-end p-4"
+            style={{ background: "linear-gradient(155deg, #060410 0%, #0e0a1a 60%, #080514 100%)" }}
+          >
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{ background: "radial-gradient(ellipse 80% 120% at 80% 120%, #D4AF3718 0%, transparent 60%)" }}
+            />
+            <p
+              className="text-[9px] font-bold uppercase tracking-[0.3em] mb-0.5"
+              style={{ color: "#D4AF3790" }}
+            >
+              Hawkins Scale · 200 – 1,000
+            </p>
+            <div className="flex items-end justify-between">
+              <p
+                className="font-bold text-stone-100 leading-tight"
+                style={{ fontFamily: "var(--font-display, var(--font-heading))", fontSize: "1.1rem" }}
+              >
+                Map of Consciousness
+              </p>
+              <span className="text-stone-600 text-xs group-hover:text-stone-400 transition-colors">
+                Explore →
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-600 mt-0.5">49 teachers · 40 sacred texts</p>
+          </a>
+        </div>
+
         {/* ── Mission reminder ──────────────────────────────────────────────── */}
         <MissionPanel />
 

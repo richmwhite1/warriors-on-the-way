@@ -52,7 +52,30 @@ export function CommunityCard({
 
         {/* Banner / gradient header */}
         <div className="relative h-28 w-full shrink-0 overflow-hidden">
-          {bannerUrl ? (
+          {isParent ? (
+            /* ── Designed banner for the Warriors on the Way (parent) card ── */
+            <div
+              className="absolute inset-0 flex flex-col items-center justify-center gap-1"
+              style={{ background: "linear-gradient(155deg, #0d0905 0%, #1c1309 50%, #110d07 100%)" }}
+            >
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: "radial-gradient(ellipse 90% 120% at 50% 120%, #D4AF3720 0%, transparent 65%)" }}
+              />
+              <p
+                className="text-[8px] font-bold uppercase tracking-[0.3em]"
+                style={{ color: "#D4AF3799", fontFamily: "var(--font-sans)" }}
+              >
+                Another name for lightworkers
+              </p>
+              <p
+                className="text-base font-bold text-stone-100 tracking-tight"
+                style={{ fontFamily: "var(--font-display, var(--font-heading))" }}
+              >
+                Warriors on the Way
+              </p>
+            </div>
+          ) : bannerUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={bannerUrl}

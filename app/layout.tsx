@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import { Inter, Fraunces, Playfair_Display } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
@@ -15,6 +15,13 @@ const fraunces = Fraunces({
   subsets: ["latin"],
   display: "swap",
   axes: ["opsz", "SOFT", "WONK"],
+});
+
+// Used for the Gothic Mystic Noir sections (Sean portal, Consciousness Map)
+const playfair = Playfair_Display({
+  variable: "--font-display",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -52,7 +59,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${inter.variable} ${fraunces.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}

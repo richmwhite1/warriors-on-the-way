@@ -107,12 +107,69 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   return (
     <>
       <AppNav />
-      {community.banner_url && (
+      {community.is_parent ? (
+        /* ── Designed banner for Warriors on the Way (parent community) ── */
+        <div
+          className="w-full h-44 sm:h-60 relative overflow-hidden flex items-center justify-center"
+          style={{
+            background: "linear-gradient(160deg, #0d0905 0%, #1a1208 45%, #100c07 100%)",
+          }}
+        >
+          {/* Radial glow centre */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 80% 100% at 50% 110%, #D4AF3722 0%, transparent 65%)",
+            }}
+          />
+          {/* Edge vignette */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "radial-gradient(ellipse 110% 110% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)",
+            }}
+          />
+          {/* Subtle horizontal rule */}
+          <div
+            className="absolute left-1/2 -translate-x-1/2 bottom-0 w-3/4 h-px"
+            style={{ background: "linear-gradient(to right, transparent, #D4AF3730, transparent)" }}
+          />
+
+          {/* Content */}
+          <div className="relative z-10 text-center px-6 space-y-2">
+            <p
+              className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.4em]"
+              style={{ color: "#D4AF37", fontFamily: "var(--font-sans)" }}
+            >
+              Another name for lightworkers
+            </p>
+            <h2
+              className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-stone-100"
+              style={{ fontFamily: "var(--font-display, var(--font-heading))", textShadow: "0 2px 40px rgba(0,0,0,0.7)" }}
+            >
+              Warriors on the Way
+            </h2>
+            <div className="flex items-center justify-center gap-3 pt-1">
+              <div
+                className="h-px w-10"
+                style={{ background: "linear-gradient(to right, transparent, #D4AF3750)" }}
+              />
+              <span className="text-[9px] uppercase tracking-widest text-stone-600" style={{ fontFamily: "var(--font-sans)" }}>
+                Devotional Non-Duality · Sovereignty
+              </span>
+              <div
+                className="h-px w-10"
+                style={{ background: "linear-gradient(to left, transparent, #D4AF3750)" }}
+              />
+            </div>
+          </div>
+        </div>
+      ) : community.banner_url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <div className="w-full h-40 sm:h-56 overflow-hidden">
           <img src={community.banner_url} alt="" className="w-full h-full object-cover" />
         </div>
-      )}
+      ) : null}
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <div className="space-y-3">
           <div className="flex items-start justify-between gap-4 flex-wrap">
