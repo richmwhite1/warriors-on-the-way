@@ -41,7 +41,7 @@ export default function TermsPage() {
             <p className="text-muted-foreground">
               Warriors on the Way communities are spaces for sincere engagement with the
               spiritual and social mission outlined by our Spiritual Director, Fr. Seán
-              Ó Laoire. Members are expected to engage with honesty, care, and respect
+              Ó'Laoire. Members are expected to engage with honesty, care, and respect
               for the dignity of all people.
             </p>
           </section>

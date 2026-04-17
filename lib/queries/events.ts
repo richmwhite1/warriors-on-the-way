@@ -54,6 +54,36 @@ export async function listEventAttendees(eventId: string): Promise<EventAttendee
   return (data as unknown as EventAttendee[]) ?? [];
 }
 
+export async function getNextParentEvent(): Promise<(EventRow & { community_slug: string }) | null> {
+  const admin = createAdminClient();
+
+  const { data: parent } = await admin
+    .from("communities")
+    .select("id, slug")
+    .eq("is_parent", true)
+    .single();
+
+  if (!parent) return null;
+
+  const { data } = await admin
+    .from("events")
+    .select(`
+      id, community_id, created_by, title, description, location, virtual_url, image_url,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      creator:users!created_by(id, display_name, avatar_url, venmo_handle)
+    `)
+    .eq("community_id", parent.id)
+    .eq("status", "confirmed")
+    .gt("starts_at", new Date().toISOString())
+    .is("deleted_at", null)
+    .order("starts_at", { ascending: true })
+    .limit(1);
+
+  const event = data?.[0];
+  if (!event) return null;
+  return { ...(event as unknown as EventRow), community_slug: (parent as { id: string; slug: string }).slug };
+}
+
 export async function listCommunityEvents(communityId: string): Promise<EventRow[]> {
   const supabase = await createClient();
   const { data } = await supabase

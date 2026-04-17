@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type PostType = "discussion" | "event" | "video" | "music";
 
@@ -102,6 +103,32 @@ export async function listPersonalFeed(userId: string): Promise<Post[]> {
     .limit(30);
 
   return (data as unknown as Post[]) ?? [];
+}
+
+export async function getLatestParentPost(): Promise<Post | null> {
+  const admin = createAdminClient();
+
+  const { data: parent } = await admin
+    .from("communities")
+    .select("id, slug, name")
+    .eq("is_parent", true)
+    .single();
+
+  if (!parent) return null;
+
+  const { data } = await admin
+    .from("posts")
+    .select(`
+      ${POST_SELECT},
+      community:communities!community_id(name, slug)
+    `)
+    .eq("community_id", parent.id)
+    .is("deleted_at", null)
+    .eq("is_pinned", false)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  return (data?.[0] as unknown as Post) ?? null;
 }
 
 export async function getPost(postId: string): Promise<Post | null> {

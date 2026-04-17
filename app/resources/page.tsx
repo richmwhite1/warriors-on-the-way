@@ -37,9 +37,9 @@ export default async function ResourcesPage() {
         <div className="space-y-3">
           <h1 className="text-3xl font-heading font-semibold">Resources</h1>
           <p className="text-muted-foreground leading-relaxed">
-            A curated collection of books, practitioners, and tools that{" "}
-            {parent?.name ?? "Warriors on the Way"} recommends for your journey.
-            Open to everyone — no account required.
+            Curated by Seán Ó'Laoire and the Warriors on the Way community —
+            books, practitioners, and tools for the journey.
+            Open to everyone, no account required.
           </p>
         </div>
 

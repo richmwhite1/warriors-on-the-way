@@ -2,9 +2,9 @@ import { SeanPortal } from "@/components/sean-portal";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Seán Ó Laoire · Spiritual Director",
+  title: "Seán Ó'Laoire · Spiritual Director",
   description:
-    "Transmissions, chronicles, and live conversations with Warriors on the Way Spiritual Director Seán Ó Laoire.",
+    "Transmissions, chronicles, and live conversations with Warriors on the Way Spiritual Director Seán Ó'Laoire.",
 };
 
 export default function SeanPage() {

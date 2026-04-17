@@ -257,7 +257,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               <div className="aspect-video rounded-2xl overflow-hidden border">
                 <iframe
                   src={`https://www.youtube.com/embed/${latestVideoId}`}
-                  title="Latest video from Seán Ó Laoire"
+                  title="Latest video from Seán Ó'Laoire"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
                   className="w-full h-full"

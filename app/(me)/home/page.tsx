@@ -49,63 +49,50 @@ export default async function HomePage() {
         </div>
 
         {/* ── Portal links ─────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-3">
+          {/* Seán Ó Laoire */}
           <a
-            href="/sean"
-            className="group relative rounded-2xl overflow-hidden h-28 flex flex-col justify-end p-4"
-            style={{ background: "linear-gradient(155deg, #0d0905 0%, #1c1309 60%, #110d07 100%)" }}
+            href="https://project-ev5ff.vercel.app"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-center gap-4 rounded-2xl border bg-card px-5 py-4 hover:border-foreground/20 transition-colors"
           >
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse 80% 120% at 20% 120%, #D4AF3722 0%, transparent 60%)" }}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/sean-olaoire.webp"
+              alt="Seán Ó'Laoire"
+              className="size-11 rounded-full object-cover object-top shrink-0 shadow-sm"
             />
-            <p
-              className="text-[9px] font-bold uppercase tracking-[0.3em] mb-0.5"
-              style={{ color: "#D4AF3790" }}
-            >
-              Spiritual Director
-            </p>
-            <div className="flex items-end justify-between">
-              <p
-                className="font-bold text-stone-100 leading-tight"
-                style={{ fontFamily: "var(--font-display, var(--font-heading))", fontSize: "1.1rem" }}
-              >
-                Seán Ó Laoire
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-0.5">
+                Spiritual Director
               </p>
-              <span className="text-stone-600 text-xs group-hover:text-stone-400 transition-colors">
-                Visit →
-              </span>
+              <p className="font-heading font-semibold leading-snug">Seán Ó'Laoire</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Transmissions · Chronicles · Live Q&amp;A</p>
             </div>
-            <p className="text-[11px] text-stone-600 mt-0.5">Transmissions · Chronicles · Live Q&amp;A</p>
+            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors shrink-0">
+              Visit ↗
+            </span>
           </a>
 
+          {/* Teachers & Sacred Texts */}
           <a
             href="/consciousness-map"
-            className="group relative rounded-2xl overflow-hidden h-28 flex flex-col justify-end p-4"
-            style={{ background: "linear-gradient(155deg, #060410 0%, #0e0a1a 60%, #080514 100%)" }}
+            className="group flex items-center gap-4 rounded-2xl border bg-card px-5 py-4 hover:border-foreground/20 transition-colors"
           >
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{ background: "radial-gradient(ellipse 80% 120% at 80% 120%, #D4AF3718 0%, transparent 60%)" }}
-            />
-            <p
-              className="text-[9px] font-bold uppercase tracking-[0.3em] mb-0.5"
-              style={{ color: "#D4AF3790" }}
-            >
-              Hawkins Scale · 200 – 1,000
-            </p>
-            <div className="flex items-end justify-between">
-              <p
-                className="font-bold text-stone-100 leading-tight"
-                style={{ fontFamily: "var(--font-display, var(--font-heading))", fontSize: "1.1rem" }}
-              >
-                Map of Consciousness
-              </p>
-              <span className="text-stone-600 text-xs group-hover:text-stone-400 transition-colors">
-                Explore →
-              </span>
+            <div className="size-11 rounded-full bg-muted flex items-center justify-center shrink-0 text-lg">
+              📚
             </div>
-            <p className="text-[11px] text-stone-600 mt-0.5">49 teachers · 40 sacred texts</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-0.5">
+                Curated Resources
+              </p>
+              <p className="font-heading font-semibold leading-snug">Teachers &amp; Sacred Texts</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Books and teachers recommended for your journey</p>
+            </div>
+            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors shrink-0">
+              Explore →
+            </span>
           </a>
         </div>
 

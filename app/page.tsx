@@ -2,6 +2,8 @@ import Link from "next/link";
 import { AudioPlayer } from "@/components/ui/audio-player";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
+import { getNextParentEvent } from "@/lib/queries/events";
+import { getLatestParentPost } from "@/lib/queries/posts";
 
 const MISSION_POINTS = [
   "Take education away from the child molesters",
@@ -25,7 +27,27 @@ const SHIFTS = [
   { domain: "Medicine",      from: "Pharmaceutically controlled disease management", to: "People-centered, hands-on healthcare" },
 ];
 
-export default function LandingPage() {
+function formatEventDate(startsAt: string, timezone: string): string {
+  try {
+    const date = new Date(startsAt);
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: timezone,
+      timeZoneName: "short",
+    }).format(date);
+  } catch {
+    return new Date(startsAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  }
+}
+
+export default async function LandingPage() {
+  const nextEvent = await getNextParentEvent();
+  const latestPost = nextEvent ? null : await getLatestParentPost();
+
   return (
     <main className="min-h-screen flex flex-col bg-background">
 
@@ -80,7 +102,7 @@ export default function LandingPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/sean-olaoire.webp"
-              alt="Seán Ó Laoire"
+              alt="Seán Ó'Laoire"
               className="size-28 rounded-full object-cover object-top shadow"
             />
           </div>
@@ -89,7 +111,7 @@ export default function LandingPage() {
               <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">
                 Spiritual Director
               </p>
-              <h2 className="text-2xl font-heading font-semibold">Seán Ó Laoire</h2>
+              <h2 className="text-2xl font-heading font-semibold">Seán Ó'Laoire</h2>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
               Irish-born priest, scientist, and mystic — holding advanced degrees in philosophy,
@@ -101,9 +123,82 @@ export default function LandingPage() {
               src="/audio/sean-healdsburg.m4a"
               label="Seán on the purpose of Warriors on the Way"
             />
+            <div>
+              <Link
+                href="/sean"
+                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-2"
+              >
+                Explore Seán&apos;s portal →
+              </Link>
+            </div>
           </div>
         </div>
       </section>
+
+      {/* ── Next event or latest post ─────────────────────────────────────────── */}
+      {nextEvent ? (
+        <section className="px-6 py-12 border-b">
+          <div className="max-w-3xl mx-auto space-y-4">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest">
+              Next Live Session
+            </p>
+            <div className="rounded-2xl border bg-card p-6 flex flex-col sm:flex-row sm:items-center gap-4">
+              <div className="flex-1 space-y-1 min-w-0">
+                <h3 className="font-heading font-semibold text-lg leading-snug">{nextEvent.title}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {formatEventDate(nextEvent.starts_at!, nextEvent.timezone)}
+                </p>
+                {(nextEvent.location || nextEvent.virtual_url) && (
+                  <p className="text-sm text-muted-foreground">
+                    {nextEvent.location ?? "Virtual"}
+                  </p>
+                )}
+                {nextEvent.description && (
+                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 pt-1">
+                    {nextEvent.description}
+                  </p>
+                )}
+              </div>
+              <Link
+                href={`/community/${nextEvent.community_slug}/events/${nextEvent.id}`}
+                className={cn(buttonVariants({ size: "sm" }), "rounded-full shrink-0")}
+              >
+                Register →
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : latestPost ? (
+        <section className="px-6 py-12 border-b">
+          <div className="max-w-3xl mx-auto space-y-4">
+            <p className="text-xs font-semibold text-primary uppercase tracking-widest">
+              Latest from Warriors on the Way
+            </p>
+            <div className="rounded-2xl border bg-card p-6 space-y-3">
+              {latestPost.title && (
+                <h3 className="font-heading font-semibold text-lg leading-snug">{latestPost.title}</h3>
+              )}
+              {latestPost.body && (
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+                  {latestPost.body}
+                </p>
+              )}
+              <div className="flex items-center justify-between pt-1">
+                <p className="text-xs text-muted-foreground">
+                  {latestPost.author.display_name} &middot;{" "}
+                  {new Date(latestPost.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                </p>
+                <Link
+                  href="/sign-in"
+                  className="text-sm font-medium text-primary hover:underline underline-offset-2"
+                >
+                  Join to discuss →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* ── Manifesto ─────────────────────────────────────────────────────────── */}
       <section id="mission" className="px-6 py-20 max-w-3xl mx-auto w-full space-y-16">
@@ -112,7 +207,7 @@ export default function LandingPage() {
           <p className="text-xs font-semibold text-primary uppercase tracking-widest">
             The Lightworkers Manifesto
           </p>
-          <h2 className="text-3xl sm:text-4xl font-heading font-semibold">Seán Ó Laoire</h2>
+          <h2 className="text-3xl sm:text-4xl font-heading font-semibold">Seán Ó'Laoire</h2>
         </div>
 
         {/* Mission */}
@@ -208,6 +303,16 @@ export default function LandingPage() {
         </div>
 
       </section>
+
+      {/* ── Resources teaser ─────────────────────────────────────────────────── */}
+      <div className="border-t px-6 py-8 flex justify-center">
+        <Link
+          href="/resources"
+          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Explore our curated books, practitioners &amp; tools →
+        </Link>
+      </div>
 
       {/* ── CTA ─────────────────────────────────────────────────────────────── */}
       <section className="border-t px-6 py-20 flex flex-col items-center text-center gap-6">

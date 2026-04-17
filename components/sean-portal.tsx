@@ -149,7 +149,7 @@ export function SeanPortal() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/sean-olaoire.webp"
-                alt="Seán Ó Laoire"
+                alt="Seán Ó'Laoire"
                 className="w-full h-full object-cover object-top"
                 style={{ filter: "contrast(1.08) brightness(0.9) saturate(0.85)" }}
               />
@@ -178,7 +178,7 @@ export function SeanPortal() {
                 }}
               >
                 Seán<br />
-                <span style={{ color: "#c8b88a" }}>Ó Laoire</span>
+                <span style={{ color: "#c8b88a" }}>Ó'Laoire</span>
               </h1>
             </div>
 

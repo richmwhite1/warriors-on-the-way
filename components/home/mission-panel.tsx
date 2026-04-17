@@ -87,12 +87,12 @@ export function MissionPanel() {
         >
           <img
             src="/sean-olaoire.webp"
-            alt="Seán Ó Laoire — Spirits in Space Suits"
+            alt="Seán Ó'Laoire — Spirits in Space Suits"
             className="size-8 rounded-full object-cover object-top opacity-90 hover:opacity-100 transition-opacity ring-1 ring-primary/20 hover:ring-primary/60"
           />
         </a>
         <p className="flex-1 text-xs text-muted-foreground">
-          Seán Ó Laoire · Lightworkers Manifesto
+          Seán Ó'Laoire · Lightworkers Manifesto
         </p>
         <Link href="/" className="text-xs text-primary hover:underline shrink-0">
           Full text →
