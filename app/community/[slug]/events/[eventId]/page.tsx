@@ -19,7 +19,6 @@ import { getEventTasks, getEventExpenses } from "@/lib/queries/event-modules";
 import { AttendeeList } from "@/components/events/attendee-list";
 import { cancelEvent } from "@/lib/actions/events";
 import { toggleEventModule } from "@/lib/actions/event-modules";
-import { GuestSignUpPrompt } from "@/components/events/guest-sign-up-prompt";
 
 type Props = { params: Promise<{ slug: string; eventId: string }> };
 
@@ -109,7 +108,6 @@ export default async function EventDetailPage({ params }: Props) {
 
           <Separator />
 
-          {!user && <GuestSignUpPrompt next={`/community/${slug}/events/${eventId}`} />}
         </main>
       </>
     );

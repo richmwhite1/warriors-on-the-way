@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { submitGuestRsvp } from "@/lib/actions/rsvp";
+import { signInWithMagicLink } from "@/lib/actions/auth";
 import { ShareButton } from "@/components/events/share-button";
 import { toast } from "sonner";
 
@@ -61,11 +62,27 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
         localStorage.setItem(storageKey, JSON.stringify(s));
         setSaved(s);
         setDone(true);
-        toast.success(
-          status === "yes" ? "You're in! See you there." :
-          status === "maybe" ? "Got it — hope you can make it!" :
-          "Thanks for letting us know."
-        );
+
+        // Auto-create account via magic link if email was provided
+        if (email.trim()) {
+          try {
+            await signInWithMagicLink(email.trim(), `/community/${communitySlug}/events/${eventId}`);
+            toast.success("RSVP confirmed! Check your email for a link to access your account.");
+          } catch {
+            // RSVP succeeded, magic link failed — still show success
+            toast.success(
+              status === "yes" ? "You're in! See you there." :
+              status === "maybe" ? "Got it — hope you can make it!" :
+              "Thanks for letting us know."
+            );
+          }
+        } else {
+          toast.success(
+            status === "yes" ? "You're in! See you there." :
+            status === "maybe" ? "Got it — hope you can make it!" :
+            "Thanks for letting us know."
+          );
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Something went wrong");
       }
@@ -151,7 +168,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
         <div className="space-y-1.5">
           <Label htmlFor="guest-email">
             Email{" "}
-            <span className="text-muted-foreground font-normal text-xs">— optional, for event updates</span>
+            <span className="text-muted-foreground font-normal text-xs">— optional, creates your free account</span>
           </Label>
           <Input
             id="guest-email"
