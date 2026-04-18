@@ -38,13 +38,11 @@ export async function generateMetadata({ params }: Props) {
       description,
       url,
       type: "website" as const,
-      ...(event.image_url && { images: [{ url: event.image_url, width: 1200, height: 630 }] }),
     },
     twitter: {
       card: "summary_large_image" as const,
       title: event.title,
       description,
-      ...(event.image_url && { images: [event.image_url] }),
     },
   };
 }

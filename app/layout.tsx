@@ -25,8 +25,15 @@ export const metadata: Metadata = {
     template: "%s | Warriors on the Way",
   },
   description:
-    "A gathering of lightbringers committed to transforming consciousness, reclaiming institutions, and walking the spiritual path together.",
+    "A gathering of lightbringers committed to reclaiming sovereignty from institutional control and supporting the evolution of consciousness.",
   applicationName: "Warriors on the Way",
+  openGraph: {
+    siteName: "Warriors on the Way",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
