@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { RsvpButtons } from "@/components/events/rsvp-buttons";
@@ -58,13 +58,8 @@ export default async function EventDetailPage({ params }: Props) {
   const isMember = membership?.status === "active";
 
   // ── Guest / non-member path ────────────────────────────────────────────────
-  // Private communities: non-members must sign in
-  // Public communities: anyone can view the event
+  // Anyone with the event link can view and RSVP as a guest
   if (!isMember) {
-    if (community.is_private) {
-      redirect(`/sign-in?next=/community/${slug}/events/${eventId}`);
-    }
-
     const event = await getEventWithDetails(eventId);
     if (!event) notFound();
 
