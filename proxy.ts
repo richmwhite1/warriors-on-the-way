@@ -36,7 +36,10 @@ export async function proxy(request: NextRequest) {
   const protectedPrefixes = ["/home", "/community", "/events", "/me", "/profile"];
   const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
 
-  if (isProtected && !user) {
+  // Allow guests to view shared event links (e.g. /community/[slug]/events/[eventId])
+  const isEventDetail = /^\/community\/[^/]+\/events\/[^/]+$/.test(pathname);
+
+  if (isProtected && !isEventDetail && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
     return NextResponse.redirect(url);
