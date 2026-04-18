@@ -54,6 +54,23 @@ export async function listEventAttendees(eventId: string): Promise<EventAttendee
   return (data as unknown as EventAttendee[]) ?? [];
 }
 
+export type GuestAttendee = {
+  id: string;
+  name: string;
+  status: "yes" | "no" | "maybe";
+};
+
+export async function listGuestAttendees(eventId: string): Promise<GuestAttendee[]> {
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("guest_rsvps")
+    .select("id, name, status")
+    .eq("event_id", eventId)
+    .in("status", ["yes", "maybe"])
+    .order("status");
+  return (data as unknown as GuestAttendee[]) ?? [];
+}
+
 export async function getNextParentEvent(): Promise<(EventRow & { community_slug: string }) | null> {
   const admin = createAdminClient();
 

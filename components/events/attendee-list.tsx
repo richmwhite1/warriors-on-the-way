@@ -6,12 +6,13 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { setRsvpPaymentStatus, toggleCheckIn } from "@/lib/actions/rsvp";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { EventAttendee } from "@/lib/queries/events";
+import type { EventAttendee, GuestAttendee } from "@/lib/queries/events";
 
 type PaymentStatus = "unpaid" | "sent" | "confirmed" | "waived";
 
 type Props = {
   attendees: EventAttendee[];
+  guestAttendees?: GuestAttendee[];
   isAdmin: boolean;
   registrationFee?: number | null;
   eventId: string;
@@ -193,9 +194,11 @@ function AttendeeRow({
   );
 }
 
-export function AttendeeList({ attendees, isAdmin, registrationFee, eventId, communitySlug }: Props) {
+export function AttendeeList({ attendees, guestAttendees = [], isAdmin, registrationFee, eventId, communitySlug }: Props) {
   const going = attendees.filter((a) => a.status === "yes");
   const maybe = attendees.filter((a) => a.status === "maybe");
+  const guestsGoing = guestAttendees.filter((g) => g.status === "yes");
+  const guestsMaybe = guestAttendees.filter((g) => g.status === "maybe");
   const hasFee = !!registrationFee && registrationFee > 0;
 
   const confirmed = going.filter((a) => a.payment_status === "confirmed").length;
@@ -217,10 +220,10 @@ export function AttendeeList({ attendees, isAdmin, registrationFee, eventId, com
       </div>
 
       {/* Going */}
-      {going.length > 0 && (
+      {(going.length > 0 || guestsGoing.length > 0) && (
         <div className="p-1.5 space-y-0.5">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 pb-1">
-            Going · {going.length}
+            Going · {going.length + guestsGoing.length}
           </p>
           {going.map((a) => (
             <AttendeeRow
@@ -232,14 +235,17 @@ export function AttendeeList({ attendees, isAdmin, registrationFee, eventId, com
               communitySlug={communitySlug}
             />
           ))}
+          {guestsGoing.map((g) => (
+            <GuestRow key={g.id} name={g.name} />
+          ))}
         </div>
       )}
 
       {/* Maybe */}
-      {maybe.length > 0 && (
+      {(maybe.length > 0 || guestsMaybe.length > 0) && (
         <div className="p-1.5 space-y-0.5">
           <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide px-3 pb-1">
-            Maybe · {maybe.length}
+            Maybe · {maybe.length + guestsMaybe.length}
           </p>
           {maybe.map((a) => (
             <AttendeeRow
@@ -251,8 +257,25 @@ export function AttendeeList({ attendees, isAdmin, registrationFee, eventId, com
               communitySlug={communitySlug}
             />
           ))}
+          {guestsMaybe.map((g) => (
+            <GuestRow key={g.id} name={g.name} />
+          ))}
         </div>
       )}
+    </div>
+  );
+}
+
+function GuestRow({ name }: { name: string }) {
+  return (
+    <div className="flex items-center gap-3 py-2.5 px-3 rounded-xl">
+      <Avatar size="default">
+        <AvatarFallback>{getInitials(name)}</AvatarFallback>
+      </Avatar>
+      <div className="flex-1 min-w-0">
+        <span className="text-sm font-medium truncate block">{name}</span>
+        <span className="text-xs text-muted-foreground">Guest</span>
+      </div>
     </div>
   );
 }

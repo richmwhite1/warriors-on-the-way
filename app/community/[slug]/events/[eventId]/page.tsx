@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership, getActiveMemberCount, listActiveMembers } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
-import { getEventWithDetails, listEventAttendees } from "@/lib/queries/events";
+import { getEventWithDetails, listEventAttendees, listGuestAttendees } from "@/lib/queries/events";
 import { getEventTasks, getEventExpenses } from "@/lib/queries/event-modules";
 import { AttendeeList } from "@/components/events/attendee-list";
 import { cancelEvent } from "@/lib/actions/events";
@@ -59,10 +59,26 @@ export default async function EventDetailPage({ params }: Props) {
   // ── Guest / non-member path ────────────────────────────────────────────────
   // Anyone with the event link can view and RSVP as a guest
   if (!isMember) {
-    const event = await getEventWithDetails(eventId);
+    const [event, guestAttendees] = await Promise.all([
+      getEventWithDetails(eventId),
+      listGuestAttendees(eventId),
+    ]);
     if (!event) notFound();
 
     const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/community/${slug}/events/${eventId}`;
+
+    // Combine member + guest attendee names for a simple list
+    const memberAttendees = event.status === "confirmed"
+      ? await listEventAttendees(eventId)
+      : [];
+    const goingNames = [
+      ...memberAttendees.filter((a) => a.status === "yes").map((a) => a.user.display_name),
+      ...guestAttendees.filter((a) => a.status === "yes").map((a) => a.name),
+    ];
+    const maybeNames = [
+      ...memberAttendees.filter((a) => a.status === "maybe").map((a) => a.user.display_name),
+      ...guestAttendees.filter((a) => a.status === "maybe").map((a) => a.name),
+    ];
 
     return (
       <>
@@ -89,6 +105,23 @@ export default async function EventDetailPage({ params }: Props) {
 
           {event.rsvp_counts && event.status === "confirmed" && (
             <RsvpCounts counts={event.rsvp_counts} />
+          )}
+
+          {event.status === "confirmed" && (goingNames.length > 0 || maybeNames.length > 0) && (
+            <div className="rounded-2xl border bg-card p-4 space-y-3">
+              {goingNames.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Going</p>
+                  <p className="text-sm">{goingNames.join(", ")}</p>
+                </div>
+              )}
+              {maybeNames.length > 0 && (
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Maybe</p>
+                  <p className="text-sm">{maybeNames.join(", ")}</p>
+                </div>
+              )}
+            </div>
           )}
 
           {event.status === "confirmed" && (
@@ -121,9 +154,10 @@ export default async function EventDetailPage({ params }: Props) {
   const event = await getEventWithDetails(eventId, user.id);
   if (!event) notFound();
 
-  const [memberCount, attendees, allMembers, tasks, expenses] = await Promise.all([
+  const [memberCount, attendees, guestAttendees, allMembers, tasks, expenses] = await Promise.all([
     getActiveMemberCount(community.id),
     listEventAttendees(eventId),
+    listGuestAttendees(eventId),
     listActiveMembers(community.id),
     getEventTasks(eventId),
     getEventExpenses(eventId),
@@ -171,9 +205,10 @@ export default async function EventDetailPage({ params }: Props) {
         {event.rsvp_counts && event.status === "confirmed" && (
           <>
             <RsvpCounts counts={event.rsvp_counts} />
-            {attendees.length > 0 && (
+            {(attendees.length > 0 || guestAttendees.length > 0) && (
               <AttendeeList
                 attendees={attendees}
+                guestAttendees={guestAttendees}
                 isAdmin={isAdmin}
                 registrationFee={event.registration_fee}
                 eventId={eventId}
