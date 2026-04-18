@@ -27,7 +27,6 @@ import { PostComposer } from "@/components/feed/post-composer";
 import { PostCard } from "@/components/feed/post-card";
 import { FeedFilterBar } from "@/components/feed/feed-filter-bar";
 import { EventCard } from "@/components/events/event-card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
@@ -107,84 +106,126 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   return (
     <>
       <AppNav />
+      <div style={{ height: 60 }} />
+
+      {/* ── Community Header (dark band) ───────────────────────────────────── */}
       {community.is_parent ? (
-        /* ── Designed banner for Warriors on the Way (parent community) ── */
         <div
-          className="w-full h-44 sm:h-60 relative overflow-hidden flex items-center justify-center"
           style={{
-            background: "linear-gradient(160deg, #0d0905 0%, #1a1208 45%, #100c07 100%)",
+            background: "#1a1610",
+            padding: "4rem 2rem",
+            textAlign: "center",
+            position: "relative",
+            overflow: "hidden",
           }}
         >
-          {/* Radial glow centre */}
           <div
-            className="absolute inset-0 pointer-events-none"
             style={{
-              background: "radial-gradient(ellipse 80% 100% at 50% 110%, #D4AF3722 0%, transparent 65%)",
+              position: "absolute",
+              inset: 0,
+              background: "radial-gradient(ellipse 80% 100% at 50% 110%, rgba(160,120,40,0.12) 0%, transparent 65%)",
+              pointerEvents: "none",
             }}
           />
-          {/* Edge vignette */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: "radial-gradient(ellipse 110% 110% at 50% 50%, transparent 40%, rgba(0,0,0,0.55) 100%)",
-            }}
-          />
-          {/* Subtle horizontal rule */}
-          <div
-            className="absolute left-1/2 -translate-x-1/2 bottom-0 w-3/4 h-px"
-            style={{ background: "linear-gradient(to right, transparent, #D4AF3730, transparent)" }}
-          />
-
-          {/* Content */}
-          <div className="relative z-10 text-center px-6 space-y-2">
+          <div style={{ position: "relative", zIndex: 1 }}>
             <p
-              className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.4em]"
-              style={{ color: "#D4AF37", fontFamily: "var(--font-sans)" }}
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontSize: 9,
+                fontWeight: 600,
+                letterSpacing: "0.4em",
+                textTransform: "uppercase",
+                color: "#a07828",
+                marginBottom: "1rem",
+              }}
             >
               Another name for lightworkers
             </p>
-            <h2
-              className="text-3xl sm:text-5xl font-bold leading-tight tracking-tight text-stone-100"
-              style={{ fontFamily: "var(--font-display, var(--font-heading))", textShadow: "0 2px 40px rgba(0,0,0,0.7)" }}
+            <h1
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontWeight: 900,
+                fontSize: "clamp(2rem, 6vw, 4rem)",
+                color: "#ffffff",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                lineHeight: 1,
+                marginBottom: "1rem",
+              }}
             >
               Warriors on the Way
-            </h2>
-            <div className="flex items-center justify-center gap-3 pt-1">
-              <div
-                className="h-px w-10"
-                style={{ background: "linear-gradient(to right, transparent, #D4AF3750)" }}
-              />
-              <span className="text-[9px] uppercase tracking-widest text-stone-600" style={{ fontFamily: "var(--font-sans)" }}>
-                Devotional Non-Duality · Sovereignty
-              </span>
-              <div
-                className="h-px w-10"
-                style={{ background: "linear-gradient(to left, transparent, #D4AF3750)" }}
-              />
-            </div>
+            </h1>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontStyle: "italic",
+                color: "rgba(255,255,255,0.45)",
+                fontSize: "1rem",
+              }}
+            >
+              {memberCount} {memberCount === 1 ? "member" : "members"}
+              {isFull && <span style={{ marginLeft: "0.5rem", color: "#c4a050" }}>· Full</span>}
+            </p>
           </div>
         </div>
-      ) : community.banner_url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <div className="w-full h-40 sm:h-56 overflow-hidden">
-          <img src={community.banner_url} alt="" className="w-full h-full object-cover" />
+      ) : (
+        <div
+          style={{
+            background: "#1a1610",
+            padding: "4rem 2rem",
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
+          {community.banner_url && (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                overflow: "hidden",
+                zIndex: 0,
+                opacity: 0.2,
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={community.banner_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
+          )}
+          <div style={{ position: "relative", zIndex: 1, maxWidth: 640, margin: "0 auto" }}>
+            <h1
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontWeight: 900,
+                fontSize: "clamp(1.6rem, 4vw, 3rem)",
+                color: "#ffffff",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                lineHeight: 1.05,
+                marginBottom: "0.75rem",
+              }}
+            >
+              {community.name}
+            </h1>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontStyle: "italic",
+                color: "rgba(255,255,255,0.45)",
+                fontSize: "1rem",
+              }}
+            >
+              {memberCount} / {community.member_cap} {memberCount === 1 ? "member" : "members"}
+              {isFull && <span style={{ marginLeft: "0.5rem", color: "#c4a050" }}>· Full</span>}
+              {community.is_private && <span style={{ marginLeft: "0.5rem" }}>· Private</span>}
+            </p>
+          </div>
         </div>
-      ) : null}
+      )}
+
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <div className="space-y-3">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div className="space-y-1">
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-3xl font-heading font-semibold">{community.name}</h1>
-                {community.is_parent && <Badge variant="secondary">North Star</Badge>}
-                {community.is_private && <Badge variant="outline">Private</Badge>}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {memberCount} / {community.member_cap} members
-                {isFull && <span className="ml-2 text-destructive font-medium">· Full</span>}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap">
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 flex-wrap">
               {isMember && (
                 <Link href={`/community/${slug}/members`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Members
@@ -207,54 +248,73 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 isFull={isFull}
                 inviteToken={inviteToken}
               />
-            </div>
           </div>
           {community.description && (
-            <p className="text-muted-foreground text-sm">{community.description}</p>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontStyle: "italic",
+                color: "#6b6456",
+                fontSize: "1rem",
+              }}
+            >
+              {community.description}
+            </p>
           )}
 
           {/* Mission statement — collapsible */}
           {community.mission && (
-            <details className="rounded-2xl border">
-              <summary className="px-4 py-3 text-sm font-medium cursor-pointer select-none text-muted-foreground hover:text-foreground transition-colors">
+            <details style={{ border: "1px solid #ede9e1" }}>
+              <summary
+                style={{
+                  padding: "0.75rem 1rem",
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 10,
+                  fontWeight: 600,
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  color: "#6b6456",
+                  cursor: "pointer",
+                }}
+              >
                 Mission ↓
               </summary>
-              <div className="px-4 pb-4 pt-2 border-t">
-                <p className="text-sm whitespace-pre-wrap">{community.mission}</p>
+              <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #ede9e1", background: "#f8f7f4" }}>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "0.95rem", whiteSpace: "pre-wrap", color: "#4a4438" }}>{community.mission}</p>
               </div>
             </details>
           )}
 
           {/* Parent community: show rules collapsed */}
           {community.is_parent && community.rules_md && (
-            <details className="rounded-2xl border">
-              <summary className="px-4 py-3 text-sm font-medium cursor-pointer select-none text-muted-foreground hover:text-foreground transition-colors">
+            <details style={{ border: "1px solid #ede9e1" }}>
+              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 10, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: "#6b6456", cursor: "pointer" }}>
                 Community Standards ↓
               </summary>
-              <div className="px-4 pb-4 pt-2 border-t">
-                <p className="text-sm whitespace-pre-wrap">{community.rules_md}</p>
+              <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #ede9e1", background: "#f8f7f4" }}>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4438" }}>{community.rules_md}</p>
               </div>
             </details>
           )}
 
           {/* Child community: show parent rules collapsed */}
           {!community.is_parent && parentCommunity?.rules_md && (
-            <details className="rounded-2xl border">
-              <summary className="px-4 py-3 text-sm font-medium cursor-pointer select-none text-muted-foreground hover:text-foreground transition-colors">
+            <details style={{ border: "1px solid #ede9e1" }}>
+              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 10, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: "#6b6456", cursor: "pointer" }}>
                 Community Standards ↓
               </summary>
-              <div className="px-4 pb-4 pt-2 border-t">
-                <p className="text-xs text-muted-foreground mb-2">Standards all Warriors on the Way communities follow:</p>
-                <p className="text-sm whitespace-pre-wrap">{parentCommunity.rules_md}</p>
+              <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #ede9e1", background: "#f8f7f4" }}>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.5rem" }}>Standards all Warriors on the Way communities follow:</p>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4438" }}>{parentCommunity.rules_md}</p>
               </div>
             </details>
           )}
 
           {/* Latest video from Seán — only on the parent (Warriors on the Way) community */}
           {community.is_parent && latestVideoId && (
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Latest from Seán</p>
-              <div className="aspect-video rounded-2xl overflow-hidden border">
+            <div style={{ marginTop: "1rem" }}>
+              <p style={{ fontFamily: "var(--font-brand)", fontSize: 9, fontWeight: 600, letterSpacing: "0.26em", textTransform: "uppercase", color: "#a07828", marginBottom: "0.75rem" }}>Latest from Seán</p>
+              <div className="aspect-video overflow-hidden" style={{ border: "1px solid #ede9e1" }}>
                 <iframe
                   src={`https://www.youtube.com/embed/${latestVideoId}`}
                   title="Latest video from Seán Ó'Laoire"
@@ -267,14 +327,14 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           )}
         </div>
 
-        <Separator />
+        <div style={{ height: 1, background: "#ede9e1", margin: "1rem 0" }} />
 
         {isMember ? (
           <div className="space-y-4">
             {!isViewer && <PostComposer communityId={community.id} communitySlug={slug} isParentAdmin={isParentAdmin} />}
             {isViewer && (
-              <div className="rounded-xl border border-dashed px-4 py-3 text-sm text-muted-foreground text-center">
-                You have view-only access to this community.
+              <div style={{ border: "1px dashed #ede9e1", padding: "0.75rem 1rem", textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#c8c2b4", fontSize: "0.9rem" }}>You have view-only access to this community.</p>
               </div>
             )}
 
@@ -327,10 +387,12 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             )}
 
             {isEmpty ? (
-              <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
-                {postTypeFilter
-                  ? `No ${postTypeFilter} posts yet.`
-                  : "No posts yet. Be the first to share something."}
+              <div style={{ border: "1px dashed #ede9e1", padding: "3rem 2rem", textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#c8c2b4" }}>
+                  {postTypeFilter
+                    ? `No ${postTypeFilter} posts yet.`
+                    : "No posts yet. Be the first to share something."}
+                </p>
               </div>
             ) : (
               feedPosts.map((post) => (
@@ -348,18 +410,18 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             )}
           </div>
         ) : memberStatus === "waitlisted" ? (
-          <div className="rounded-2xl border p-8 text-center space-y-2">
-            <p className="font-heading font-semibold">You&apos;re on the waitlist</p>
-            <p className="text-sm text-muted-foreground">We&apos;ll let you know when a spot opens up.</p>
+          <div style={{ border: "1px solid #ede9e1", padding: "3rem 2rem", textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1a1610", marginBottom: "0.5rem" }}>You&apos;re on the waitlist</p>
+            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#6b6456", fontSize: "1rem" }}>We&apos;ll let you know when a spot opens up.</p>
           </div>
         ) : memberStatus === "pending_approval" ? (
-          <div className="rounded-2xl border p-8 text-center space-y-2">
-            <p className="font-heading font-semibold">Request pending</p>
-            <p className="text-sm text-muted-foreground">An admin will review your request shortly.</p>
+          <div style={{ border: "1px solid #ede9e1", padding: "3rem 2rem", textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1a1610", marginBottom: "0.5rem" }}>Request pending</p>
+            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#6b6456", fontSize: "1rem" }}>An admin will review your request shortly.</p>
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed p-10 text-center text-muted-foreground">
-            Join this community to see its wall.
+          <div style={{ border: "1px dashed #ede9e1", padding: "3rem 2rem", textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#c8c2b4" }}>Join this community to see its wall.</p>
           </div>
         )}
       </main>

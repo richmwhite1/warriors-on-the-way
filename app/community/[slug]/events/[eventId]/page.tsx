@@ -19,6 +19,7 @@ import { getEventTasks, getEventExpenses } from "@/lib/queries/event-modules";
 import { AttendeeList } from "@/components/events/attendee-list";
 import { cancelEvent } from "@/lib/actions/events";
 import { toggleEventModule } from "@/lib/actions/event-modules";
+import { GuestSignUpPrompt } from "@/components/events/guest-sign-up-prompt";
 
 type Props = { params: Promise<{ slug: string; eventId: string }> };
 
@@ -31,10 +32,6 @@ export default async function EventDetailPage({ params }: Props) {
 
   // ── Guest path (not signed in) ─────────────────────────────────────────────
   if (!user) {
-    // Only block guests if guest RSVPs are explicitly disabled
-    // allow_guest_rsvp defaults to true — null/undefined = allowed
-    if (community.allow_guest_rsvp === false) redirect(`/sign-in?next=/community/${slug}/events/${eventId}`);
-
     const event = await getEventWithDetails(eventId);
     if (!event) notFound();
 
@@ -44,7 +41,7 @@ export default async function EventDetailPage({ params }: Props) {
       <>
         <AppNav />
         <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-          <EventHeader event={event} slug={slug} />
+          <EventHeader event={event} slug={slug} shareUrl={shareUrl} />
 
           {event.image_url && (
             // eslint-disable-next-line @next/next/no-img-element
@@ -84,27 +81,7 @@ export default async function EventDetailPage({ params }: Props) {
 
           <Separator />
 
-          {/* Soft CTA to join */}
-          <div className="rounded-2xl border bg-card p-5 space-y-3">
-            <p className="font-medium">Want the full experience?</p>
-            <p className="text-sm text-muted-foreground">
-              Sign in to see the community wall, connect with members, and get event updates.
-            </p>
-            <div className="flex gap-2 flex-wrap">
-              <Link
-                href={`/sign-in?next=/community/${slug}/events/${eventId}`}
-                className={cn(buttonVariants({ size: "sm" }))}
-              >
-                Sign in
-              </Link>
-              <Link
-                href={`/community/${slug}`}
-                className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-              >
-                View {community.name}
-              </Link>
-            </div>
-          </div>
+          <GuestSignUpPrompt next={`/community/${slug}/events/${eventId}`} />
         </main>
       </>
     );

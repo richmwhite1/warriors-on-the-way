@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { AudioPlayer } from "@/components/ui/audio-player";
-import { buttonVariants } from "@/components/ui/button-variants";
-import { cn } from "@/lib/utils";
+import { OrnamentalDivider } from "@/components/ui/OrnamentalDivider";
+import { SectionLabel } from "@/components/ui/SectionLabel";
+import { SectionTitle } from "@/components/ui/SectionTitle";
 import { getNextParentEvent } from "@/lib/queries/events";
 import { getLatestParentPost } from "@/lib/queries/posts";
 
@@ -24,7 +25,7 @@ const SHIFTS = [
   { domain: "Religion",      from: "Dogmatic sectarianism",                       to: "Unity identity" },
   { domain: "Politics",      from: "Party-affiliated blindness",                  to: "Issue-identified solutions" },
   { domain: "Agriculture",   from: "Gaia-destructive profiteering",               to: "Gaia-enhancing gratitude" },
-  { domain: "Medicine",      from: "Pharmaceutically controlled disease management", to: "People-centered, hands-on healthcare" },
+  { domain: "Medicine",      from: "Pharmaceutical disease management",           to: "People-centered healthcare" },
 ];
 
 function formatEventDate(startsAt: string, timezone: string): string {
@@ -40,7 +41,11 @@ function formatEventDate(startsAt: string, timezone: string): string {
       timeZoneName: "short",
     }).format(date);
   } catch {
-    return new Date(startsAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    return new Date(startsAt).toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    });
   }
 }
 
@@ -49,298 +54,796 @@ export default async function LandingPage() {
   const latestPost = nextEvent ? null : await getLatestParentPost();
 
   return (
-    <main className="min-h-screen flex flex-col bg-background">
+    <main style={{ background: "#ffffff", overflowX: "hidden" }}>
 
-      {/* ── Nav ─────────────────────────────────────────────────────────────── */}
-      <nav className="border-b px-6 py-4 flex items-center justify-between">
-        <span className="font-heading font-semibold text-lg tracking-tight">
+      {/* ── Navigation ─────────────────────────────────────────────────────── */}
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 100,
+          padding: "1.2rem 3rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          background: "rgba(255,255,255,0.96)",
+          borderBottom: "1px solid #ede9e1",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontSize: 12,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "#1a1610",
+            fontWeight: 700,
+          }}
+        >
           Warriors on the Way
         </span>
+        <ul
+          className="hidden sm:flex"
+          style={{ gap: "2.5rem", listStyle: "none", margin: 0, padding: 0 }}
+        >
+          {[
+            { href: "#mission", label: "The Mission" },
+            { href: "#director", label: "Spiritual Director" },
+            { href: "#path", label: "The Path" },
+          ].map(({ href, label }) => (
+            <li key={href}>
+              <a
+                href={href}
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 10,
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  color: "#6b6456",
+                  textDecoration: "none",
+                }}
+              >
+                {label}
+              </a>
+            </li>
+          ))}
+        </ul>
         <Link
           href="/sign-in"
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.16em",
+            textTransform: "uppercase",
+            color: "#ffffff",
+            background: "#1a1610",
+            padding: "0.6rem 1.5rem",
+            textDecoration: "none",
+            border: "1px solid #1a1610",
+          }}
         >
-          Sign in
+          Join the Path
         </Link>
       </nav>
 
-      {/* ── Hero ─────────────────────────────────────────────────────────────── */}
-      <section className="flex flex-col items-center text-center px-6 py-20 sm:py-28 gap-8">
-        <div className="space-y-4 max-w-2xl">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest">
-            Another name for lightworkers
-          </p>
-          <h1 className="text-5xl sm:text-6xl font-heading font-semibold leading-tight">
-            Warriors on the Way
-          </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed max-w-xl mx-auto">
-            A gathering of lightbringers committed to transforming consciousness,
-            reclaiming institutions, and walking the spiritual path together —
-            in small, intimate communities built for the long journey.
-          </p>
+      {/* ── Hero ────────────────────────────────────────────────────────────── */}
+      <section
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          textAlign: "center",
+          padding: "9rem 2rem 7rem",
+          position: "relative",
+          background: "#ffffff",
+          overflow: "hidden",
+        }}
+      >
+        {/* Subtle radial bloom */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 900,
+            height: 600,
+            background:
+              "radial-gradient(ellipse at 50% 30%, rgba(200,194,180,0.18) 0%, rgba(232,228,220,0.08) 40%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* SVG Orb */}
+        <div style={{ width: 96, height: 96, margin: "0 auto 2.5rem", position: "relative", zIndex: 1 }}>
+          <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" width="96" height="96">
+            <circle cx="48" cy="48" r="46" stroke="#c8c2b4" strokeWidth="0.5" strokeDasharray="3 5"/>
+            <circle cx="48" cy="48" r="34" stroke="#c8c2b4" strokeWidth="0.5"/>
+            <circle cx="48" cy="48" r="22" stroke="#a07828" strokeWidth="0.5" opacity="0.4"/>
+            <circle cx="48" cy="48" r="10" fill="rgba(160,120,40,0.08)" stroke="#a07828" strokeWidth="0.75" opacity="0.6"/>
+            <circle cx="48" cy="48" r="4" fill="#a07828" opacity="0.5"/>
+            <circle cx="48" cy="48" r="1.5" fill="#1a1610"/>
+            <line x1="48" y1="2" x2="48" y2="12" stroke="#c8c2b4" strokeWidth="0.75" opacity="0.5"/>
+            <line x1="48" y1="84" x2="48" y2="94" stroke="#c8c2b4" strokeWidth="0.75" opacity="0.5"/>
+            <line x1="2" y1="48" x2="12" y2="48" stroke="#c8c2b4" strokeWidth="0.75" opacity="0.5"/>
+            <line x1="84" y1="48" x2="94" y2="48" stroke="#c8c2b4" strokeWidth="0.75" opacity="0.5"/>
+            <line x1="16" y1="16" x2="22" y2="22" stroke="#c8c2b4" strokeWidth="0.5" opacity="0.35"/>
+            <line x1="74" y1="16" x2="68" y2="22" stroke="#c8c2b4" strokeWidth="0.5" opacity="0.35"/>
+            <line x1="16" y1="80" x2="22" y2="74" stroke="#c8c2b4" strokeWidth="0.5" opacity="0.35"/>
+            <line x1="80" y1="80" x2="74" y2="74" stroke="#c8c2b4" strokeWidth="0.5" opacity="0.35"/>
+          </svg>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3">
+
+        {/* Ornament line */}
+        <div
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontSize: 9,
+            letterSpacing: "0.38em",
+            textTransform: "uppercase",
+            color: "#c8c2b4",
+            marginBottom: "1.75rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "1.25rem",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <span style={{ display: "block", width: 56, height: 1, background: "linear-gradient(to left, #c8c2b4, transparent)", opacity: 0.6 }} />
+          Another name for lightworkers
+          <span style={{ display: "block", width: 56, height: 1, background: "linear-gradient(to right, #c8c2b4, transparent)", opacity: 0.6 }} />
+        </div>
+
+        {/* H1 */}
+        <h1
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontWeight: 900,
+            lineHeight: 0.92,
+            letterSpacing: "0.05em",
+            color: "#1a1610",
+            textTransform: "uppercase",
+            position: "relative",
+            zIndex: 1,
+            marginBottom: "0.5rem",
+          }}
+        >
+          <span
+            style={{
+              display: "block",
+              fontFamily: "var(--font-brand)",
+              fontSize: "clamp(0.9rem, 2vw, 1.5rem)",
+              fontWeight: 400,
+              letterSpacing: "0.45em",
+              color: "#6b6456",
+              marginBottom: "0.5rem",
+            }}
+          >
+            Warriors on
+          </span>
+          <span style={{ fontSize: "clamp(3rem, 8vw, 6.5rem)" }}>The Way</span>
+        </h1>
+
+        {/* Subtitle */}
+        <p
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "clamp(1rem, 1.6vw, 1.15rem)",
+            fontStyle: "italic",
+            color: "#6b6456",
+            maxWidth: 520,
+            margin: "2rem auto 3rem",
+            lineHeight: 1.75,
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          A gathering of lightbringers committed to reclaiming sovereignty from
+          institutional control and supporting the evolution of consciousness.
+          Walking the spiritual path together in small, intimate communities
+          built for the long journey.
+        </p>
+
+        {/* Buttons */}
+        <div
+          style={{
+            display: "flex",
+            gap: "1.25rem",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
           <Link
             href="/sign-in"
-            className={cn(buttonVariants({ size: "lg" }), "rounded-full px-8")}
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "#ffffff",
+              background: "#1a1610",
+              padding: "1rem 2.5rem",
+              textDecoration: "none",
+              border: "1px solid #1a1610",
+            }}
           >
-            Join the path
+            Join the Path
           </Link>
           <a
             href="#mission"
-            className={cn(buttonVariants({ variant: "outline", size: "lg" }), "rounded-full px-8")}
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontSize: 10,
+              fontWeight: 600,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "#4a4438",
+              background: "transparent",
+              padding: "1rem 2.5rem",
+              textDecoration: "none",
+              border: "1px solid #c8c2b4",
+            }}
           >
-            Read the manifesto ↓
+            Read the Manifesto
           </a>
         </div>
       </section>
 
-      {/* ── Seán ─────────────────────────────────────────────────────────────── */}
-      <section className="border-y bg-muted/20 px-6 py-14">
-        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-8 items-center sm:items-start">
-          <div className="shrink-0">
+      <OrnamentalDivider />
+
+      {/* ── Next Event / Latest Post (if any) ──────────────────────────────── */}
+      {(nextEvent || latestPost) && (
+        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem 3rem" }}>
+          {nextEvent ? (
+            <div
+              style={{
+                border: "1px solid #ede9e1",
+                borderTop: "2px solid #a07828",
+                padding: "1.5rem",
+                background: "#ffffff",
+              }}
+            >
+              <SectionLabel>Next Live Session</SectionLabel>
+              <p
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  color: "#1a1610",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  marginBottom: "0.25rem",
+                }}
+              >
+                {nextEvent.title}
+              </p>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.75rem" }}>
+                {formatEventDate(nextEvent.starts_at!, nextEvent.timezone)}
+                {nextEvent.location && ` · ${nextEvent.location}`}
+              </p>
+              {nextEvent.description && (
+                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#6b6456", fontSize: "1rem", marginBottom: "1rem" }}>
+                  {nextEvent.description}
+                </p>
+              )}
+              <Link
+                href={`/community/${nextEvent.community_slug}/events/${nextEvent.id}`}
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#a07828",
+                  textDecoration: "none",
+                }}
+              >
+                Register →
+              </Link>
+            </div>
+          ) : latestPost ? (
+            <div
+              style={{
+                border: "1px solid #ede9e1",
+                borderTop: "2px solid #a07828",
+                padding: "1.5rem",
+                background: "#ffffff",
+              }}
+            >
+              <SectionLabel>Latest Transmission</SectionLabel>
+              {latestPost.title && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontSize: "1.1rem",
+                    fontWeight: 700,
+                    color: "#1a1610",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.04em",
+                    marginBottom: "0.25rem",
+                  }}
+                >
+                  {latestPost.title}
+                </p>
+              )}
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.75rem" }}>
+                {latestPost.author.display_name} ·{" "}
+                {new Date(latestPost.created_at).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </p>
+              {latestPost.body && (
+                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#6b6456", marginBottom: "1rem" }}>
+                  {latestPost.body.slice(0, 200)}{latestPost.body.length > 200 ? "…" : ""}
+                </p>
+              )}
+              <Link
+                href="/sign-in"
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#a07828",
+                  textDecoration: "none",
+                }}
+              >
+                Join to read →
+              </Link>
+            </div>
+          ) : null}
+        </div>
+      )}
+
+      {/* ── Spiritual Director ──────────────────────────────────────────────── */}
+      <div id="director" style={{ maxWidth: 880, margin: "0 auto", padding: "2rem 2rem 5rem" }}>
+        <div
+          className="director-grid"
+          style={{
+            display: "grid",
+            gridTemplateColumns: "200px 1fr",
+            gap: "4rem",
+            alignItems: "start",
+          }}
+        >
+          {/* Portrait */}
+          <div style={{ position: "relative" }}>
+            <div
+              style={{
+                position: "absolute",
+                inset: -7,
+                border: "1px solid #ede9e1",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                inset: -14,
+                border: "1px solid rgba(200,194,180,0.4)",
+                pointerEvents: "none",
+              }}
+            />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/sean-olaoire.webp"
-              alt="Seán Ó'Laoire"
-              className="size-28 rounded-full object-cover object-top shadow"
+              alt="Seán Ó Laoire"
+              style={{
+                width: "100%",
+                display: "block",
+                filter: "grayscale(20%) contrast(1.05) brightness(0.97)",
+              }}
             />
           </div>
-          <div className="space-y-4 text-center sm:text-left">
-            <div>
-              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-1">
-                Spiritual Director
-              </p>
-              <h2 className="text-2xl font-heading font-semibold">Seán Ó'Laoire</h2>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-              Irish-born priest, scientist, and mystic — holding advanced degrees in philosophy,
-              mathematics, theology, and clinical psychology. Author of <em>Souls on Safari</em>.
-              As Spiritual Director of Warriors on the Way, Seán provides the philosophical
-              foundation and the Lightworkers Manifesto that animates everything we do.
+
+          {/* Content */}
+          <div>
+            <SectionLabel>Spiritual Director</SectionLabel>
+            <h2
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontSize: "clamp(1.4rem, 3vw, 2rem)",
+                fontWeight: 900,
+                color: "#1a1610",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                marginBottom: "0.3rem",
+                lineHeight: 1.1,
+              }}
+            >
+              Seán<br />Ó Laoire
+            </h2>
+            <span
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontSize: 9,
+                letterSpacing: "0.26em",
+                textTransform: "uppercase",
+                color: "#a07828",
+                display: "block",
+                marginBottom: "1.25rem",
+                fontWeight: 600,
+              }}
+            >
+              Priest · Scientist · Mystic
+            </span>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                color: "#6b6456",
+                fontSize: "1rem",
+                lineHeight: 1.85,
+                fontStyle: "italic",
+                marginBottom: "1.5rem",
+              }}
+            >
+              Irish-born priest, scientist, and mystic — holding advanced degrees in
+              philosophy, mathematics, theology, and clinical psychology. Author of{" "}
+              <em style={{ fontStyle: "normal", color: "#4a4438" }}>Souls on Safari</em>.
+              As Spiritual Director, Seán provides the philosophical foundation and the
+              Lightworkers Manifesto that animates everything we do.
             </p>
             <AudioPlayer
               src="/audio/sean-healdsburg.m4a"
               label="Seán on the purpose of Warriors on the Way"
             />
-            <div>
+            <div style={{ marginTop: "1rem" }}>
               <Link
                 href="/sean"
-                className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline underline-offset-2"
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 10,
+                  fontWeight: 600,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#4a4438",
+                  background: "transparent",
+                  padding: "0.7rem 1.6rem",
+                  textDecoration: "none",
+                  border: "1px solid #c8c2b4",
+                  display: "inline-block",
+                }}
               >
-                Explore Seán&apos;s portal →
+                Explore Seán&apos;s Portal
               </Link>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* ── Next event or latest post ─────────────────────────────────────────── */}
-      {nextEvent ? (
-        <section className="px-6 py-12 border-b">
-          <div className="max-w-3xl mx-auto space-y-4">
-            <p className="text-xs font-semibold text-primary uppercase tracking-widest">
-              Next Live Session
-            </p>
-            <div className="rounded-2xl border bg-card p-6 flex flex-col sm:flex-row sm:items-center gap-4">
-              <div className="flex-1 space-y-1 min-w-0">
-                <h3 className="font-heading font-semibold text-lg leading-snug">{nextEvent.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {formatEventDate(nextEvent.starts_at!, nextEvent.timezone)}
-                </p>
-                {(nextEvent.location || nextEvent.virtual_url) && (
-                  <p className="text-sm text-muted-foreground">
-                    {nextEvent.location ?? "Virtual"}
-                  </p>
-                )}
-                {nextEvent.description && (
-                  <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 pt-1">
-                    {nextEvent.description}
-                  </p>
-                )}
-              </div>
-              <Link
-                href={`/community/${nextEvent.community_slug}/events/${nextEvent.id}`}
-                className={cn(buttonVariants({ size: "sm" }), "rounded-full shrink-0")}
-              >
-                Register →
-              </Link>
-            </div>
-          </div>
-        </section>
-      ) : latestPost ? (
-        <section className="px-6 py-12 border-b">
-          <div className="max-w-3xl mx-auto space-y-4">
-            <p className="text-xs font-semibold text-primary uppercase tracking-widest">
-              Latest from Warriors on the Way
-            </p>
-            <div className="rounded-2xl border bg-card p-6 space-y-3">
-              {latestPost.title && (
-                <h3 className="font-heading font-semibold text-lg leading-snug">{latestPost.title}</h3>
-              )}
-              {latestPost.body && (
-                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
-                  {latestPost.body}
-                </p>
-              )}
-              <div className="flex items-center justify-between pt-1">
-                <p className="text-xs text-muted-foreground">
-                  {latestPost.author.display_name} &middot;{" "}
-                  {new Date(latestPost.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
-                </p>
-                <Link
-                  href="/sign-in"
-                  className="text-sm font-medium text-primary hover:underline underline-offset-2"
-                >
-                  Join to discuss →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
-      ) : null}
+      <OrnamentalDivider />
 
-      {/* ── Manifesto ─────────────────────────────────────────────────────────── */}
-      <section id="mission" className="px-6 py-20 max-w-3xl mx-auto w-full space-y-16">
-
-        <div className="text-center space-y-2">
-          <p className="text-xs font-semibold text-primary uppercase tracking-widest">
-            The Lightworkers Manifesto
+      {/* ── Manifesto (DARK BAND) ───────────────────────────────────────────── */}
+      <div id="mission" style={{ background: "#1a1610", padding: "5rem 0" }}>
+        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
+          <SectionLabel>The Lightworkers Manifesto</SectionLabel>
+          <SectionTitle light>
+            A battle for the<br />soul of the planet
+          </SectionTitle>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              color: "rgba(255,255,255,0.45)",
+              fontStyle: "italic",
+              fontSize: "1.05rem",
+              maxWidth: 560,
+              marginBottom: "0.5rem",
+            }}
+          >
+            God is sending in the warriors and lightbringers whose mission is to reclaim what has been captured:
           </p>
-          <h2 className="text-3xl sm:text-4xl font-heading font-semibold">Seán Ó'Laoire</h2>
-        </div>
-
-        {/* Mission */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground shrink-0">
-              Mission
-            </span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <p className="text-base text-muted-foreground leading-relaxed">
-            We are in a battle for the soul of the planet, and so God is sending in the warriors
-            and lightbringers whose mission is:
-          </p>
-
-          <ul className="space-y-3">
+          <ul style={{ listStyle: "none", padding: 0, marginTop: "1.5rem" }}>
             {MISSION_POINTS.map((point) => (
-              <li key={point} className="flex items-start gap-3">
-                <span className="mt-[6px] size-1.5 rounded-full bg-primary shrink-0" />
-                <span className="text-base font-medium text-foreground leading-snug">{point}</span>
+              <li
+                key={point}
+                style={{
+                  padding: "0.7rem 0",
+                  borderBottom: "1px solid rgba(255,255,255,0.07)",
+                  color: "rgba(255,255,255,0.75)",
+                  fontSize: "1rem",
+                  fontFamily: "var(--font-body)",
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "1rem",
+                }}
+              >
+                <span
+                  style={{
+                    color: "#c4a050",
+                    fontSize: "0.55rem",
+                    flexShrink: 0,
+                    opacity: 0.8,
+                    position: "relative",
+                    top: -2,
+                  }}
+                >
+                  ✦
+                </span>
+                {point}
               </li>
             ))}
           </ul>
         </div>
+      </div>
 
-        {/* Why */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground shrink-0">
-              Why
-            </span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <p className="text-base text-muted-foreground leading-relaxed">
-            As a human species, we need a transformation of both our consciousness and our mission.
-            As we move from <em className="text-foreground">Homo sapiens sapiens</em> to{" "}
-            <em className="text-foreground font-semibold">Homo spiritualis</em>,
-            avoiding <em className="text-foreground">Homo sociopathicus</em> and{" "}
-            <em className="text-foreground">Homo artificialis</em>, we must:
+      {/* ── The Great Turning (PAPER BAND) ─────────────────────────────────── */}
+      <div style={{ background: "#f8f7f4", padding: "5rem 0" }}>
+        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
+          <SectionLabel>The Great Turning</SectionLabel>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              color: "#6b6456",
+              fontStyle: "italic",
+              fontSize: "1rem",
+              maxWidth: 560,
+              marginBottom: "1rem",
+            }}
+          >
+            From <em style={{ fontStyle: "normal", color: "#4a4438" }}>Homo sapiens sapiens</em> to{" "}
+            <em style={{ fontStyle: "normal", color: "#4a4438" }}>Homo spiritualis</em>:
           </p>
-
-          <div className="space-y-3">
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+              gap: 1,
+              background: "#ede9e1",
+              border: "1px solid #ede9e1",
+              marginTop: "2rem",
+            }}
+          >
             {SHIFTS.map(({ domain, from, to }) => (
-              <div key={domain} className="flex items-start gap-4 rounded-xl border bg-card px-4 py-3">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-primary w-24 shrink-0 pt-0.5">
+              <div
+                key={domain}
+                style={{
+                  background: "#ffffff",
+                  padding: "1.5rem 1.4rem",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontSize: 9,
+                    letterSpacing: "0.24em",
+                    textTransform: "uppercase",
+                    color: "#a07828",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontWeight: 600,
+                  }}
+                >
                   {domain}
                 </span>
-                <div className="text-sm leading-snug">
-                  <span className="text-muted-foreground line-through opacity-60">{from}</span>
-                  <span className="text-muted-foreground mx-2">→</span>
-                  <span className="font-semibold text-foreground">{to}</span>
+                <div
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.9rem",
+                    color: "#6b6456",
+                    lineHeight: 1.45,
+                  }}
+                >
+                  <strong style={{ color: "#4a4438", fontWeight: 500 }}>{from}</strong>
+                  {" → "}
+                  {to}
                 </div>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* How */}
-        <div className="space-y-6">
-          <div className="flex items-center gap-4">
-            <div className="h-px flex-1 bg-border" />
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground shrink-0">
-              How
-            </span>
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <div className="grid sm:grid-cols-3 gap-4">
+      {/* ── The Structure (DARK BAND) ──────────────────────────────────────── */}
+      <div id="path" style={{ background: "#1a1610", padding: "5rem 0" }}>
+        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
+          <SectionLabel>The Structure</SectionLabel>
+          <SectionTitle light>
+            How the path<br />is walked
+          </SectionTitle>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "1.5rem",
+              marginTop: "2.5rem",
+            }}
+            className="sm:grid-cols-3 grid-cols-1"
+          >
             {[
               {
+                numeral: "I",
                 title: "Small by design",
-                body: "Each community is capped at 150 people — the size at which genuine relationship and trust are still possible.",
+                body: "Each community is capped at 150 — the size at which genuine relationship and trust are still possible.",
               },
               {
+                numeral: "II",
                 title: "Local and embodied",
-                body: "Hikes, retreats, sound baths, shared meals — because transformation happens in person, not just online.",
+                body: "Hikes, retreats, sound baths, shared meals — transformation happens in person, not just online.",
               },
               {
+                numeral: "III",
                 title: "Connected upward",
-                body: "Every local community is part of the broader Warriors on the Way network, anchored by the Spiritual Director.",
+                body: "Every local community is part of the broader network, anchored by the Spiritual Director.",
               },
-            ].map(({ title, body }) => (
-              <div key={title} className="rounded-2xl border bg-card p-5 space-y-2">
-                <h3 className="font-heading font-semibold">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{body}</p>
+            ].map(({ numeral, title, body }) => (
+              <div
+                key={numeral}
+                style={{
+                  padding: "2rem 1.5rem",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  borderTop: "2px solid rgba(255,255,255,0.5)",
+                  background: "rgba(255,255,255,0.04)",
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontSize: "2.2rem",
+                    color: "rgba(255,255,255,0.08)",
+                    fontWeight: 900,
+                    lineHeight: 1,
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {numeral}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontSize: "0.8rem",
+                    letterSpacing: "0.14em",
+                    textTransform: "uppercase",
+                    color: "rgba(255,255,255,0.9)",
+                    marginBottom: "0.75rem",
+                    fontWeight: 700,
+                  }}
+                >
+                  {title}
+                </div>
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "0.95rem",
+                    color: "rgba(255,255,255,0.45)",
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {body}
+                </p>
               </div>
             ))}
           </div>
         </div>
+      </div>
 
-      </section>
-
-      {/* ── Resources teaser ─────────────────────────────────────────────────── */}
-      <div className="border-t px-6 py-8 flex justify-center">
-        <Link
-          href="/resources"
-          className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+      {/* ── CTA ──────────────────────────────────────────────────────────────── */}
+      <div
+        style={{
+          textAlign: "center",
+          padding: "7rem 2rem",
+          maxWidth: 680,
+          margin: "0 auto",
+        }}
+      >
+        {/* Eyebrow with flanking lines */}
+        <div
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontSize: 9,
+            fontWeight: 600,
+            letterSpacing: "0.36em",
+            textTransform: "uppercase",
+            color: "#a07828",
+            marginBottom: "2rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "1rem",
+          }}
         >
-          Explore our curated books, practitioners &amp; tools →
+          <span style={{ display: "block", width: 40, height: 1, background: "#a07828", opacity: 0.35 }} />
+          The call
+          <span style={{ display: "block", width: 40, height: 1, background: "#a07828", opacity: 0.35 }} />
+        </div>
+        <p
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "clamp(1.2rem, 2.5vw, 1.65rem)",
+            fontStyle: "italic",
+            color: "#4a4438",
+            lineHeight: 1.6,
+            marginBottom: "2.75rem",
+          }}
+        >
+          &ldquo;If you feel the call to reclaim what has been captured — and to walk that
+          path in community with others —{" "}
+          <em style={{ fontStyle: "normal", color: "#1a1610", fontWeight: 500 }}>
+            this is your home.
+          </em>
+          &rdquo;
+        </p>
+        <Link
+          href="/sign-in"
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontSize: 10,
+            fontWeight: 700,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#ffffff",
+            background: "#1a1610",
+            padding: "1rem 2.5rem",
+            textDecoration: "none",
+            border: "1px solid #1a1610",
+          }}
+        >
+          Answer the Call
         </Link>
       </div>
 
-      {/* ── CTA ─────────────────────────────────────────────────────────────── */}
-      <section className="border-t px-6 py-20 flex flex-col items-center text-center gap-6">
-        <div className="space-y-3 max-w-lg">
-          <h2 className="text-3xl sm:text-4xl font-heading font-semibold">
-            Are you a warrior on the way?
-          </h2>
-          <p className="text-muted-foreground leading-relaxed">
-            If you feel the call to reclaim what has been captured — and to walk
-            that path in community with others — this is your home.
-          </p>
-        </div>
-        <Link
-          href="/sign-in"
-          className={cn(buttonVariants({ size: "lg" }), "rounded-full px-10")}
-        >
-          Join the path
-        </Link>
-      </section>
-
       {/* ── Footer ──────────────────────────────────────────────────────────── */}
-      <footer className="border-t py-6 px-6 text-center text-xs text-muted-foreground">
-        <p>
-          Warriors on the Way &middot;{" "}
-          <Link href="/terms" className="underline-offset-2 hover:underline">Terms</Link>
-          {" "}&middot;{" "}
-          <Link href="/privacy" className="underline-offset-2 hover:underline">Privacy</Link>
-        </p>
+      <div style={{ height: 1, background: "#ede9e1", maxWidth: 880, margin: "0 auto" }} />
+      <footer
+        style={{
+          maxWidth: 880,
+          margin: "0 auto",
+          padding: "2rem 2rem",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: "1rem",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontSize: 9,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#c8c2b4",
+            fontWeight: 600,
+          }}
+        >
+          Warriors on the Way
+        </span>
+        <ul style={{ display: "flex", gap: "2rem", listStyle: "none", margin: 0, padding: 0 }}>
+          {[
+            { href: "/terms", label: "Terms" },
+            { href: "/privacy", label: "Privacy" },
+            { href: "/resources", label: "Resources" },
+          ].map(({ href, label }) => (
+            <li key={href}>
+              <Link
+                href={href}
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 9,
+                  letterSpacing: "0.16em",
+                  textTransform: "uppercase",
+                  color: "#c8c2b4",
+                  textDecoration: "none",
+                }}
+              >
+                {label}
+              </Link>
+            </li>
+          ))}
+        </ul>
       </footer>
 
     </main>

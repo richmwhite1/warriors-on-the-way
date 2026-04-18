@@ -25,7 +25,7 @@ const SHIFTS = [
   { domain: "Medicine",      from: "Pharmaceutically controlled disease management", to: "People-centered, hands-on healthcare" },
 ];
 
-function Row({
+function AccordionRow({
   label,
   open,
   onToggle,
@@ -39,12 +39,31 @@ function Row({
   last?: boolean;
 }) {
   return (
-    <div className={last ? "" : "border-b border-border/60"}>
+    <div style={{ borderBottom: last ? "none" : "1px solid #ede9e1" }}>
       <button
         onClick={onToggle}
-        className="w-full flex items-center justify-between px-0 py-3.5 text-left group"
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: "1rem 0",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          textAlign: "left",
+        }}
       >
-        <span className="text-sm font-semibold tracking-wide text-foreground group-hover:text-primary transition-colors">
+        <span
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.1em",
+            color: "#1a1610",
+            fontSize: "1rem",
+          }}
+        >
           {label}
         </span>
         <svg
@@ -54,14 +73,27 @@ function Row({
           strokeWidth={2}
           strokeLinecap="round"
           strokeLinejoin="round"
-          className={`w-4 h-4 text-muted-foreground transition-transform duration-200 shrink-0 ${open ? "rotate-180" : ""}`}
+          style={{
+            width: 16,
+            height: 16,
+            color: "#c8c2b4",
+            flexShrink: 0,
+            transform: open ? "rotate(180deg)" : "rotate(0deg)",
+            transition: "transform 0.2s",
+          }}
         >
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
 
       {open && (
-        <div className="pb-5">
+        <div
+          style={{
+            background: "#f8f7f4",
+            padding: "1rem 1rem 1.5rem",
+            marginBottom: "0.5rem",
+          }}
+        >
           {children}
         </div>
       )}
@@ -77,77 +109,146 @@ export function MissionPanel() {
   return (
     <section>
       {/* Header */}
-      <div className="flex items-center gap-3 mb-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "1rem" }}>
         <a
           href="https://www.spiritsinspacesuits.com"
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0"
+          style={{ flexShrink: 0 }}
         >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/sean-olaoire.webp"
-            alt="Seán Ó'Laoire — Spirits in Space Suits"
-            className="size-8 rounded-full object-cover object-top opacity-90 hover:opacity-100 transition-opacity ring-1 ring-primary/20 hover:ring-primary/60"
+            alt="Seán Ó'Laoire"
+            style={{
+              width: 32,
+              height: 32,
+              borderRadius: "50%",
+              objectFit: "cover",
+              objectPosition: "top",
+              opacity: 0.9,
+              outline: "1px solid rgba(160,120,40,0.3)",
+            }}
           />
         </a>
-        <p className="flex-1 text-xs text-muted-foreground">
-          Seán Ó'Laoire · Lightworkers Manifesto
+        <p
+          style={{
+            fontFamily: "var(--font-body)",
+            flex: 1,
+            fontSize: 13,
+            color: "#c8c2b4",
+          }}
+        >
+          Seán Ó&apos;Laoire · Lightworkers Manifesto
         </p>
-        <Link href="/" className="text-xs text-primary hover:underline shrink-0">
+        <Link
+          href="/"
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontSize: 9,
+            color: "#a07828",
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            textDecoration: "none",
+            flexShrink: 0,
+          }}
+        >
           Full text →
         </Link>
       </div>
 
       {/* Accordion */}
-      <div className="border-t border-border/60">
+      <div style={{ borderTop: "1px solid #ede9e1" }}>
 
         {/* The Mission */}
-        <Row label="The Mission" open={missionOpen} onToggle={() => setMissionOpen(v => !v)}>
-          <ul className="space-y-2.5">
+        <AccordionRow label="The Mission" open={missionOpen} onToggle={() => setMissionOpen(v => !v)}>
+          <ul style={{ listStyle: "none", padding: 0 }}>
             {MISSION_POINTS.map((point) => (
-              <li key={point} className="flex items-start gap-3">
-                <span className="mt-[5px] size-1.5 rounded-full bg-primary shrink-0" />
-                <span className="text-sm font-medium text-foreground leading-snug">{point}</span>
+              <li
+                key={point}
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "0.75rem",
+                  padding: "0.4rem 0",
+                  borderBottom: "1px solid rgba(255,255,255,0.7)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "0.95rem",
+                  color: "#2e2820",
+                }}
+              >
+                <span style={{ color: "#a07828", fontSize: "0.5rem", flexShrink: 0 }}>✦</span>
+                {point}
               </li>
             ))}
           </ul>
-        </Row>
+        </AccordionRow>
 
         {/* The Why */}
-        <Row label="The Why" open={whyOpen} onToggle={() => setWhyOpen(v => !v)}>
-          <div className="space-y-5">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              As a human species, we need a transformation of both our consciousness and our mission.
-              As we move from <em className="text-foreground">Homo sapiens sapiens</em> to{" "}
-              <em className="text-foreground font-semibold">Homo spiritualis</em>,
-              avoiding <em className="text-foreground">Homo sociopathicus</em> and{" "}
-              <em className="text-foreground">Homo artificialis</em>, we must:
-            </p>
-            <ul className="space-y-3">
-              {SHIFTS.map(({ domain, from, to }) => (
-                <li key={domain} className="flex items-start gap-3">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-primary w-24 shrink-0 pt-0.5">
-                    {domain}
-                  </span>
-                  <span className="text-sm leading-snug">
-                    <span className="text-muted-foreground line-through opacity-50">{from}</span>
-                    <span className="text-muted-foreground mx-1.5">→</span>
-                    <span className="font-semibold text-foreground">{to}</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Row>
+        <AccordionRow label="The Why" open={whyOpen} onToggle={() => setWhyOpen(v => !v)}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "0.95rem",
+              color: "#6b6456",
+              lineHeight: 1.7,
+              marginBottom: "1rem",
+            }}
+          >
+            As a human species, we need a transformation of both our consciousness and our mission.
+            As we move from <em style={{ color: "#2e2820" }}>Homo sapiens sapiens</em> to{" "}
+            <em style={{ color: "#2e2820", fontWeight: 500 }}>Homo spiritualis</em>, we must:
+          </p>
+          <ul style={{ listStyle: "none", padding: 0 }}>
+            {SHIFTS.map(({ domain, from, to }) => (
+              <li
+                key={domain}
+                style={{
+                  display: "flex",
+                  alignItems: "baseline",
+                  gap: "0.75rem",
+                  padding: "0.4rem 0",
+                  borderBottom: "1px solid rgba(255,255,255,0.7)",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontSize: 9,
+                    fontWeight: 700,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    color: "#a07828",
+                    width: 96,
+                    flexShrink: 0,
+                  }}
+                >
+                  {domain}
+                </span>
+                <span style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#6b6456" }}>
+                  <span style={{ textDecoration: "line-through", opacity: 0.5 }}>{from}</span>
+                  <span style={{ margin: "0 0.4rem" }}>→</span>
+                  <span style={{ fontWeight: 500, color: "#2e2820" }}>{to}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </AccordionRow>
 
         {/* The How */}
-        <Row label="The How" open={howOpen} onToggle={() => setHowOpen(v => !v)} last>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+        <AccordionRow label="The How" open={howOpen} onToggle={() => setHowOpen(v => !v)} last>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "0.95rem",
+              color: "#6b6456",
+              lineHeight: 1.7,
+            }}
+          >
             Communities challenge and support one another to raise collective consciousness.
             Create a community · invite members to gatherings · post discussions · share music &amp; video.
           </p>
-        </Row>
+        </AccordionRow>
 
       </div>
     </section>

@@ -1,26 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Fraunces, Playfair_Display } from "next/font/google";
+import { Cinzel, EB_Garamond } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { PwaRegister } from "@/components/pwa-register";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-sans",
+const cinzel = Cinzel({
   subsets: ["latin"],
+  weight: ["400", "600", "700", "900"],
+  variable: "--font-cinzel",
   display: "swap",
 });
 
-const fraunces = Fraunces({
-  variable: "--font-heading",
+const garamond = EB_Garamond({
   subsets: ["latin"],
-  display: "swap",
-  axes: ["opsz", "SOFT", "WONK"],
-});
-
-// Used for the Gothic Mystic Noir sections (Sean portal, Consciousness Map)
-const playfair = Playfair_Display({
-  variable: "--font-display",
-  subsets: ["latin"],
+  weight: ["400", "500"],
+  style: ["normal", "italic"],
+  variable: "--font-garamond",
   display: "swap",
 });
 
@@ -30,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s | Warriors on the Way",
   },
   description:
-    "A gathering place for devotional non-duality — intimate communities, sacred events, and the path walked together.",
+    "A gathering of lightbringers committed to transforming consciousness, reclaiming institutions, and walking the spiritual path together.",
   applicationName: "Warriors on the Way",
   appleWebApp: {
     capable: true,
@@ -43,8 +38,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#c4704a" },
-    { media: "(prefers-color-scheme: dark)", color: "#2b1f18" },
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#1a1610" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -59,7 +54,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${fraunces.variable} ${playfair.variable} h-full antialiased`}
+      className={`${cinzel.variable} ${garamond.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}

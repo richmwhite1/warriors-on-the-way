@@ -5,134 +5,145 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Typography — Fraunces for headings (sacred/grounded), Inter for body */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-heading: "Fraunces", Georgia, serif;
-  --font-display: "Playfair Display", Georgia, serif; /* Gothic Mystic Noir sections */
-  --font-mono: ui-monospace, monospace;
+  /* Typography — Cinzel for headings/display, EB Garamond for body */
+  --font-sans:    var(--font-garamond), Georgia, serif;
+  --font-heading: var(--font-cinzel), 'Trajan Pro', Georgia, serif;
+  --font-display: var(--font-cinzel), 'Trajan Pro', Georgia, serif;
+  --font-mono:    ui-monospace, monospace;
 
-  /* Radius — generous, no sharp corners */
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Radius — architectural, sharp */
+  --radius-sm:  0;
+  --radius-md:  0;
+  --radius-lg:  0;
+  --radius-xl:  0;
+  --radius-2xl: 0;
+  --radius-3xl: 0;
+  --radius-4xl: 0;
 
-  /* Color primitives */
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
+  /* Color primitives — reference shadcn vars */
+  --color-background:                var(--background);
+  --color-foreground:                var(--foreground);
+  --color-card:                      var(--card);
+  --color-card-foreground:           var(--card-foreground);
+  --color-popover:                   var(--popover);
+  --color-popover-foreground:        var(--popover-foreground);
+  --color-primary:                   var(--primary);
+  --color-primary-foreground:        var(--primary-foreground);
+  --color-secondary:                 var(--secondary);
+  --color-secondary-foreground:      var(--secondary-foreground);
+  --color-muted:                     var(--muted);
+  --color-muted-foreground:          var(--muted-foreground);
+  --color-accent:                    var(--accent);
+  --color-accent-foreground:         var(--accent-foreground);
+  --color-destructive:               var(--destructive);
+  --color-border:                    var(--border);
+  --color-input:                     var(--input);
+  --color-ring:                      var(--ring);
+  --color-sidebar:                   var(--sidebar);
+  --color-sidebar-foreground:        var(--sidebar-foreground);
+  --color-sidebar-primary:           var(--sidebar-primary);
   --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent:            var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border:            var(--sidebar-border);
+  --color-sidebar-ring:              var(--sidebar-ring);
 }
 
-/* ─── Warm, sacred palette (light) ─────────────────────────────────────── */
+/* ─── Gandalf the White — light is the dominant presence ────────────────── */
 :root {
-  --radius: 1rem;
+  --radius: 0;
 
-  /* Parchment background */
-  --background: oklch(0.975 0.012 75);
-  --foreground: oklch(0.22 0.025 55);
+  /* Design tokens */
+  --white:    #ffffff;
+  --paper:    #f8f7f4;
+  --mist:     #ede9e1;
+  --stone:    #c8c2b4;
+  --slate:    #6b6456;
+  --ink-dim:  #4a4438;
+  --ink-mid:  #2e2820;
+  --ink:      #1a1610;
+  --gold:     #a07828;
+  --gold-lt:  #c4a050;
 
-  /* Card: slightly warmer than background */
-  --card: oklch(0.99 0.008 70);
-  --card-foreground: oklch(0.22 0.025 55);
+  /* Typography shorthand for inline styles */
+  --font-body:    var(--font-garamond), Georgia, serif;
+  --font-brand:   var(--font-cinzel), 'Trajan Pro', Georgia, serif;
 
-  --popover: oklch(0.99 0.008 70);
-  --popover-foreground: oklch(0.22 0.025 55);
+  /* ── shadcn token mapping ─────────────────────────────────────────────── */
+  --background: #ffffff;
+  --foreground: #2e2820;
 
-  /* Primary: deep terracotta */
-  --primary: oklch(0.5 0.13 42);
-  --primary-foreground: oklch(0.98 0.008 70);
+  --card:            #ffffff;
+  --card-foreground: #2e2820;
 
-  /* Secondary: warm sage */
-  --secondary: oklch(0.88 0.04 148);
-  --secondary-foreground: oklch(0.28 0.04 148);
+  --popover:            #ffffff;
+  --popover-foreground: #2e2820;
 
-  /* Muted: soft warm grey */
-  --muted: oklch(0.94 0.01 75);
-  --muted-foreground: oklch(0.52 0.02 60);
+  --primary:            #a07828;
+  --primary-foreground: #ffffff;
 
-  /* Accent: golden ochre */
-  --accent: oklch(0.82 0.1 78);
-  --accent-foreground: oklch(0.22 0.03 55);
+  --secondary:            #f8f7f4;
+  --secondary-foreground: #4a4438;
 
-  --destructive: oklch(0.58 0.19 25);
+  --muted:            #f8f7f4;
+  --muted-foreground: #6b6456;
 
-  --border: oklch(0.88 0.015 70);
-  --input: oklch(0.88 0.015 70);
-  --ring: oklch(0.5 0.13 42);
+  --accent:            #f8f7f4;
+  --accent-foreground: #1a1610;
 
-  --sidebar: oklch(0.97 0.012 75);
-  --sidebar-foreground: oklch(0.22 0.025 55);
-  --sidebar-primary: oklch(0.5 0.13 42);
-  --sidebar-primary-foreground: oklch(0.98 0.008 70);
-  --sidebar-accent: oklch(0.88 0.04 148);
-  --sidebar-accent-foreground: oklch(0.28 0.04 148);
-  --sidebar-border: oklch(0.88 0.015 70);
-  --sidebar-ring: oklch(0.5 0.13 42);
+  --destructive: #dc2626;
+
+  --border: #ede9e1;
+  --input:  #ede9e1;
+  --ring:   #a07828;
+
+  --sidebar:                       #f8f7f4;
+  --sidebar-foreground:            #2e2820;
+  --sidebar-primary:               #a07828;
+  --sidebar-primary-foreground:    #ffffff;
+  --sidebar-accent:                #ede9e1;
+  --sidebar-accent-foreground:     #1a1610;
+  --sidebar-border:                #ede9e1;
+  --sidebar-ring:                  #a07828;
 }
 
-/* ─── Dark mode ──────────────────────────────────────────────────────────── */
+/* ─── Dark mode — used by special pages (sign-in, consciousness map) ─────── */
 .dark {
-  --background: oklch(0.13 0.02 55);
-  --foreground: oklch(0.93 0.01 75);
+  --background: #1a1610;
+  --foreground: #f8f7f4;
 
-  --card: oklch(0.17 0.02 55);
-  --card-foreground: oklch(0.93 0.01 75);
+  --card:            #2e2820;
+  --card-foreground: #f8f7f4;
 
-  --popover: oklch(0.17 0.02 55);
-  --popover-foreground: oklch(0.93 0.01 75);
+  --popover:            #2e2820;
+  --popover-foreground: #f8f7f4;
 
-  --primary: oklch(0.68 0.12 42);
-  --primary-foreground: oklch(0.13 0.02 55);
+  --primary:            #c4a050;
+  --primary-foreground: #1a1610;
 
-  --secondary: oklch(0.28 0.04 148);
-  --secondary-foreground: oklch(0.88 0.04 148);
+  --secondary:            #2e2820;
+  --secondary-foreground: #f8f7f4;
 
-  --muted: oklch(0.22 0.02 55);
-  --muted-foreground: oklch(0.62 0.02 70);
+  --muted:            #2e2820;
+  --muted-foreground: #c8c2b4;
 
-  --accent: oklch(0.62 0.1 78);
-  --accent-foreground: oklch(0.93 0.01 75);
+  --accent:            #2e2820;
+  --accent-foreground: #f8f7f4;
 
-  --destructive: oklch(0.65 0.2 25);
+  --destructive: #ef4444;
 
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.68 0.12 42);
+  --border: rgba(255,255,255,0.1);
+  --input:  rgba(255,255,255,0.12);
+  --ring:   #c4a050;
 
-  --sidebar: oklch(0.17 0.02 55);
-  --sidebar-foreground: oklch(0.93 0.01 75);
-  --sidebar-primary: oklch(0.68 0.12 42);
-  --sidebar-primary-foreground: oklch(0.13 0.02 55);
-  --sidebar-accent: oklch(0.28 0.04 148);
-  --sidebar-accent-foreground: oklch(0.88 0.04 148);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.68 0.12 42);
+  --sidebar:                    #2e2820;
+  --sidebar-foreground:         #f8f7f4;
+  --sidebar-primary:            #c4a050;
+  --sidebar-primary-foreground: #1a1610;
+  --sidebar-accent:             #1a1610;
+  --sidebar-accent-foreground:  #f8f7f4;
+  --sidebar-border:             rgba(255,255,255,0.1);
+  --sidebar-ring:               #c4a050;
 }
 
 /* ─── Base styles ────────────────────────────────────────────────────────── */
@@ -142,17 +153,14 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-sans);
+    background: var(--white);
+    color: var(--ink-mid);
+    font-family: var(--font-body);
+    font-size: 18px;
+    line-height: 1.75;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-heading);
-    font-optical-sizing: auto;
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-brand);
   }
 }

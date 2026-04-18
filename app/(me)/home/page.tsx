@@ -1,24 +1,24 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
-import { CommunityCard } from "@/components/community/community-card";
-import { MissionPanel } from "@/components/home/mission-panel";
 import { PostCard } from "@/components/feed/post-card";
-import { buttonVariants } from "@/components/ui/button-variants";
-import { cn } from "@/lib/utils";
+import { MissionPanel } from "@/components/home/mission-panel";
+import { OrnamentalDivider } from "@/components/ui/OrnamentalDivider";
+import { SectionLabel } from "@/components/ui/SectionLabel";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listUserCommunities, type UserMembership } from "@/lib/queries/communities";
 import { getActiveMemberCount } from "@/lib/queries/members";
-import { listPersonalFeed } from "@/lib/queries/posts";
+import { listPersonalFeed, getLatestParentPost } from "@/lib/queries/posts";
 import { listCommentsByPostIds } from "@/lib/queries/comments";
 
 export default async function HomePage() {
   const user = await requireUserProfile().catch(() => null);
   if (!user) redirect("/sign-in");
 
-  const [myCommunities, feedPosts] = await Promise.all([
+  const [myCommunities, feedPosts, latestTransmission] = await Promise.all([
     listUserCommunities(user.id),
     listPersonalFeed(user.id),
+    getLatestParentPost(),
   ]);
 
   const myMemberCounts = await Promise.all(
@@ -35,122 +35,264 @@ export default async function HomePage() {
     slug: m.community.slug,
   }));
 
+  const firstName = user.display_name.split(" ")[0];
+
   return (
     <>
       <AppNav />
-      <main className="max-w-4xl mx-auto px-4 py-8 space-y-10">
 
-        {/* Greeting */}
-        <div>
-          <h1 className="text-3xl font-heading font-semibold text-foreground">
-            Welcome back, {user.display_name.split(" ")[0]}
+      {/* Spacer for fixed nav */}
+      <div style={{ height: 60 }} />
+
+      <main style={{ maxWidth: 680, margin: "0 auto", padding: "0 1rem 6rem" }}>
+
+        {/* ── Welcome Block ─────────────────────────────────────────────────── */}
+        <div style={{ padding: "2rem 0 0" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontStyle: "italic",
+              color: "#6b6456",
+              fontSize: "1rem",
+            }}
+          >
+            Welcome back,
+          </p>
+          <h1
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              fontSize: "clamp(1.8rem, 5vw, 3rem)",
+              color: "#1a1610",
+              lineHeight: 1.05,
+              letterSpacing: "0.04em",
+            }}
+          >
+            {firstName}
           </h1>
-          <p className="text-muted-foreground mt-1">The path is walked together.</p>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontStyle: "italic",
+              color: "#6b6456",
+              fontSize: "1rem",
+              marginTop: "0.5rem",
+            }}
+          >
+            The path is walked together.
+          </p>
         </div>
 
-        {/* ── Portal links ─────────────────────────────────────────────────── */}
-        <div className="space-y-3">
-          {/* Seán Ó Laoire */}
-          <a
-            href="https://project-ev5ff.vercel.app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex items-center gap-4 rounded-2xl border bg-card px-5 py-4 hover:border-foreground/20 transition-colors"
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/sean-olaoire.webp"
-              alt="Seán Ó'Laoire"
-              className="size-11 rounded-full object-cover object-top shrink-0 shadow-sm"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-0.5">
-                Spiritual Director
-              </p>
-              <p className="font-heading font-semibold leading-snug">Seán Ó'Laoire</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Transmissions · Chronicles · Live Q&amp;A</p>
-            </div>
-            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors shrink-0">
-              Visit ↗
-            </span>
-          </a>
+        <OrnamentalDivider />
 
-          {/* Teachers & Sacred Texts */}
-          <a
-            href="/consciousness-map"
-            className="group flex items-center gap-4 rounded-2xl border bg-card px-5 py-4 hover:border-foreground/20 transition-colors"
-          >
-            <div className="size-11 rounded-full bg-muted flex items-center justify-center shrink-0 text-lg">
-              📚
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold text-primary uppercase tracking-widest mb-0.5">
-                Curated Resources
+        {/* ── Latest Transmission ───────────────────────────────────────────── */}
+        <div
+          style={{
+            background: "#ffffff",
+            border: "1px solid #ede9e1",
+            borderTop: "2px solid #a07828",
+            padding: "1.5rem",
+            marginBottom: "2rem",
+          }}
+        >
+          <SectionLabel>Latest Transmission</SectionLabel>
+
+          {latestTransmission ? (
+            <>
+              {latestTransmission.title && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    color: "#1a1610",
+                    fontSize: "1.1rem",
+                    letterSpacing: "0.04em",
+                    marginBottom: "0.25rem",
+                  }}
+                >
+                  {latestTransmission.title}
+                </p>
+              )}
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.75rem" }}>
+                {new Date(latestTransmission.created_at).toLocaleDateString("en-US", {
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
+                })}
               </p>
-              <p className="font-heading font-semibold leading-snug">Teachers &amp; Sacred Texts</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Books and teachers recommended for your journey</p>
-            </div>
-            <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors shrink-0">
-              Explore →
-            </span>
-          </a>
+              {latestTransmission.body && (
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontStyle: "italic",
+                    color: "#6b6456",
+                    fontSize: "1rem",
+                    lineHeight: 1.7,
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {latestTransmission.body.slice(0, 220)}{latestTransmission.body.length > 220 ? "…" : ""}
+                </p>
+              )}
+              <Link
+                href="/community/warriors-on-the-way"
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 10,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#a07828",
+                  textDecoration: "none",
+                }}
+              >
+                Read transmission →
+              </Link>
+            </>
+          ) : (
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontStyle: "italic",
+                color: "#c8c2b4",
+                fontSize: "1rem",
+              }}
+            >
+              No transmissions yet. Check back soon.
+            </p>
+          )}
         </div>
 
-        {/* ── Mission reminder ──────────────────────────────────────────────── */}
-        <MissionPanel />
-
-        {/* My communities */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-heading font-semibold">My communities</h2>
+        {/* ── Your Communities ──────────────────────────────────────────────── */}
+        <section style={{ marginBottom: "2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+            <SectionLabel>Your Communities</SectionLabel>
             <Link
               href="/community"
-              className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "rounded-full text-muted-foreground")}
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontSize: 9,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: "#c8c2b4",
+                textDecoration: "none",
+              }}
             >
               Browse all →
             </Link>
           </div>
 
           {myCommunities.length === 0 ? (
-            <div className="rounded-2xl border border-dashed p-8 text-center space-y-4">
-              <div className="space-y-1">
-                <p className="font-heading font-semibold">You&apos;re not in any communities yet</p>
-                <p className="text-sm text-muted-foreground">
-                  Browse communities to find your group.
-                </p>
-              </div>
-              <Link href="/community" className={cn(buttonVariants(), "rounded-full")}>
-                Browse communities
+            <div
+              style={{
+                border: "1px dashed #ede9e1",
+                padding: "2.5rem",
+                textAlign: "center",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: "0.9rem",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  color: "#1a1610",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                No communities yet
+              </p>
+              <p style={{ fontFamily: "var(--font-body)", color: "#c8c2b4", fontSize: 14, marginBottom: "1rem" }}>
+                Browse to find your group.
+              </p>
+              <Link
+                href="/community"
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 10,
+                  fontWeight: 700,
+                  letterSpacing: "0.2em",
+                  textTransform: "uppercase",
+                  color: "#ffffff",
+                  background: "#1a1610",
+                  padding: "0.7rem 1.5rem",
+                  textDecoration: "none",
+                  border: "1px solid #1a1610",
+                  display: "inline-block",
+                }}
+              >
+                Browse Communities
               </Link>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                overflowX: "auto",
+                paddingBottom: "0.5rem",
+              }}
+            >
               {myCommunities.map((m: UserMembership, i) => {
                 const c = m.community;
                 return (
-                  <CommunityCard
+                  <Link
                     key={c.id}
-                    name={c.name}
-                    slug={c.slug}
-                    description={c.description}
-                    bannerUrl={c.banner_url}
-                    isPrivate={c.is_private}
-                    isParent={c.is_parent}
-                    memberCount={myMemberCounts[i] ?? 0}
-                    memberCap={c.member_cap}
-                    role={m.role}
-                  />
+                    href={`/community/${c.slug}`}
+                    style={{
+                      minWidth: 200,
+                      background: "#f8f7f4",
+                      border: "1px solid #ede9e1",
+                      borderTop: "2px solid #1a1610",
+                      padding: "1.25rem",
+                      textDecoration: "none",
+                      flexShrink: 0,
+                      display: "block",
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: "var(--font-brand)",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        color: "#1a1610",
+                        fontSize: "0.9rem",
+                        letterSpacing: "0.04em",
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      {c.name}
+                    </p>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.5rem" }}>
+                      {myMemberCounts[i] ?? 0} members
+                    </p>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-brand)",
+                          fontSize: 9,
+                          color: "#a07828",
+                          letterSpacing: "0.2em",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        {m.role}
+                      </span>
+                      <span style={{ color: "#a07828", fontSize: "1rem" }}>→</span>
+                    </div>
+                  </Link>
                 );
               })}
             </div>
           )}
         </section>
 
-        {/* Personal feed */}
+        {/* ── Activity Feed ─────────────────────────────────────────────────── */}
         {feedPosts.length > 0 && (
-          <section className="space-y-4">
-            <h2 className="text-lg font-heading font-semibold">Recent activity</h2>
-            <div className="space-y-3">
+          <section style={{ marginBottom: "2rem" }}>
+            <SectionLabel>Across the Network</SectionLabel>
+            <div>
               {feedPosts.map((post) => {
                 const community = post.community as { name: string; slug: string } | undefined;
                 return (
@@ -158,7 +300,16 @@ export default async function HomePage() {
                     {community && (
                       <Link
                         href={`/community/${community.slug}`}
-                        className="text-xs text-muted-foreground hover:text-primary transition-colors mb-1 inline-block"
+                        style={{
+                          fontFamily: "var(--font-brand)",
+                          fontSize: 9,
+                          letterSpacing: "0.16em",
+                          textTransform: "uppercase",
+                          color: "#c8c2b4",
+                          textDecoration: "none",
+                          display: "inline-block",
+                          marginBottom: "0.5rem",
+                        }}
                       >
                         {community.name}
                       </Link>
@@ -178,6 +329,12 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        {/* ── Manifesto Accordion ───────────────────────────────────────────── */}
+        <section>
+          <SectionLabel>The Lightworkers Manifesto</SectionLabel>
+          <MissionPanel />
+        </section>
 
       </main>
     </>

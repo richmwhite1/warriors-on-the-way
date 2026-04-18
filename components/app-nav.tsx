@@ -3,77 +3,155 @@ import { signOut } from "@/lib/actions/auth";
 import { requireUserProfile } from "@/lib/queries/users";
 import { getUnreadNotificationCount } from "@/lib/queries/notifications";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button-variants";
 import { NotificationBell } from "@/components/notification-bell";
-import { cn } from "@/lib/utils";
 
 export async function AppNav() {
   const user = await requireUserProfile().catch(() => null);
   const unreadCount = user ? await getUnreadNotificationCount(user.id) : 0;
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
-      <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-        {/* Logo */}
+    <header
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50,
+        background: "rgba(255,255,255,0.96)",
+        borderBottom: "1px solid #ede9e1",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 880,
+          margin: "0 auto",
+          padding: "1.1rem 2rem",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "1rem",
+        }}
+      >
+        {/* Wordmark */}
         <Link
           href="/home"
-          className="font-heading font-semibold text-lg text-foreground hover:text-primary transition-colors"
+          style={{
+            fontFamily: "var(--font-brand)",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.22em",
+            textTransform: "uppercase",
+            color: "#1a1610",
+            textDecoration: "none",
+          }}
         >
           Warriors on the Way
         </Link>
 
         {/* Right side */}
-        <div className="flex items-center gap-2">
+        <div style={{ display: "flex", alignItems: "center", gap: "1.5rem" }}>
           <Link
             href="/consciousness-map"
-            className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden sm:block"
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontSize: 10,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: "#6b6456",
+              textDecoration: "none",
+            }}
           >
             Consciousness Map
           </Link>
 
           <Link
             href="/resources"
-            className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden sm:block"
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontSize: 10,
+              letterSpacing: "0.16em",
+              textTransform: "uppercase",
+              color: "#6b6456",
+              textDecoration: "none",
+            }}
           >
             Resources
           </Link>
 
           <Link
-            href="/install"
-            className="hidden sm:block text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Install app
-          </Link>
-
-          <Link
             href="/community/new"
-            className={cn(
-              buttonVariants({ variant: "outline", size: "sm" }),
-              "hidden sm:flex"
-            )}
+            className="hidden sm:block"
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
+              color: "#ffffff",
+              background: "#1a1610",
+              padding: "0.5rem 1.25rem",
+              textDecoration: "none",
+              border: "1px solid #1a1610",
+            }}
           >
-            + New community
+            + New Community
           </Link>
 
           {user && (
-            <div className="flex items-center gap-2">
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <NotificationBell initialCount={unreadCount} userId={user.id} />
-              <Link href="/profile" className="flex items-center gap-2 group">
-                <Avatar className="size-8">
+
+              <Link
+                href="/profile"
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none" }}
+              >
+                <Avatar
+                  className="size-8"
+                  style={{ outline: "1px solid #ede9e1" }}
+                >
                   <AvatarImage src={user.avatar_url ?? undefined} />
-                  <AvatarFallback className="text-xs bg-primary/10 text-primary">
+                  <AvatarFallback
+                    style={{
+                      fontFamily: "var(--font-brand)",
+                      fontSize: 10,
+                      background: "#f8f7f4",
+                      color: "#a07828",
+                    }}
+                  >
                     {user.display_name.slice(0, 2).toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
-                <span className="hidden sm:block text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                  {user.display_name}
+                <span
+                  className="hidden sm:block"
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontSize: 10,
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "#6b6456",
+                  }}
+                >
+                  {user.display_name.split(" ")[0]}
                 </span>
               </Link>
 
               <form action={signOut}>
                 <button
                   type="submit"
-                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontSize: 9,
+                    letterSpacing: "0.12em",
+                    textTransform: "uppercase",
+                    color: "#c8c2b4",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                  }}
                 >
                   Sign out
                 </button>
