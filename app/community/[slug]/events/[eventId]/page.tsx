@@ -23,6 +23,32 @@ import { GuestSignUpPrompt } from "@/components/events/guest-sign-up-prompt";
 
 type Props = { params: Promise<{ slug: string; eventId: string }> };
 
+export async function generateMetadata({ params }: Props) {
+  const { slug, eventId } = await params;
+  const event = await getEventWithDetails(eventId);
+  if (!event) return {};
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const url = `${siteUrl}/community/${slug}/events/${eventId}`;
+  const description = event.description ?? `Join us for ${event.title} — Warriors on the Way`;
+  return {
+    title: event.title,
+    description,
+    openGraph: {
+      title: event.title,
+      description,
+      url,
+      type: "website" as const,
+      ...(event.image_url && { images: [{ url: event.image_url, width: 1200, height: 630 }] }),
+    },
+    twitter: {
+      card: "summary_large_image" as const,
+      title: event.title,
+      description,
+      ...(event.image_url && { images: [event.image_url] }),
+    },
+  };
+}
+
 export default async function EventDetailPage({ params }: Props) {
   const { slug, eventId } = await params;
 
@@ -30,8 +56,17 @@ export default async function EventDetailPage({ params }: Props) {
   const community = await getCommunityBySlug(slug);
   if (!community) notFound();
 
-  // ── Guest path (not signed in) ─────────────────────────────────────────────
-  if (!user) {
+  const membership = user ? await getMembership(community.id, user.id) : null;
+  const isMember = membership?.status === "active";
+
+  // ── Guest / non-member path ────────────────────────────────────────────────
+  // Private communities: non-members must sign in
+  // Public communities: anyone can view the event
+  if (!isMember) {
+    if (community.is_private) {
+      redirect(`/sign-in?next=/community/${slug}/events/${eventId}`);
+    }
+
     const event = await getEventWithDetails(eventId);
     if (!event) notFound();
 
@@ -40,7 +75,7 @@ export default async function EventDetailPage({ params }: Props) {
     return (
       <>
         <AppNav />
-        <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+        <main className="max-w-2xl mx-auto px-4 pt-20 pb-8 space-y-6">
           <EventHeader event={event} slug={slug} shareUrl={shareUrl} />
 
           {event.image_url && (
@@ -81,15 +116,15 @@ export default async function EventDetailPage({ params }: Props) {
 
           <Separator />
 
-          <GuestSignUpPrompt next={`/community/${slug}/events/${eventId}`} />
+          {!user && <GuestSignUpPrompt next={`/community/${slug}/events/${eventId}`} />}
         </main>
       </>
     );
   }
 
-  // ── Authenticated path ─────────────────────────────────────────────────────
-  const membership = await getMembership(community.id, user.id);
-  if (!membership || membership.status !== "active") redirect(`/community/${slug}`);
+  // ── Full member path ───────────────────────────────────────────────────────
+  // membership and user are non-null here (isMember === true)
+  if (!user || !membership) notFound();
 
   const isAdmin = membership.role === "admin" || membership.role === "organizer";
   const event = await getEventWithDetails(eventId, user.id);
@@ -122,7 +157,7 @@ export default async function EventDetailPage({ params }: Props) {
   return (
     <>
       <AppNav />
-      <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-2xl mx-auto px-4 pt-20 pb-8 space-y-6">
         <EventHeader event={event} slug={slug} shareUrl={shareUrl} />
 
         {event.image_url && (
