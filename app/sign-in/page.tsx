@@ -126,7 +126,7 @@ export default function SignInPage() {
         {/* Header */}
         <div className="text-center space-y-3">
           <p
-            className="text-[10px] font-bold uppercase tracking-[0.35em]"
+            className="text-xs font-bold uppercase tracking-[0.25em]"
             style={{ color: "#D4AF37" }}
           >
             Another name for lightworkers

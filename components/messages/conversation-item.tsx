@@ -40,17 +40,17 @@ export function ConversationItem({
 
       <div className="flex-1 min-w-0">
         <div className="flex items-baseline justify-between gap-2">
-          <span className={`text-sm truncate ${isUnread ? "font-semibold text-foreground" : "font-medium"}`}>
+          <span className={`text-base truncate ${isUnread ? "font-semibold text-foreground" : "font-medium"}`}>
             {otherUser.display_name}
           </span>
-          <span className="text-[11px] text-muted-foreground shrink-0">{formatTime(lastMessageAt)}</span>
+          <span className="text-xs text-muted-foreground shrink-0">{formatTime(lastMessageAt)}</span>
         </div>
         <div className="flex items-center justify-between gap-2 mt-0.5">
-          <p className={`text-xs truncate ${isUnread ? "text-foreground" : "text-muted-foreground"}`}>
+          <p className={`text-sm truncate ${isUnread ? "text-foreground" : "text-muted-foreground"}`}>
             {preview}
           </p>
           {isUnread && (
-            <span className="shrink-0 min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
+            <span className="shrink-0 min-w-[20px] h-[20px] px-1 flex items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-bold">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}

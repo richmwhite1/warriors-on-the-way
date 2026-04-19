@@ -43,7 +43,7 @@ export default async function ConversationPage({ params }: Props) {
               {other.avatar_url && <AvatarImage src={other.avatar_url} alt={other.display_name} />}
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
-            <span className="font-medium text-sm">{other.display_name}</span>
+            <span className="font-medium text-base">{other.display_name}</span>
           </Link>
         </div>
 

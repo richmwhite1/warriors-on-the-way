@@ -135,7 +135,7 @@ export function MissionPanel() {
           style={{
             fontFamily: "var(--font-body)",
             flex: 1,
-            fontSize: 13,
+            fontSize: 14,
             color: "#c8c2b4",
           }}
         >
@@ -145,9 +145,9 @@ export function MissionPanel() {
           href="/"
           style={{
             fontFamily: "var(--font-brand)",
-            fontSize: 9,
+            fontSize: 12,
             color: "#a07828",
-            letterSpacing: "0.2em",
+            letterSpacing: "0.14em",
             textTransform: "uppercase",
             textDecoration: "none",
             flexShrink: 0,
@@ -214,12 +214,12 @@ export function MissionPanel() {
                 <span
                   style={{
                     fontFamily: "var(--font-brand)",
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: 700,
-                    letterSpacing: "0.2em",
+                    letterSpacing: "0.14em",
                     textTransform: "uppercase",
                     color: "#a07828",
-                    width: 96,
+                    width: 100,
                     flexShrink: 0,
                   }}
                 >

@@ -63,7 +63,7 @@ export function CommunityCard({
                 style={{ background: "radial-gradient(ellipse 90% 120% at 50% 120%, #D4AF3720 0%, transparent 65%)" }}
               />
               <p
-                className="text-[8px] font-bold uppercase tracking-[0.3em]"
+                className="text-[11px] font-bold uppercase tracking-[0.2em]"
                 style={{ color: "#D4AF3799", fontFamily: "var(--font-sans)" }}
               >
                 Another name for lightworkers
@@ -95,17 +95,17 @@ export function CommunityCard({
           {/* Badges overlaid on banner */}
           <div className="absolute bottom-2.5 left-3 flex gap-1.5 flex-wrap">
             {isParent && (
-              <Badge className="text-[10px] px-1.5 py-0 bg-amber-500/90 text-amber-950 border-0">
+              <Badge className="text-xs px-1.5 py-0 bg-amber-500/90 text-amber-950 border-0">
                 North Star
               </Badge>
             )}
             {isPrivate && (
-              <Badge className="text-[10px] px-1.5 py-0 bg-black/50 text-white border-0 backdrop-blur-sm">
+              <Badge className="text-xs px-1.5 py-0 bg-black/50 text-white border-0 backdrop-blur-sm">
                 Private
               </Badge>
             )}
             {role && (
-              <Badge className="text-[10px] px-1.5 py-0 bg-primary/80 text-primary-foreground border-0 capitalize">
+              <Badge className="text-xs px-1.5 py-0 bg-primary/80 text-primary-foreground border-0 capitalize">
                 {role}
               </Badge>
             )}
@@ -130,12 +130,12 @@ export function CommunityCard({
               <span className="flex items-center gap-2">
                 <span>{memberCount} members</span>
                 {postCount !== undefined && postCount > 0 && (
-                  <span className="text-[10px] font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
+                  <span className="text-xs font-medium bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">
                     {postCount} posts
                   </span>
                 )}
                 {distance !== undefined && (
-                  <span className="text-[10px] font-medium bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
+                  <span className="text-xs font-medium bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">
                     {distance < 1 ? "< 1 km" : `${Math.round(distance)} km`}
                   </span>
                 )}

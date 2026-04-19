@@ -3,9 +3,9 @@ export function SectionLabel({ children }: { children: React.ReactNode }) {
     <span
       style={{
         fontFamily: "var(--font-brand)",
-        fontSize: 9,
+        fontSize: 12,
         fontWeight: 600,
-        letterSpacing: "0.32em",
+        letterSpacing: "0.24em",
         textTransform: "uppercase",
         color: "#a07828",
         display: "block",

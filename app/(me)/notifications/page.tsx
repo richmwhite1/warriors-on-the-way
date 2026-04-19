@@ -146,11 +146,11 @@ export default async function NotificationsPage() {
                   )}
                   {!isUnread && <span className="mt-1.5 size-2 shrink-0" />}
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
                       {label}
                     </p>
-                    <p className="text-sm mt-0.5">{summary}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="text-base mt-0.5">{summary}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
                       {new Date(n.created_at).toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",

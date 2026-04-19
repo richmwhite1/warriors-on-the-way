@@ -18,7 +18,7 @@ export default async function MessagesPage() {
       <main className="max-w-2xl mx-auto px-4 py-8">
         <div className="space-y-1 mb-6">
           <h1 className="text-3xl font-heading font-semibold">Messages</h1>
-          <p className="text-muted-foreground text-sm">Direct messages with community members</p>
+          <p className="text-muted-foreground text-base">Direct messages with community members</p>
         </div>
 
         {conversations.length === 0 ? (

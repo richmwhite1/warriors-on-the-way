@@ -96,7 +96,7 @@ export default async function EventDetailPage({ params }: Props) {
           <EventMeta event={event} />
 
           {event.description && (
-            <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+            <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {event.description}
             </p>
           )}
@@ -111,14 +111,14 @@ export default async function EventDetailPage({ params }: Props) {
             <div className="rounded-2xl border bg-card p-4 space-y-3">
               {goingNames.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Going</p>
-                  <p className="text-sm">{goingNames.join(", ")}</p>
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Going</p>
+                  <p className="text-base">{goingNames.join(", ")}</p>
                 </div>
               )}
               {maybeNames.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Maybe</p>
-                  <p className="text-sm">{maybeNames.join(", ")}</p>
+                  <p className="text-sm font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Maybe</p>
+                  <p className="text-base">{maybeNames.join(", ")}</p>
                 </div>
               )}
             </div>
@@ -195,7 +195,7 @@ export default async function EventDetailPage({ params }: Props) {
         <EventMeta event={event} />
 
         {event.description && (
-          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+          <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
             {event.description}
           </p>
         )}
@@ -231,7 +231,7 @@ export default async function EventDetailPage({ params }: Props) {
 
         {event.status === "confirmed" && !isCancelled && (
           <div className="space-y-2">
-            <p className="text-sm font-medium">Your RSVP</p>
+            <p className="text-base font-medium">Your RSVP</p>
             <RsvpButtons
               eventId={event.id}
               communitySlug={slug}
@@ -313,7 +313,7 @@ export default async function EventDetailPage({ params }: Props) {
           <>
             <Separator />
             <div className="space-y-3">
-              <p className="text-sm font-medium">Tasks</p>
+              <p className="text-base font-medium">Tasks</p>
               <EventTasksPanel
                 eventId={eventId}
                 communitySlug={slug}
@@ -331,7 +331,7 @@ export default async function EventDetailPage({ params }: Props) {
           <>
             <Separator />
             <div className="space-y-3">
-              <p className="text-sm font-medium">Expenses</p>
+              <p className="text-base font-medium">Expenses</p>
               <EventExpensesPanel
                 eventId={eventId}
                 communitySlug={slug}
@@ -463,7 +463,7 @@ function RsvpCounts({
   counts: { yes: number; no: number; maybe: number };
 }) {
   return (
-    <div className="flex gap-5 text-sm">
+    <div className="flex gap-5 text-base">
       <span className="text-green-600 font-medium">✓ {counts.yes} going</span>
       <span className="text-muted-foreground">? {counts.maybe} maybe</span>
       <span className="text-muted-foreground">✗ {counts.no} can&apos;t go</span>

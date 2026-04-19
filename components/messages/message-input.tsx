@@ -37,13 +37,13 @@ export function MessageInput({ recipientId }: { recipientId: string }) {
         placeholder="Message…"
         onKeyDown={handleKeyDown}
         disabled={isPending}
-        className="flex-1 resize-none rounded-xl border bg-muted/40 px-3.5 py-2.5 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 max-h-32 overflow-y-auto"
+        className="flex-1 resize-none rounded-xl border bg-muted/40 px-3.5 py-2.5 text-base placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 max-h-32 overflow-y-auto"
         style={{ fieldSizing: "content" } as React.CSSProperties}
       />
       <button
         onClick={submit}
         disabled={isPending}
-        className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
+        className="shrink-0 rounded-xl bg-primary px-5 py-2.5 text-base font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
       >
         Send
       </button>

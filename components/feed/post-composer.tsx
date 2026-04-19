@@ -110,7 +110,7 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
               : handleTypeChange(t)
             }
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-medium transition-colors border",
+              "px-4 py-1.5 rounded-full text-sm font-medium transition-colors border",
               postType === t && t !== "event"
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-background text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
@@ -128,7 +128,7 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
         onChange={(e) => setTitle(e.target.value)}
         placeholder={isMedia ? "Title (optional)" : "Title (optional)"}
         maxLength={200}
-        className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="w-full rounded-lg border bg-background px-3 py-2.5 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       />
 
       {/* Body (discussion + event) */}
@@ -143,7 +143,7 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
           }
           rows={3}
           maxLength={2000}
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
+          className="w-full rounded-lg border bg-background px-3 py-2.5 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
         />
       )}
 
@@ -159,7 +159,7 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
                 ? "Paste a YouTube link…"
                 : "Paste a Spotify link…"
             }
-            className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="w-full rounded-lg border bg-background px-3 py-2.5 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
 
           {embedPreview && (

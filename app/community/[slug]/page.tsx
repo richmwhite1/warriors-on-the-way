@@ -131,9 +131,9 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-brand)",
-                fontSize: 9,
+                fontSize: 11,
                 fontWeight: 600,
-                letterSpacing: "0.4em",
+                letterSpacing: "0.3em",
                 textTransform: "uppercase",
                 color: "#a07828",
                 marginBottom: "1rem",
@@ -269,9 +269,9 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 style={{
                   padding: "0.75rem 1rem",
                   fontFamily: "var(--font-brand)",
-                  fontSize: 10,
+                  fontSize: 12,
                   fontWeight: 600,
-                  letterSpacing: "0.16em",
+                  letterSpacing: "0.12em",
                   textTransform: "uppercase",
                   color: "#6b6456",
                   cursor: "pointer",
@@ -288,7 +288,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           {/* Parent community: show rules collapsed */}
           {community.is_parent && community.rules_md && (
             <details style={{ border: "1px solid #ede9e1" }}>
-              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 10, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: "#6b6456", cursor: "pointer" }}>
+              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6b6456", cursor: "pointer" }}>
                 Community Standards ↓
               </summary>
               <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #ede9e1", background: "#f8f7f4" }}>
@@ -300,11 +300,11 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           {/* Child community: show parent rules collapsed */}
           {!community.is_parent && parentCommunity?.rules_md && (
             <details style={{ border: "1px solid #ede9e1" }}>
-              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 10, fontWeight: 600, letterSpacing: "0.16em", textTransform: "uppercase", color: "#6b6456", cursor: "pointer" }}>
+              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#6b6456", cursor: "pointer" }}>
                 Community Standards ↓
               </summary>
               <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #ede9e1", background: "#f8f7f4" }}>
-                <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.5rem" }}>Standards all Warriors on the Way communities follow:</p>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#c8c2b4", marginBottom: "0.5rem" }}>Standards all Warriors on the Way communities follow:</p>
                 <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4438" }}>{parentCommunity.rules_md}</p>
               </div>
             </details>
@@ -313,7 +313,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           {/* Latest video from Seán — only on the parent (Warriors on the Way) community */}
           {community.is_parent && latestVideoId && (
             <div style={{ marginTop: "1rem" }}>
-              <p style={{ fontFamily: "var(--font-brand)", fontSize: 9, fontWeight: 600, letterSpacing: "0.26em", textTransform: "uppercase", color: "#a07828", marginBottom: "0.75rem" }}>Latest from Seán</p>
+              <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#a07828", marginBottom: "0.75rem" }}>Latest from Seán</p>
               <div className="aspect-video overflow-hidden" style={{ border: "1px solid #ede9e1" }}>
                 <iframe
                   src={`https://www.youtube.com/embed/${latestVideoId}`}

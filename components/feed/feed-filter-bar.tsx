@@ -34,7 +34,7 @@ export function FeedFilterBar() {
           key={f.value}
           onClick={() => setFilter(f.value)}
           className={cn(
-            "px-3 py-1 rounded-full text-xs font-medium transition-colors border",
+            "px-4 py-1.5 rounded-full text-sm font-medium transition-colors border",
             current === f.value
               ? "bg-primary text-primary-foreground border-primary"
               : "bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"

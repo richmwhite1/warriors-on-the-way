@@ -115,7 +115,7 @@ export default async function HomePage() {
                   {latestTransmission.title}
                 </p>
               )}
-              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.75rem" }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#c8c2b4", marginBottom: "0.75rem" }}>
                 {new Date(latestTransmission.created_at).toLocaleDateString("en-US", {
                   month: "long",
                   day: "numeric",
@@ -140,8 +140,8 @@ export default async function HomePage() {
                 href="/community/warriors-on-the-way"
                 style={{
                   fontFamily: "var(--font-brand)",
-                  fontSize: 10,
-                  letterSpacing: "0.2em",
+                  fontSize: 12,
+                  letterSpacing: "0.16em",
                   textTransform: "uppercase",
                   color: "#a07828",
                   textDecoration: "none",
@@ -172,8 +172,8 @@ export default async function HomePage() {
               href="/community"
               style={{
                 fontFamily: "var(--font-brand)",
-                fontSize: 9,
-                letterSpacing: "0.2em",
+                fontSize: 12,
+                letterSpacing: "0.16em",
                 textTransform: "uppercase",
                 color: "#c8c2b4",
                 textDecoration: "none",
@@ -203,20 +203,20 @@ export default async function HomePage() {
               >
                 No communities yet
               </p>
-              <p style={{ fontFamily: "var(--font-body)", color: "#c8c2b4", fontSize: 14, marginBottom: "1rem" }}>
+              <p style={{ fontFamily: "var(--font-body)", color: "#c8c2b4", fontSize: 15, marginBottom: "1rem" }}>
                 Browse to find your group.
               </p>
               <Link
                 href="/community"
                 style={{
                   fontFamily: "var(--font-brand)",
-                  fontSize: 10,
+                  fontSize: 13,
                   fontWeight: 700,
-                  letterSpacing: "0.2em",
+                  letterSpacing: "0.14em",
                   textTransform: "uppercase",
                   color: "#ffffff",
                   background: "#1a1610",
-                  padding: "0.7rem 1.5rem",
+                  padding: "0.75rem 1.75rem",
                   textDecoration: "none",
                   border: "1px solid #1a1610",
                   display: "inline-block",
@@ -264,16 +264,16 @@ export default async function HomePage() {
                     >
                       {c.name}
                     </p>
-                    <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.5rem" }}>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#c8c2b4", marginBottom: "0.5rem" }}>
                       {myMemberCounts[i] ?? 0} members
                     </p>
                     <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                       <span
                         style={{
                           fontFamily: "var(--font-brand)",
-                          fontSize: 9,
+                          fontSize: 11,
                           color: "#a07828",
-                          letterSpacing: "0.2em",
+                          letterSpacing: "0.14em",
                           textTransform: "uppercase",
                         }}
                       >
@@ -302,8 +302,8 @@ export default async function HomePage() {
                         href={`/community/${community.slug}`}
                         style={{
                           fontFamily: "var(--font-brand)",
-                          fontSize: 9,
-                          letterSpacing: "0.16em",
+                          fontSize: 12,
+                          letterSpacing: "0.12em",
                           textTransform: "uppercase",
                           color: "#c8c2b4",
                           textDecoration: "none",

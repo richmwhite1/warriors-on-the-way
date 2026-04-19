@@ -39,9 +39,9 @@ export async function AppNav() {
           href="/home"
           style={{
             fontFamily: "var(--font-brand)",
-            fontSize: 12,
+            fontSize: 14,
             fontWeight: 700,
-            letterSpacing: "0.22em",
+            letterSpacing: "0.18em",
             textTransform: "uppercase",
             color: "#1a1610",
             textDecoration: "none",
@@ -57,8 +57,8 @@ export async function AppNav() {
             className="hidden sm:block"
             style={{
               fontFamily: "var(--font-brand)",
-              fontSize: 10,
-              letterSpacing: "0.16em",
+              fontSize: 12,
+              letterSpacing: "0.14em",
               textTransform: "uppercase",
               color: "#6b6456",
               textDecoration: "none",
@@ -72,8 +72,8 @@ export async function AppNav() {
             className="hidden sm:block"
             style={{
               fontFamily: "var(--font-brand)",
-              fontSize: 10,
-              letterSpacing: "0.16em",
+              fontSize: 12,
+              letterSpacing: "0.14em",
               textTransform: "uppercase",
               color: "#6b6456",
               textDecoration: "none",
@@ -87,9 +87,9 @@ export async function AppNav() {
             className="hidden sm:block"
             style={{
               fontFamily: "var(--font-brand)",
-              fontSize: 10,
+              fontSize: 12,
               fontWeight: 700,
-              letterSpacing: "0.2em",
+              letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: "#ffffff",
               background: "#1a1610",
@@ -110,14 +110,14 @@ export async function AppNav() {
                 style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none" }}
               >
                 <Avatar
-                  className="size-8"
+                  className="size-9"
                   style={{ outline: "1px solid #ede9e1" }}
                 >
                   <AvatarImage src={user.avatar_url ?? undefined} />
                   <AvatarFallback
                     style={{
                       fontFamily: "var(--font-brand)",
-                      fontSize: 10,
+                      fontSize: 11,
                       background: "#f8f7f4",
                       color: "#a07828",
                     }}
@@ -129,8 +129,8 @@ export async function AppNav() {
                   className="hidden sm:block"
                   style={{
                     fontFamily: "var(--font-brand)",
-                    fontSize: 10,
-                    letterSpacing: "0.1em",
+                    fontSize: 12,
+                    letterSpacing: "0.08em",
                     textTransform: "uppercase",
                     color: "#6b6456",
                   }}
@@ -144,8 +144,8 @@ export async function AppNav() {
                   type="submit"
                   style={{
                     fontFamily: "var(--font-brand)",
-                    fontSize: 9,
-                    letterSpacing: "0.12em",
+                    fontSize: 11,
+                    letterSpacing: "0.1em",
                     textTransform: "uppercase",
                     color: "#c8c2b4",
                     background: "none",

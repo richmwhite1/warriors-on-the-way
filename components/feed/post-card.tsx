@@ -193,15 +193,15 @@ export function PostCard({
       {/* Author row */}
       <div className="flex items-start justify-between gap-3">
         <a href={`/profile/${post.author_id}`} className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-          <Avatar className="size-8">
+          <Avatar className="size-10">
             <AvatarImage src={authorAvatar ?? undefined} />
             <AvatarFallback className="text-xs bg-primary/10 text-primary">
               {authorName.slice(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div>
-            <p className="text-sm font-medium leading-none">{authorName}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-base font-medium leading-none">{authorName}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">
               {new Date(post.created_at).toLocaleDateString("en-US", {
                 month: "short", day: "numeric",
                 hour: "numeric", minute: "2-digit",
@@ -211,7 +211,7 @@ export function PostCard({
         </a>
 
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+          <Badge variant="outline" className="text-xs px-2 py-0.5">
             {TYPE_LABELS[post.post_type] ?? post.post_type}
           </Badge>
           <div className="flex items-center gap-0.5">
@@ -268,12 +268,12 @@ export function PostCard({
 
       {/* Title */}
       {post.title && (
-        <p className="font-heading font-semibold text-base leading-snug">{post.title}</p>
+        <p className="font-heading font-semibold text-lg leading-snug">{post.title}</p>
       )}
 
       {/* Body */}
       {post.body && (
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.body}</p>
+        <p className="text-base leading-relaxed whitespace-pre-wrap">{post.body}</p>
       )}
 
       {/* Embed — new unified format (Spotify or YouTube iframe) */}
@@ -381,7 +381,7 @@ export function PostCard({
         {/* Comment toggle */}
         <button
           onClick={() => setShowComments(!showComments)}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           {showComments ? "Hide" : "Show"} comments ({commentCount})
         </button>
@@ -410,7 +410,7 @@ export function PostCard({
             onChange={(e) => setCommentText(e.target.value)}
             placeholder="Add a comment…"
             maxLength={500}
-            className="flex-1 rounded-lg border bg-background px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="flex-1 rounded-lg border bg-background px-3 py-2.5 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
           <Button type="submit" size="sm" disabled={isPending || !commentText.trim()}>Post</Button>
         </form>
@@ -556,16 +556,16 @@ function CommentRow({ comment, communitySlug, currentUserId, isAdmin }: {
 
   return (
     <div className="flex items-start gap-2 group">
-      <Avatar className="size-6 mt-0.5 shrink-0">
+      <Avatar className="size-7 mt-0.5 shrink-0">
         <AvatarImage src={author.avatar_url ?? undefined} />
-        <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+        <AvatarFallback className="text-xs bg-primary/10 text-primary">
           {author.display_name.slice(0, 2).toUpperCase()}
         </AvatarFallback>
       </Avatar>
       <div className="flex-1 min-w-0">
-        <span className="text-xs font-medium">{author.display_name} </span>
-        <span className="text-xs text-foreground">{comment.body}</span>
-        <p className="text-[10px] text-muted-foreground mt-0.5">
+        <span className="text-sm font-medium">{author.display_name} </span>
+        <span className="text-sm text-foreground">{comment.body}</span>
+        <p className="text-xs text-muted-foreground mt-0.5">
           {new Date(comment.created_at).toLocaleDateString("en-US", {
             month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
           })}
@@ -575,7 +575,7 @@ function CommentRow({ comment, communitySlug, currentUserId, isAdmin }: {
         <button
           onClick={handleDelete}
           disabled={isPending}
-          className="text-[10px] text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+          className="text-xs text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
         >
           ×
         </button>

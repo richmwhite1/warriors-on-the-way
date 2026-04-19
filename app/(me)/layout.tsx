@@ -10,7 +10,7 @@ export default async function AuthenticatedLayout({ children }: { children: Reac
   return (
     <>
       {children}
-      <div className="sm:hidden" style={{ height: "calc(3.5rem + env(safe-area-inset-bottom))" }} aria-hidden />
+      <div className="sm:hidden" style={{ height: "calc(4rem + env(safe-area-inset-bottom))" }} aria-hidden />
       <BottomNav unreadDMs={unreadDMs} />
       <PwaInstallPrompt />
     </>
