@@ -27,15 +27,55 @@ export default async function NewEventPage({ params }: Props) {
   return (
     <>
       <AppNav />
-      <main className="max-w-xl mx-auto px-4 py-8 space-y-8">
-        <div>
-          <Link href={`/community/${slug}/events`} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-            ← Events
+      <main className="max-w-2xl mx-auto px-4 py-10 space-y-10">
+        <div className="text-center space-y-3">
+          <Link
+            href={`/community/${slug}/events`}
+            className="inline-block text-[11px] uppercase tracking-[0.25em] text-[#6b6456] hover:text-[#1a1610] transition-colors"
+          >
+            ← Back to events
           </Link>
-          <h1 className="text-2xl font-heading font-semibold mt-1">New event</h1>
-          <p className="text-sm text-muted-foreground mt-1">{community.name}</p>
+          <div
+            className="text-[11px] uppercase tracking-[0.35em] text-[#a07828]"
+            style={{ fontFamily: "var(--font-brand)" }}
+          >
+            {community.name}
+          </div>
+          <h1
+            className="text-3xl sm:text-4xl"
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontWeight: 700,
+              letterSpacing: "0.04em",
+              color: "#1a1610",
+            }}
+          >
+            Call a gathering
+          </h1>
+          <p
+            className="italic text-[#6b6456] max-w-md mx-auto"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Name the circle, choose the hour, and invite the warriors to come home.
+          </p>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <span className="h-px w-8 bg-[#c8c2b4]" />
+            <span className="text-[#a07828]" style={{ fontFamily: "var(--font-brand)" }}>✦</span>
+            <span className="h-px w-8 bg-[#c8c2b4]" />
+          </div>
         </div>
-        <CreateEventForm communityId={community.id} communitySlug={slug} />
+        <div
+          className="relative p-6 sm:p-10"
+          style={{
+            background: "rgba(255,255,255,0.65)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid #ede9e1",
+            boxShadow:
+              "0 1px 2px rgba(26,22,16,0.04), 0 20px 48px -24px rgba(160,120,40,0.18)",
+          }}
+        >
+          <CreateEventForm communityId={community.id} communitySlug={slug} />
+        </div>
       </main>
     </>
   );

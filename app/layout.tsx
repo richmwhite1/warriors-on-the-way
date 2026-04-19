@@ -45,8 +45,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#1a1610" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1610" },
+    { media: "(prefers-color-scheme: light)", color: "#f8f7f4" },
+    { media: "(prefers-color-scheme: dark)", color: "#f8f7f4" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -61,7 +61,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cinzel.variable} ${garamond.variable} h-full antialiased dark`}
+      className={`${cinzel.variable} ${garamond.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}
