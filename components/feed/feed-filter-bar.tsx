@@ -3,13 +3,16 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const FILTERS = [
+const FILTERS: { label: string; value: string }[] = [
   { label: "All", value: "" },
   { label: "Discussions", value: "discussion" },
+  { label: "Reflections", value: "reflection" },
+  { label: "Wisdom", value: "wisdom" },
+  { label: "Prayers", value: "prayer" },
   { label: "Events", value: "event" },
   { label: "Videos", value: "video" },
   { label: "Music", value: "music" },
-] as const;
+];
 
 export function FeedFilterBar() {
   const router = useRouter();

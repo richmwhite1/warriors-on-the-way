@@ -20,6 +20,9 @@ const TYPE_LABELS: Record<PostType, string> = {
   event: "Event",
   video: "Video",
   music: "Music",
+  reflection: "Daily Reflection",
+  wisdom: "Wisdom Share",
+  prayer: "Prayer & Support",
 };
 
 export function PostComposer({ communityId, communitySlug, isParentAdmin }: Props) {
@@ -139,6 +142,12 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
           placeholder={
             postType === "event"
               ? "Describe the event — include date, time, and location…"
+              : postType === "reflection"
+              ? "What arose in your practice today…"
+              : postType === "wisdom"
+              ? "A truth worth sharing with the community…"
+              : postType === "prayer"
+              ? "Share your prayer, intention, or need for support…"
               : "Share something with the community…"
           }
           rows={3}

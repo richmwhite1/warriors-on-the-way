@@ -26,6 +26,20 @@ const TYPE_LABELS: Record<string, string> = {
   event: "Event",
   video: "Video",
   music: "Music",
+  reflection: "Daily Reflection",
+  wisdom: "Wisdom Share",
+  prayer: "Prayer & Support",
+};
+
+const TYPE_ICONS: Record<string, string> = {
+  reflection: "🌅",
+  wisdom: "✨",
+  prayer: "🙏",
+};
+
+const TYPE_CARD_CLASS: Record<string, string> = {
+  wisdom: "border-[#a07828] border-2",
+  prayer: "shadow-[0_0_16px_rgba(160,120,40,0.12)]",
 };
 
 type UserCommunity = { id: string; name: string; slug: string };
@@ -172,7 +186,8 @@ export function PostCard({
       id={`post-${post.id}`}
       className={cn(
         "rounded-2xl border bg-card p-5 space-y-4",
-        pinned && "border-primary/30 bg-primary/5"
+        pinned && "border-primary/30 bg-primary/5",
+        TYPE_CARD_CLASS[post.post_type]
       )}
     >
       {/* Pinned indicator */}
@@ -211,6 +226,11 @@ export function PostCard({
         </a>
 
         <div className="flex items-center gap-2">
+          {TYPE_ICONS[post.post_type] && (
+            <span className="text-base leading-none" title={TYPE_LABELS[post.post_type]}>
+              {TYPE_ICONS[post.post_type]}
+            </span>
+          )}
           <Badge variant="outline" className="text-[10px] px-1.5 py-0">
             {TYPE_LABELS[post.post_type] ?? post.post_type}
           </Badge>
@@ -229,7 +249,7 @@ export function PostCard({
                 {pinned ? "Unpin" : "Pin"}
               </button>
             )}
-            {isOwn && (post.post_type === "discussion" || post.post_type === "event") && (
+            {isOwn && (["discussion", "event", "reflection", "wisdom", "prayer"] as string[]).includes(post.post_type) && (
               <button
                 onClick={() => setEditing(!editing)}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
@@ -273,7 +293,12 @@ export function PostCard({
 
       {/* Body */}
       {post.body && (
-        <p className="text-sm leading-relaxed whitespace-pre-wrap">{post.body}</p>
+        <p className={cn(
+          "text-sm leading-relaxed whitespace-pre-wrap",
+          post.post_type === "reflection" && "italic text-base font-[var(--font-body)]"
+        )}>
+          {post.body}
+        </p>
       )}
 
       {/* Embed — new unified format (Spotify or YouTube iframe) */}
