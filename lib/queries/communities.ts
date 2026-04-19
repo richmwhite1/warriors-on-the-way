@@ -60,14 +60,17 @@ export async function listPublicCommunities() {
     .select(`
       id, slug, name, description, banner_url, is_parent,
       is_private, member_cap, created_at, latitude, longitude,
-      member_count:community_members(count),
+      public_member_count,
       post_count:posts(count)
     `)
     .eq("is_private", false)
-    .eq("community_members.status", "active")
     .is("posts.deleted_at", null)
     .order("created_at", { ascending: false });
-  return data ?? [];
+  // Normalise to member_count so CommunityCard receives a consistent prop
+  return (data ?? []).map((c) => ({
+    ...c,
+    member_count: (c as Record<string, unknown>).public_member_count ?? 0,
+  }));
 }
 
 export type UserMembership = {

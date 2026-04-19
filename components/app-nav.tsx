@@ -17,8 +17,8 @@ export async function AppNav() {
         left: 0,
         right: 0,
         zIndex: 50,
-        background: "rgba(255,255,255,0.96)",
-        borderBottom: "1px solid #ede9e1",
+        background: "rgba(26,22,16,0.96)",
+        borderBottom: "1px solid rgba(255,255,255,0.08)",
         backdropFilter: "blur(12px)",
         WebkitBackdropFilter: "blur(12px)",
       }}
@@ -43,7 +43,7 @@ export async function AppNav() {
             fontWeight: 700,
             letterSpacing: "0.18em",
             textTransform: "uppercase",
-            color: "#1a1610",
+            color: "#f8f7f4",
             textDecoration: "none",
           }}
         >
@@ -60,7 +60,7 @@ export async function AppNav() {
               fontSize: 12,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "#6b6456",
+              color: "#c8c2b4",
               textDecoration: "none",
             }}
           >
@@ -75,7 +75,7 @@ export async function AppNav() {
               fontSize: 12,
               letterSpacing: "0.14em",
               textTransform: "uppercase",
-              color: "#6b6456",
+              color: "#c8c2b4",
               textDecoration: "none",
             }}
           >
@@ -91,11 +91,11 @@ export async function AppNav() {
               fontWeight: 700,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
-              color: "#ffffff",
-              background: "#1a1610",
+              color: "#1a1610",
+              background: "#c4a050",
               padding: "0.5rem 1.25rem",
               textDecoration: "none",
-              border: "1px solid #1a1610",
+              border: "1px solid #c4a050",
             }}
           >
             + New Community
@@ -111,15 +111,15 @@ export async function AppNav() {
               >
                 <Avatar
                   className="size-9"
-                  style={{ outline: "1px solid #ede9e1" }}
+                  style={{ outline: "1px solid rgba(255,255,255,0.12)" }}
                 >
                   <AvatarImage src={user.avatar_url ?? undefined} />
                   <AvatarFallback
                     style={{
                       fontFamily: "var(--font-brand)",
                       fontSize: 11,
-                      background: "#f8f7f4",
-                      color: "#a07828",
+                      background: "#2e2820",
+                      color: "#c4a050",
                     }}
                   >
                     {user.display_name.slice(0, 2).toUpperCase()}

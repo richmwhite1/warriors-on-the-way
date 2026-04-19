@@ -44,6 +44,38 @@ export function getEmbedMeta(rawUrl: string): EmbedMeta | null {
       return null;
     }
 
+    // Vimeo — vimeo.com/{id} and vimeo.com/{id}/{hash} (unlisted videos)
+    if (host === "vimeo.com" || host === "player.vimeo.com") {
+      const parts = u.pathname.split("/").filter(Boolean);
+      const idIndex = parts[0] === "video" ? 1 : 0;
+      const videoId = parts[idIndex];
+      if (!videoId || !/^\d+$/.test(videoId)) return null;
+      const hash = parts[idIndex + 1];
+      const embedUrl = hash
+        ? `https://player.vimeo.com/video/${videoId}?h=${hash}`
+        : `https://player.vimeo.com/video/${videoId}`;
+      return { type: "video", embedUrl, thumbnailUrl: null };
+    }
+
+    // SoundCloud — tracks, sets, user profiles
+    if (host === "soundcloud.com" || host === "m.soundcloud.com") {
+      const canonical = `https://soundcloud.com${u.pathname}`;
+      return {
+        type: "music",
+        embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(canonical)}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`,
+        thumbnailUrl: null,
+      };
+    }
+
+    // Apple Podcasts — just swap the host to the embed subdomain
+    if (host === "podcasts.apple.com") {
+      return {
+        type: "music",
+        embedUrl: `https://embed.podcasts.apple.com${u.pathname}${u.search}`,
+        thumbnailUrl: null,
+      };
+    }
+
     return null;
   } catch {
     return null;

@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
+  async redirects() {
+    return [
+      { source: "/communities", destination: "/community", permanent: true },
+      { source: "/communities/:path*", destination: "/community/:path*", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

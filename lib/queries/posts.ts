@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type PostType = "discussion" | "event" | "video" | "music";
+export type PostType = "discussion" | "event" | "video" | "music" | "reflection" | "wisdom" | "prayer";
 
 export type Post = {
   id: string;
