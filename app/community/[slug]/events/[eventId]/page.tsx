@@ -139,6 +139,15 @@ export default async function EventDetailPage({ params }: Props) {
             </div>
           )}
 
+          {event.starts_at && event.status === "confirmed" && (
+            <a
+              href={`/api/events/${event.id}/calendar`}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }), "w-fit")}
+            >
+              📅 Add to calendar
+            </a>
+          )}
+
           <Separator />
 
         </main>

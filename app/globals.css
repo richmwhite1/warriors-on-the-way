@@ -153,8 +153,8 @@
   }
 
   body {
-    background: var(--white);
-    color: var(--ink-mid);
+    background: var(--background);
+    color: var(--foreground);
     font-family: var(--font-body);
     font-size: 18px;
     line-height: 1.75;

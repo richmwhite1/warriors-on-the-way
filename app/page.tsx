@@ -823,6 +823,7 @@ export default async function LandingPage() {
         </span>
         <ul style={{ display: "flex", gap: "2rem", listStyle: "none", margin: 0, padding: 0 }}>
           {[
+            { href: "/community", label: "Communities" },
             { href: "/terms", label: "Terms" },
             { href: "/privacy", label: "Privacy" },
             { href: "/resources", label: "Resources" },
