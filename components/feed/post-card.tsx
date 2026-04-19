@@ -444,10 +444,56 @@ export function PostCard({
   );
 }
 
-// Unified embed renderer (YouTube click-to-play + Spotify inline)
+// Unified embed renderer (YouTube click-to-play + inline audio/video iframes)
 function EmbedBlock({ embedUrl, title }: { embedUrl: string; title?: string }) {
   const [playing, setPlaying] = useState(false);
   const isSpotify = embedUrl.includes("spotify.com");
+  const isSoundCloud = embedUrl.includes("w.soundcloud.com");
+  const isApplePodcasts = embedUrl.includes("embed.podcasts.apple.com");
+  const isVimeo = embedUrl.includes("player.vimeo.com");
+
+  if (isSoundCloud) {
+    return (
+      <iframe
+        src={embedUrl}
+        height="166"
+        width="100%"
+        allow="autoplay; encrypted-media"
+        loading="lazy"
+        title={title ?? "SoundCloud"}
+        className="block rounded-xl border"
+      />
+    );
+  }
+
+  if (isApplePodcasts) {
+    return (
+      <iframe
+        src={embedUrl}
+        height="175"
+        width="100%"
+        allow="autoplay *; encrypted-media *; clipboard-write"
+        loading="lazy"
+        title={title ?? "Apple Podcasts"}
+        className="block rounded-xl border"
+      />
+    );
+  }
+
+  if (isVimeo) {
+    return (
+      <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-black">
+        <iframe
+          src={embedUrl}
+          title={title ?? "Video"}
+          allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+          allowFullScreen
+          loading="lazy"
+          className="absolute inset-0 w-full h-full"
+        />
+      </div>
+    );
+  }
 
   if (isSpotify) {
     // Direct Spotify URL for "Open in Spotify" link (strips /embed/ and query params)
