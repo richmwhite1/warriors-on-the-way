@@ -17,21 +17,21 @@ export async function AppNav() {
         left: 0,
         right: 0,
         zIndex: 50,
-        background: "rgba(26,22,16,0.96)",
-        borderBottom: "1px solid rgba(255,255,255,0.08)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        background: "rgba(248,247,244,0.95)",
+        borderBottom: "1px solid #ede9e1",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
       }}
     >
       <div
         style={{
           maxWidth: 880,
           margin: "0 auto",
-          padding: "1.1rem 2rem",
+          padding: "0.9rem clamp(1rem, 4vw, 2rem)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          gap: "1rem",
+          gap: "0.75rem",
         }}
       >
         {/* Wordmark */}
@@ -43,7 +43,7 @@ export async function AppNav() {
             fontWeight: 700,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
-            color: "#f8f7f4",
+            color: "#1a1610",
             textDecoration: "none",
           }}
         >
@@ -132,7 +132,7 @@ export async function AppNav() {
                     fontSize: 10,
                     letterSpacing: "0.1em",
                     textTransform: "uppercase",
-                    color: "#6b6456",
+                    color: "#4a4438",
                   }}
                 >
                   {user.display_name.split(" ")[0]}
@@ -147,7 +147,7 @@ export async function AppNav() {
                     fontSize: 9,
                     letterSpacing: "0.12em",
                     textTransform: "uppercase",
-                    color: "#c8c2b4",
+                    color: "#6b6456",
                     background: "none",
                     border: "none",
                     cursor: "pointer",

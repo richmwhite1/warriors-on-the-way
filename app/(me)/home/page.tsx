@@ -44,7 +44,7 @@ export default async function HomePage() {
       {/* Spacer for fixed nav */}
       <div style={{ height: 60 }} />
 
-      <main style={{ maxWidth: 680, margin: "0 auto", padding: "0 1rem 6rem" }}>
+      <main style={{ maxWidth: 680, margin: "0 auto", padding: "0 1rem 6rem", overflowX: "hidden" }}>
 
         {/* ── Welcome Block ─────────────────────────────────────────────────── */}
         <div style={{ padding: "2rem 0 0" }}>
@@ -226,14 +226,7 @@ export default async function HomePage() {
               </Link>
             </div>
           ) : (
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                overflowX: "auto",
-                paddingBottom: "0.5rem",
-              }}
-            >
+            <div className="scroll-strip">
               {myCommunities.map((m: UserMembership, i) => {
                 const c = m.community;
                 return (

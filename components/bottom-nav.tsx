@@ -63,10 +63,10 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
     <nav
       className="fixed bottom-0 inset-x-0 z-40 sm:hidden"
       style={{
-        background: "rgba(26,22,16,0.96)",
-        borderTop: "1px solid rgba(255,255,255,0.08)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        background: "rgba(248,247,244,0.97)",
+        borderTop: "1px solid #ede9e1",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
@@ -84,7 +84,7 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
               gap: 2,
               textDecoration: "none",
               borderTop: item.active ? "2px solid #a07828" : "2px solid transparent",
-              color: item.active ? "#f8f7f4" : "#6b6456",
+              color: item.active ? "#a07828" : "#6b6456",
             }}
           >
             <span style={{ position: "relative" }}>

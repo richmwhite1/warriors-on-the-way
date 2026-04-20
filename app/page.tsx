@@ -58,13 +58,13 @@ export default async function LandingPage() {
 
       {/* ── Navigation ─────────────────────────────────────────────────────── */}
       <nav
+        className="landing-nav"
         style={{
           position: "fixed",
           top: 0,
           left: 0,
           right: 0,
           zIndex: 100,
-          padding: "1.2rem 3rem",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -305,7 +305,7 @@ export default async function LandingPage() {
 
       {/* ── Next Event / Latest Post (if any) ──────────────────────────────── */}
       {(nextEvent || latestPost) && (
-        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem 3rem" }}>
+        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 clamp(1rem, 4vw, 2rem) 3rem" }}>
           {nextEvent ? (
             <div
               style={{
@@ -409,16 +409,8 @@ export default async function LandingPage() {
       )}
 
       {/* ── Spiritual Director ──────────────────────────────────────────────── */}
-      <div id="director" style={{ maxWidth: 880, margin: "0 auto", padding: "2rem 2rem 5rem" }}>
-        <div
-          className="director-grid"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "200px 1fr",
-            gap: "4rem",
-            alignItems: "start",
-          }}
-        >
+      <div id="director" style={{ maxWidth: 880, margin: "0 auto", padding: "2rem clamp(1rem, 4vw, 2rem) 5rem" }}>
+        <div className="director-grid">
           {/* Portrait */}
           <div style={{ position: "relative" }}>
             <div
@@ -529,7 +521,7 @@ export default async function LandingPage() {
 
       {/* ── Manifesto (DARK BAND) ───────────────────────────────────────────── */}
       <div id="mission" style={{ background: "#1a1610", padding: "5rem 0" }}>
-        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
+        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 clamp(1rem, 4vw, 2rem)" }}>
           <SectionLabel>The Lightworkers Manifesto</SectionLabel>
           <SectionTitle light>
             A battle for the<br />soul of the planet
@@ -582,7 +574,7 @@ export default async function LandingPage() {
 
       {/* ── The Great Turning (PAPER BAND) ─────────────────────────────────── */}
       <div style={{ background: "#f8f7f4", padding: "5rem 0" }}>
-        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
+        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 clamp(1rem, 4vw, 2rem)" }}>
           <SectionLabel>The Great Turning</SectionLabel>
           <p
             style={{
@@ -649,7 +641,7 @@ export default async function LandingPage() {
 
       {/* ── The Structure (DARK BAND) ──────────────────────────────────────── */}
       <div id="path" style={{ background: "#1a1610", padding: "5rem 0" }}>
-        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
+        <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 clamp(1rem, 4vw, 2rem)" }}>
           <SectionLabel>The Structure</SectionLabel>
           <SectionTitle light>
             How the path<br />is walked
@@ -801,7 +793,7 @@ export default async function LandingPage() {
         style={{
           maxWidth: 880,
           margin: "0 auto",
-          padding: "2rem 2rem",
+          padding: "2rem clamp(1rem, 4vw, 2rem)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",

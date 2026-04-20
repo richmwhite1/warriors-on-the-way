@@ -152,7 +152,12 @@
     @apply border-border outline-ring/50;
   }
 
+  html {
+    overflow-x: hidden;
+  }
+
   body {
+    overflow-x: hidden;
     background-color: var(--background);
     background-image:
       radial-gradient(ellipse 90% 55% at 50% -8%, rgba(196, 160, 80, 0.10), transparent 70%),
@@ -169,3 +174,40 @@
     font-family: var(--font-brand);
   }
 }
+
+/* ─── Responsive layout helpers ─────────────────────────────────────────── */
+
+/* Landing: director section stacks on mobile */
+.director-grid {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 4rem;
+  align-items: start;
+}
+@media (max-width: 640px) {
+  .director-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Landing: nav padding tightens on mobile */
+.landing-nav {
+  padding: 1.1rem 2rem;
+}
+@media (max-width: 480px) {
+  .landing-nav {
+    padding: 0.9rem 1.1rem;
+  }
+}
+
+/* Horizontal scroll strip — hide scrollbar, allow swipe */
+.scroll-strip {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-strip::-webkit-scrollbar { display: none; }
