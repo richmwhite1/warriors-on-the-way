@@ -64,7 +64,7 @@ export default function RootLayout({
       lang="en"
       className={`${cinzel.variable} ${garamond.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col w-full max-w-[100vw] overflow-x-hidden">
         {children}
         <Toaster richColors position="bottom-center" />
         <PwaRegister />
