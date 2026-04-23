@@ -41,9 +41,6 @@ export default async function HomePage() {
     <>
       <AppNav />
 
-      {/* Spacer for fixed nav */}
-      <div style={{ height: 60 }} />
-
       <main style={{ maxWidth: 680, margin: "0 auto", padding: "0 1rem 6rem" }}>
 
         {/* ── Welcome Block ─────────────────────────────────────────────────── */}

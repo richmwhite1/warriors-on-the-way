@@ -10,6 +10,7 @@ export async function AppNav() {
   const unreadCount = user ? await getUnreadNotificationCount(user.id) : 0;
 
   return (
+    <>
     <header
       style={{
         position: "fixed",
@@ -39,12 +40,13 @@ export async function AppNav() {
           href="/home"
           style={{
             fontFamily: "var(--font-brand)",
-            fontSize: 14,
+            fontSize: 13,
             fontWeight: 700,
-            letterSpacing: "0.18em",
+            letterSpacing: "0.12em",
             textTransform: "uppercase",
             color: "#f8f7f4",
             textDecoration: "none",
+            whiteSpace: "nowrap",
           }}
         >
           Warriors on the Way
@@ -161,5 +163,8 @@ export async function AppNav() {
         </div>
       </div>
     </header>
+    {/* Spacer so content always starts below the fixed bar */}
+    <div style={{ height: 72 }} aria-hidden />
+    </>
   );
 }
