@@ -42,11 +42,16 @@ export function EventCard({ event, communitySlug }: Props) {
           </p>
         )}
 
-        {counts && (event.status === "confirmed") && (
+        {counts && (counts.yes > 0 || counts.maybe > 0) && (
           <div className="flex gap-3 text-xs text-muted-foreground">
-            <span className="text-green-600 font-medium">✓ {counts.yes} going</span>
-            <span>? {counts.maybe} maybe</span>
-            <span>✗ {counts.no} can&apos;t go</span>
+            {counts.yes > 0 && (
+              <span className="text-green-600 font-medium">
+                ✓ {counts.yes} going
+              </span>
+            )}
+            {counts.maybe > 0 && (
+              <span>? {counts.maybe} maybe</span>
+            )}
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createPost } from "@/lib/actions/posts";
 import { getEmbedMeta } from "@/lib/embed";
 import { toast } from "sonner";
@@ -13,6 +14,8 @@ type Props = {
   communityId: string;
   communitySlug: string;
   isParentAdmin: boolean;
+  userAvatar?: string | null;
+  userName?: string;
 };
 
 const TYPE_LABELS: Record<PostType, string> = {
@@ -23,6 +26,16 @@ const TYPE_LABELS: Record<PostType, string> = {
   reflection: "Daily Reflection",
   wisdom: "Wisdom Share",
   prayer: "Prayer & Support",
+};
+
+const TYPE_ICONS: Record<PostType, string> = {
+  discussion: "💬",
+  event: "📅",
+  video: "🎬",
+  music: "🎵",
+  reflection: "🌅",
+  wisdom: "✨",
+  prayer: "🙏",
 };
 
 function ProviderBadge({ icon, label }: { icon: React.ReactNode; label: string }) {
@@ -82,8 +95,9 @@ function ApplePodcastsIcon() {
   );
 }
 
-export function PostComposer({ communityId, communitySlug, isParentAdmin }: Props) {
+export function PostComposer({ communityId, communitySlug, isParentAdmin, userAvatar, userName }: Props) {
   const router = useRouter();
+  const [expanded, setExpanded] = useState(false);
   const [postType, setPostType] = useState<PostType>("discussion");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -120,7 +134,6 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
         setEmbedPreview(null);
         return;
       }
-      // Auto-switch type to match detected URL
       if (meta.type !== postType) setPostType(meta.type);
       setEmbedUrl(meta.embedUrl);
       setEmbedPreview({ type: meta.type, embedUrl: meta.embedUrl });
@@ -148,6 +161,7 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
         setEmbedPreview(null);
         setPushToAll(false);
         setPostType("discussion");
+        setExpanded(false);
         toast.success("Posted");
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to post");
@@ -156,7 +170,34 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
   }
 
   const canSubmit = isMedia ? !!embedUrl : !!(body.trim() || title.trim());
+  const initials = userName ? userName.slice(0, 2).toUpperCase() : "ME";
 
+  // Collapsed prompt bar
+  if (!expanded) {
+    return (
+      <button
+        onClick={() => setExpanded(true)}
+        className="w-full flex items-center gap-3 rounded-2xl border bg-card px-4 py-3 text-left hover:border-primary/30 transition-colors group"
+      >
+        <Avatar className="size-8 shrink-0">
+          <AvatarImage src={userAvatar ?? undefined} />
+          <AvatarFallback className="text-xs bg-primary/10 text-primary">{initials}</AvatarFallback>
+        </Avatar>
+        <span className="text-muted-foreground text-base group-hover:text-foreground transition-colors">
+          Share something with the community…
+        </span>
+        <div className="ml-auto flex gap-1.5 shrink-0">
+          {(["reflection", "wisdom", "prayer", "video", "music"] as PostType[]).map((t) => (
+            <span key={t} className="text-base leading-none opacity-40 group-hover:opacity-70 transition-opacity" title={TYPE_LABELS[t]}>
+              {TYPE_ICONS[t]}
+            </span>
+          ))}
+        </div>
+      </button>
+    );
+  }
+
+  // Expanded full composer
   return (
     <form onSubmit={handleSubmit} className="rounded-2xl border bg-card p-4 space-y-3">
       {/* Type selector */}
@@ -170,12 +211,13 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
               : handleTypeChange(t)
             }
             className={cn(
-              "px-4 py-1.5 rounded-full text-sm font-medium transition-colors border",
+              "px-3 py-1.5 rounded-full text-sm font-medium transition-colors border flex items-center gap-1.5",
               postType === t && t !== "event"
                 ? "bg-primary text-primary-foreground border-primary"
                 : "bg-background text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
             )}
           >
+            <span className="text-base leading-none">{TYPE_ICONS[t]}</span>
             {TYPE_LABELS[t]}
           </button>
         ))}
@@ -186,20 +228,18 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder={isMedia ? "Title (optional)" : "Title (optional)"}
+        placeholder="Title (optional)"
         maxLength={200}
         className="w-full rounded-lg border bg-background px-3 py-2.5 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       />
 
-      {/* Body (discussion + event) */}
+      {/* Body */}
       {!isMedia && (
         <textarea
           value={body}
           onChange={(e) => setBody(e.target.value)}
           placeholder={
-            postType === "event"
-              ? "Describe the event — include date, time, and location…"
-              : postType === "reflection"
+            postType === "reflection"
               ? "What arose in your practice today…"
               : postType === "wisdom"
               ? "A truth worth sharing with the community…"
@@ -208,6 +248,7 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
               : "Share something with the community…"
           }
           rows={3}
+          autoFocus
           maxLength={2000}
           className="w-full rounded-lg border bg-background px-3 py-2.5 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
         />
@@ -221,6 +262,7 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
             value={urlInput}
             onChange={(e) => handleUrlChange(e.target.value)}
             placeholder="Paste a link to embed…"
+            autoFocus
             className="w-full rounded-lg border bg-background px-3 py-2.5 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
 
@@ -285,7 +327,14 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin }: Prop
         </label>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex items-center justify-between">
+        <button
+          type="button"
+          onClick={() => setExpanded(false)}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Cancel
+        </button>
         <Button type="submit" size="sm" disabled={isPending || !canSubmit}>
           {isPending ? "Posting…" : "Post"}
         </Button>

@@ -3,15 +3,15 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-const FILTERS: { label: string; value: string }[] = [
-  { label: "All", value: "" },
-  { label: "Discussions", value: "discussion" },
-  { label: "Reflections", value: "reflection" },
-  { label: "Wisdom", value: "wisdom" },
-  { label: "Prayers", value: "prayer" },
-  { label: "Events", value: "event" },
-  { label: "Videos", value: "video" },
-  { label: "Music", value: "music" },
+const FILTERS: { label: string; value: string; icon: string }[] = [
+  { label: "All", value: "", icon: "◈" },
+  { label: "Discussions", value: "discussion", icon: "💬" },
+  { label: "Reflections", value: "reflection", icon: "🌅" },
+  { label: "Wisdom", value: "wisdom", icon: "✨" },
+  { label: "Prayers", value: "prayer", icon: "🙏" },
+  { label: "Events", value: "event", icon: "📅" },
+  { label: "Videos", value: "video", icon: "🎬" },
+  { label: "Music", value: "music", icon: "🎵" },
 ];
 
 export function FeedFilterBar() {
@@ -31,21 +31,24 @@ export function FeedFilterBar() {
   }
 
   return (
-    <div className="flex gap-2 flex-wrap">
-      {FILTERS.map((f) => (
-        <button
-          key={f.value}
-          onClick={() => setFilter(f.value)}
-          className={cn(
-            "px-4 py-1.5 rounded-full text-sm font-medium transition-colors border",
-            current === f.value
-              ? "bg-primary text-primary-foreground border-primary"
-              : "bg-card text-muted-foreground border-border hover:border-primary/40 hover:text-foreground"
-          )}
-        >
-          {f.label}
-        </button>
-      ))}
+    <div className="sticky top-[60px] z-20 -mx-4 px-4 py-2.5 bg-background/95 backdrop-blur border-b border-border/50">
+      <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+        {FILTERS.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => setFilter(f.value)}
+            className={cn(
+              "flex items-center gap-1 px-3 py-1 rounded-md text-xs font-medium transition-colors shrink-0",
+              current === f.value
+                ? "bg-primary/10 text-primary border-b-2 border-primary"
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+          >
+            <span className="text-sm leading-none">{f.icon}</span>
+            {f.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

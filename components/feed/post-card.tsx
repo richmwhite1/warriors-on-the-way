@@ -10,7 +10,7 @@ import { deletePost, reportPost, pinPost, updatePost, repostPost } from "@/lib/a
 import { toggleReaction } from "@/lib/actions/reactions";
 import { createComment, deleteComment } from "@/lib/actions/comments";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { cn, relativeTime } from "@/lib/utils";
 import type { Post } from "@/lib/queries/posts";
 import type { Comment } from "@/lib/queries/comments";
 
@@ -59,7 +59,7 @@ type Props = {
 export function PostCard({
   post, comments, communitySlug, currentUserId, isAdmin, isMember, isPinned, userCommunities,
 }: Props) {
-  const [showComments, setShowComments] = useState(true);
+  const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [isPending, startTransition] = useTransition();
   const [showReport, setShowReport] = useState(false);
@@ -216,11 +216,8 @@ export function PostCard({
           </Avatar>
           <div>
             <p className="text-base font-medium leading-none">{authorName}</p>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {new Date(post.created_at).toLocaleDateString("en-US", {
-                month: "short", day: "numeric",
-                hour: "numeric", minute: "2-digit",
-              })}
+            <p className="text-sm text-muted-foreground mt-0.5" title={new Date(post.created_at).toLocaleString()}>
+              {relativeTime(post.created_at)}
             </p>
           </div>
         </a>
@@ -404,12 +401,21 @@ export function PostCard({
         </div>
 
         {/* Comment toggle */}
-        <button
-          onClick={() => setShowComments(!showComments)}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {showComments ? "Hide" : "Show"} comments ({commentCount})
-        </button>
+        {commentCount > 0 ? (
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            💬 {commentCount} {commentCount === 1 ? "comment" : "comments"}
+            {!showComments && comments[0] && (
+              <span className="ml-1 text-foreground/60 font-normal">
+                · {(comments[0].author as { display_name: string }).display_name}: {comments[0].body.slice(0, 60)}{comments[0].body.length > 60 ? "…" : ""}
+              </span>
+            )}
+          </button>
+        ) : (
+          <span className="text-sm text-muted-foreground/50">No comments yet</span>
+        )}
       </div>
 
       {/* Comments */}
@@ -636,10 +642,8 @@ function CommentRow({ comment, communitySlug, currentUserId, isAdmin }: {
       <div className="flex-1 min-w-0">
         <span className="text-sm font-medium">{author.display_name} </span>
         <span className="text-sm text-foreground">{comment.body}</span>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          {new Date(comment.created_at).toLocaleDateString("en-US", {
-            month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
-          })}
+        <p className="text-xs text-muted-foreground mt-0.5" title={new Date(comment.created_at).toLocaleString()}>
+          {relativeTime(comment.created_at)}
         </p>
       </div>
       {canDelete && (

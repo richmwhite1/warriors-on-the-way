@@ -232,12 +232,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   Members
                 </Link>
               )}
-              {isMember && (
-                <Link href={`/community/${slug}/resources`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Resources
-                </Link>
-              )}
-              {isAdmin && (
+{isAdmin && (
                 <Link href={`/community/${slug}/settings`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Settings
                 </Link>
@@ -332,7 +327,15 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
         {isMember ? (
           <div className="space-y-4">
-            {!isViewer && <PostComposer communityId={community.id} communitySlug={slug} isParentAdmin={isParentAdmin} />}
+            {!isViewer && (
+              <PostComposer
+                communityId={community.id}
+                communitySlug={slug}
+                isParentAdmin={isParentAdmin}
+                userAvatar={user?.avatar_url}
+                userName={user?.display_name}
+              />
+            )}
             {isViewer && (
               <div style={{ border: "1px dashed rgba(255,255,255,0.1)", padding: "0.75rem 1rem", textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#6b6456", fontSize: "0.9rem" }}>You have view-only access to this community.</p>
@@ -391,8 +394,8 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               <div style={{ border: "1px dashed rgba(255,255,255,0.1)", padding: "3rem 2rem", textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#6b6456" }}>
                   {postTypeFilter
-                    ? `No ${postTypeFilter} posts yet.`
-                    : "No posts yet. Be the first to share something."}
+                    ? `The space is quiet here. Be the first to share a ${postTypeFilter}.`
+                    : "The space is quiet. What truth wants to emerge?"}
                 </p>
               </div>
             ) : (

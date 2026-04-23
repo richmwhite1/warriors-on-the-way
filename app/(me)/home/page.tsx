@@ -9,16 +9,18 @@ import { requireUserProfile } from "@/lib/queries/users";
 import { listUserCommunities, type UserMembership } from "@/lib/queries/communities";
 import { getActiveMemberCount } from "@/lib/queries/members";
 import { listPersonalFeed, getLatestParentPost } from "@/lib/queries/posts";
+import { listUpcomingEventsForUser } from "@/lib/queries/events";
 import { listCommentsByPostIds } from "@/lib/queries/comments";
 
 export default async function HomePage() {
   const user = await requireUserProfile().catch(() => null);
   if (!user) redirect("/sign-in");
 
-  const [myCommunities, feedPosts, latestTransmission] = await Promise.all([
+  const [myCommunities, feedPosts, latestTransmission, upcomingEvents] = await Promise.all([
     listUserCommunities(user.id),
     listPersonalFeed(user.id),
     getLatestParentPost(),
+    listUpcomingEventsForUser(user.id),
   ]);
 
   const myMemberCounts = await Promise.all(
@@ -284,6 +286,65 @@ export default async function HomePage() {
             </div>
           )}
         </section>
+
+        {/* ── Upcoming Events ───────────────────────────────────────────────── */}
+        {upcomingEvents.length > 0 && (
+          <section style={{ marginBottom: "2rem" }}>
+            <SectionLabel>Upcoming Events</SectionLabel>
+            <div className="space-y-2">
+              {upcomingEvents.map((event) => (
+                <Link
+                  key={event.id}
+                  href={`/community/${event.community_slug}/events/${event.id}`}
+                  style={{
+                    display: "block",
+                    background: "#ffffff",
+                    border: "1px solid #ede9e1",
+                    borderLeft: "3px solid #a07828",
+                    padding: "1rem 1.25rem",
+                    textDecoration: "none",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{
+                        fontFamily: "var(--font-brand)",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        color: "#1a1610",
+                        fontSize: "0.85rem",
+                        letterSpacing: "0.04em",
+                        marginBottom: "0.2rem",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}>
+                        {event.title}
+                      </p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4" }}>
+                        {event.starts_at
+                          ? new Date(event.starts_at).toLocaleDateString("en-US", {
+                              weekday: "short", month: "short", day: "numeric",
+                              hour: "numeric", minute: "2-digit",
+                            })
+                          : "Date TBD — voting open"}
+                        {event.location && ` · ${event.location}`}
+                      </p>
+                      <p style={{ fontFamily: "var(--font-brand)", fontSize: 11, color: "#a07828", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: "0.25rem" }}>
+                        {event.community_name}
+                      </p>
+                    </div>
+                    {event.rsvp_counts && event.rsvp_counts.yes > 0 && (
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#16a34a", whiteSpace: "nowrap", flexShrink: 0 }}>
+                        ✓ {event.rsvp_counts.yes} going
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ── Activity Feed ─────────────────────────────────────────────────── */}
         {feedPosts.length > 0 && (

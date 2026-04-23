@@ -108,12 +108,75 @@ export async function listCommunityEvents(communityId: string): Promise<EventRow
     .select(`
       id, community_id, created_by, title, description, location, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
-      creator:users!created_by(id, display_name, avatar_url, venmo_handle)
+      creator:users!created_by(id, display_name, avatar_url, venmo_handle),
+      rsvps(status)
     `)
     .eq("community_id", communityId)
+    .gt("starts_at", new Date().toISOString())
     .is("deleted_at", null)
     .order("starts_at", { ascending: true, nullsFirst: false });
-  return (data as unknown as EventRow[]) ?? [];
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data as any[]) ?? []).map((event) => {
+    const rsvp_counts = { yes: 0, no: 0, maybe: 0 };
+    (event.rsvps ?? []).forEach((r: { status: string }) => {
+      if (r.status === "yes") rsvp_counts.yes++;
+      else if (r.status === "no") rsvp_counts.no++;
+      else if (r.status === "maybe") rsvp_counts.maybe++;
+    });
+    const { rsvps: _rsvps, ...rest } = event;
+    return { ...rest, rsvp_counts } as EventRow;
+  });
+}
+
+export async function listUpcomingEventsForUser(
+  userId: string
+): Promise<(EventRow & { community_slug: string; community_name: string })[]> {
+  const supabase = await createClient();
+
+  const { data: memberships } = await supabase
+    .from("community_members")
+    .select("community_id")
+    .eq("user_id", userId)
+    .eq("status", "active");
+
+  if (!memberships?.length) return [];
+
+  const communityIds = memberships.map((m) => m.community_id);
+  const now = new Date().toISOString();
+
+  const { data } = await supabase
+    .from("events")
+    .select(`
+      id, community_id, created_by, title, description, location, virtual_url, image_url,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      creator:users!created_by(id, display_name, avatar_url, venmo_handle),
+      community:communities!community_id(slug, name),
+      rsvps(status)
+    `)
+    .in("community_id", communityIds)
+    .in("status", ["confirmed", "voting"])
+    .gt("starts_at", now)
+    .is("deleted_at", null)
+    .order("starts_at", { ascending: true })
+    .limit(4);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data as any[]) ?? []).map((event) => {
+    const rsvp_counts = { yes: 0, no: 0, maybe: 0 };
+    (event.rsvps ?? []).forEach((r: { status: string }) => {
+      if (r.status === "yes") rsvp_counts.yes++;
+      else if (r.status === "no") rsvp_counts.no++;
+      else if (r.status === "maybe") rsvp_counts.maybe++;
+    });
+    const { rsvps: _rsvps, community, ...rest } = event;
+    return {
+      ...rest,
+      rsvp_counts,
+      community_slug: (community as { slug: string; name: string })?.slug ?? "",
+      community_name: (community as { slug: string; name: string })?.name ?? "",
+    } as EventRow & { community_slug: string; community_name: string };
+  });
 }
 
 export async function getEventWithDetails(eventId: string, userId?: string): Promise<EventRow | null> {
