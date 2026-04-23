@@ -55,6 +55,30 @@ export default async function LandingPage() {
 
   return (
     <main style={{ background: "#ffffff", overflowX: "hidden" }}>
+      <style>{`
+        .director-grid {
+          grid-template-columns: 1fr !important;
+          gap: 2rem !important;
+        }
+        .director-portrait {
+          max-width: 260px;
+        }
+        .structure-grid {
+          grid-template-columns: 1fr !important;
+        }
+        @media (min-width: 640px) {
+          .director-grid {
+            grid-template-columns: 200px 1fr !important;
+            gap: 4rem !important;
+          }
+          .director-portrait {
+            max-width: none;
+          }
+          .structure-grid {
+            grid-template-columns: repeat(3, 1fr) !important;
+          }
+        }
+      `}</style>
 
       {/* ── Navigation ─────────────────────────────────────────────────────── */}
       <nav
@@ -64,7 +88,7 @@ export default async function LandingPage() {
           left: 0,
           right: 0,
           zIndex: 100,
-          padding: "1.2rem 3rem",
+          padding: "1rem 1.25rem",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -414,13 +438,11 @@ export default async function LandingPage() {
           className="director-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "200px 1fr",
-            gap: "4rem",
             alignItems: "start",
           }}
         >
           {/* Portrait */}
-          <div style={{ position: "relative" }}>
+          <div className="director-portrait" style={{ position: "relative" }}>
             <div
               style={{
                 position: "absolute",
@@ -655,13 +677,12 @@ export default async function LandingPage() {
             How the path<br />is walked
           </SectionTitle>
           <div
+            className="structure-grid"
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
               gap: "1.5rem",
               marginTop: "2.5rem",
             }}
-            className="sm:grid-cols-3 grid-cols-1"
           >
             {[
               {

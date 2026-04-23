@@ -100,7 +100,7 @@ function SignInForm() {
 export default function SignInPage() {
   return (
     <main
-      className="min-h-screen flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden"
+      className="dark min-h-screen flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden"
       style={{ background: "linear-gradient(160deg, #080604 0%, #100c08 50%, #0c0907 100%)" }}
     >
       {/* Ambient glow */}
