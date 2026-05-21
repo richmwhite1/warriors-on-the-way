@@ -278,9 +278,9 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="guest-email">
-            Email{" "}
-            <span className="text-muted-foreground font-normal text-xs">\u2014 optional, creates your free account</span>
+          <Label htmlFor="guest-email" className="flex items-center gap-1.5">
+            Email
+            <span className="text-xs font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">optional</span>
           </Label>
           <Input
             id="guest-email"
@@ -291,6 +291,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
             maxLength={200}
             className="h-11"
           />
+          <p className="text-xs text-muted-foreground">Skip this if you just want to RSVP — no account needed.</p>
         </div>
       </div>
 
