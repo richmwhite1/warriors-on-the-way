@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition, useCallback } from "react";
+import { useEffect, useState, useTransition, useCallback, useId } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,8 +10,6 @@ import { ShareButton } from "@/components/events/share-button";
 import { toast } from "sonner";
 
 type Status = "yes" | "maybe" | "no";
-type StatusOrNull = Status | null;
-
 type Saved = { status: Status; name: string };
 
 type Props = {
@@ -23,13 +21,12 @@ type Props = {
   maybeNames?: string[];
 };
 
-const STATUS_OPTIONS: { value: Status; label: string; icon: string; color: string; activeGlow: string }[] = [
-  { value: "yes",   label: "I'm going!",    icon: "\u2713", color: "bg-green-600 text-white border-green-600", activeGlow: "shadow-green-200" },
-  { value: "maybe", label: "Maybe",          icon: "?", color: "bg-amber-500 text-white border-amber-500", activeGlow: "shadow-amber-200" },
-  { value: "no",    label: "Can't make it",  icon: "\u2717", color: "bg-muted text-muted-foreground border-border", activeGlow: "" },
+const STATUS_OPTIONS: { value: Status; label: string; emoji: string; selectedCls: string }[] = [
+  { value: "yes",   label: "I'm going!",   emoji: "✓", selectedCls: "border-green-500 bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
+  { value: "maybe", label: "Maybe",         emoji: "?", selectedCls: "border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300" },
+  { value: "no",    label: "Can't make it", emoji: "✗", selectedCls: "border-foreground bg-muted text-foreground" },
 ];
 
-/** Lightweight confetti burst using CSS-only particles */
 function ConfettiBurst() {
   const [particles] = useState(() =>
     Array.from({ length: 24 }, (_, i) => ({
@@ -42,7 +39,6 @@ function ConfettiBurst() {
       delay: Math.random() * 200,
     }))
   );
-
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       {particles.map((p) => (
@@ -64,15 +60,20 @@ function ConfettiBurst() {
   );
 }
 
-export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, goingNames = [], maybeNames = [] }: Props) {
+export function GuestRsvpForm({
+  eventId, eventTitle, communitySlug, shareUrl,
+  goingNames = [], maybeNames = [],
+}: Props) {
+  const radioName = useId();
   const storageKey = `guest_rsvp_${eventId}`;
-  const [saved, setSaved] = useState<Saved | null>(null);
-  const [status, setStatus] = useState<StatusOrNull>(null);
+
+  const [status, setStatus] = useState<Status | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [isPending, startTransition] = useTransition();
+  const [saved, setSaved] = useState<Saved | null>(null);
   const [done, setDone] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     try {
@@ -80,13 +81,11 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
       if (raw) {
         const parsed: Saved = JSON.parse(raw);
         setSaved(parsed);
-        setDone(true);
-        setStatus(parsed.status); // restore so "Change my RSVP" re-shows their prior pick
+        setStatus(parsed.status);
         setName(parsed.name);
+        setDone(true);
       }
-    } catch {
-      // ignore parse errors
-    }
+    } catch { /* ignore */ }
   }, [storageKey]);
 
   const triggerConfetti = useCallback(() => {
@@ -96,34 +95,29 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim() || !status) return;
+    if (!status || !name.trim()) return;
+    const resolvedStatus = status;
 
     startTransition(async () => {
       try {
-        await submitGuestRsvp(eventId, name, email || null, status, communitySlug);
-        const s: Saved = { status, name: name.trim() };
+        await submitGuestRsvp(eventId, name.trim(), email.trim() || null, resolvedStatus, communitySlug);
+        const s: Saved = { status: resolvedStatus, name: name.trim() };
         localStorage.setItem(storageKey, JSON.stringify(s));
         setSaved(s);
         setDone(true);
-
-        // Fire confetti for "yes" responses
-        if (status === "yes") triggerConfetti();
+        if (resolvedStatus === "yes") triggerConfetti();
 
         if (email.trim()) {
           try {
             await signInWithMagicLink(email.trim(), `/community/${communitySlug}/events/${eventId}`);
-            toast.success("RSVP confirmed! Check your email for a link to access your account.");
+            toast.success("RSVP confirmed! Check your email to access your account.");
           } catch {
-            toast.success(
-              status === "yes" ? "You're in! See you there." :
-              status === "maybe" ? "Got it \u2014 hope you can make it!" :
-              "Thanks for letting us know."
-            );
+            toast.success("You're in! Check your email for a sign-in link.");
           }
         } else {
           toast.success(
-            status === "yes" ? "You're in! See you there." :
-            status === "maybe" ? "Got it \u2014 hope you can make it!" :
+            resolvedStatus === "yes" ? "You're in! See you there." :
+            resolvedStatus === "maybe" ? "Got it — hope you can make it!" :
             "Thanks for letting us know."
           );
         }
@@ -133,39 +127,30 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
     });
   }
 
-  function handleChange() {
-    setDone(false);
-    setStatus(null);
-  }
-
-  // ── Post-RSVP confirmation — celebration + share CTA ──────────────────────
+  // ── Post-RSVP confirmation ────────────────────────────────────────────────
   if (done && saved) {
     const opted = STATUS_OPTIONS.find((o) => o.value === saved.status)!;
-
-    // Build social proof string
     const allGoing = saved.status === "yes"
       ? [saved.name, ...goingNames.filter((n) => n !== saved.name)]
       : goingNames;
 
     return (
       <div className="relative rounded-2xl border bg-card p-5 space-y-5 overflow-hidden">
-        {/* Confetti burst */}
         {showConfetti && <ConfettiBurst />}
 
-        {/* Confirmation header — larger, more celebratory */}
         <div className="flex items-center gap-4">
-          <div className={`size-12 rounded-full flex items-center justify-center text-xl font-bold shrink-0 transition-transform duration-500 ${
-            saved.status === "yes" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 scale-110" :
+          <div className={`size-12 rounded-full flex items-center justify-center text-xl font-bold shrink-0 ${
+            saved.status === "yes" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
             saved.status === "maybe" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" :
             "bg-muted text-muted-foreground"
           }`}>
-            {opted.icon}
+            {opted.emoji}
           </div>
           <div>
             <p className="font-bold text-xl">
-              {saved.status === "yes" ? "You\u2019re going!" :
+              {saved.status === "yes" ? "You're going!" :
                saved.status === "maybe" ? "Marked as maybe" :
-               "Can\u2019t make it"}
+               "Can't make it"}
             </p>
             <p className="text-sm text-muted-foreground">
               {saved.status === "yes" ? `See you there, ${saved.name}!` : `Thanks, ${saved.name}.`}
@@ -173,46 +158,31 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
           </div>
         </div>
 
-        {/* Social proof — who else is going */}
         {saved.status === "yes" && allGoing.length > 1 && (
-          <div className="rounded-xl bg-green-50 border border-green-100 px-4 py-3">
+          <div className="rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900/40 px-4 py-3">
             <div className="flex items-center gap-2">
               <div className="flex -space-x-1.5">
                 {allGoing.slice(0, 4).map((n, i) => (
-                  <div
-                    key={i}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-green-50 bg-green-100 text-[10px] font-bold text-green-700 uppercase"
-                  >
+                  <div key={i} className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-green-50 dark:border-green-950 bg-green-100 dark:bg-green-900/50 text-[10px] font-bold text-green-700 dark:text-green-400 uppercase">
                     {n.charAt(0)}
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-green-800 font-medium">
+              <p className="text-sm text-green-800 dark:text-green-300 font-medium">
                 {allGoing.length === 2
                   ? `You and ${allGoing[1]} are going`
-                  : `You, ${allGoing[1]}, and ${allGoing.length - 2} ${allGoing.length - 2 === 1 ? "other" : "others"} are going`}
+                  : `You, ${allGoing[1]}, and ${allGoing.length - 2} others are going`}
               </p>
             </div>
           </div>
         )}
 
-        {saved.status === "maybe" && maybeNames.length > 0 && (
-          <p className="text-sm text-muted-foreground">
-            {maybeNames.filter((n) => n !== saved.name).length > 0
-              ? `${maybeNames.filter((n) => n !== saved.name).slice(0, 2).join(" and ")} ${maybeNames.filter((n) => n !== saved.name).length === 1 ? "is" : "are"} also considering it`
-              : null}
-          </p>
-        )}
-
-        {/* Share CTA — big and prominent for "yes" */}
         {saved.status === "yes" ? (
           <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 space-y-3">
-            <p className="text-sm font-medium text-foreground">
-              Spread the word — invite a friend!
-            </p>
+            <p className="text-sm font-medium">Spread the word — invite a friend!</p>
             <ShareButton
               title={`Join me at ${eventTitle}`}
-              text={`I\u2019m going to ${eventTitle} \u2014 come join!`}
+              text={`I'm going to ${eventTitle} — come join!`}
               url={shareUrl}
               variant="default"
               size="default"
@@ -228,10 +198,9 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
           />
         )}
 
-        {/* Change RSVP link */}
         <button
           type="button"
-          onClick={handleChange}
+          onClick={() => { setDone(false); setStatus(saved.status); }}
           className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
         >
           Change my RSVP
@@ -245,61 +214,96 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
     <form onSubmit={handleSubmit} className="rounded-2xl border bg-card p-5 space-y-5">
       <p className="text-lg font-semibold">Will you be there?</p>
 
-      {/* Status selection — large, tappable pills */}
-      <div className="flex gap-2 flex-wrap">
-        {STATUS_OPTIONS.map((opt) => (
-          <button
-            key={opt.value}
-            type="button"
-            onClick={() => setStatus(opt.value)}
-            className={[
-              "flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium border transition-all",
-              status === opt.value
-                ? `${opt.color} shadow-md ${opt.activeGlow}`
-                : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
-            ].join(" ")}
-          >
-            <span className="text-base">{opt.icon}</span>
-            {opt.label}
-          </button>
-        ))}
+      {/* Status — radio inputs + styled labels (works reliably on all mobile browsers) */}
+      <div className="flex flex-col gap-2" role="group" aria-label="RSVP status">
+        {STATUS_OPTIONS.map((opt) => {
+          const isSelected = status === opt.value;
+          return (
+            <label
+              key={opt.value}
+              className={[
+                "flex items-center gap-3 rounded-xl border-2 px-4 py-3 cursor-pointer transition-all select-none",
+                "active:scale-[0.98]",
+                isSelected
+                  ? opt.selectedCls
+                  : "border-border bg-background text-muted-foreground",
+              ].join(" ")}
+            >
+              <input
+                type="radio"
+                name={radioName}
+                value={opt.value}
+                checked={isSelected}
+                onChange={() => setStatus(opt.value)}
+                className="sr-only"
+              />
+              <span className={[
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold transition-all",
+                isSelected ? "border-current bg-current/10" : "border-border",
+              ].join(" ")}>
+                {opt.emoji}
+              </span>
+              <span className="font-medium text-sm">{opt.label}</span>
+              {isSelected && (
+                <span className="ml-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                </span>
+              )}
+            </label>
+          );
+        })}
       </div>
 
-      {/* Name + email */}
-      <div className="space-y-3">
-        <div className="space-y-1.5">
-          <Label htmlFor="guest-name">Your name</Label>
-          <Input
-            id="guest-name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="First name is fine"
-            required
-            maxLength={80}
-            className="h-11"
-          />
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="guest-email" className="flex items-center gap-1.5">
-            Email
-            <span className="text-xs font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">optional</span>
-          </Label>
-          <Input
-            id="guest-email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            maxLength={200}
-            className="h-11"
-          />
-          <p className="text-xs text-muted-foreground">Skip this if you just want to RSVP — no account needed.</p>
-        </div>
+      {/* Name */}
+      <div className="space-y-1.5">
+        <Label htmlFor="guest-name">Your name</Label>
+        <Input
+          id="guest-name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="First name is fine"
+          required
+          maxLength={80}
+          className="h-12 text-base"
+        />
       </div>
 
-      <Button type="submit" disabled={isPending || !name.trim() || !status} size="lg" className="w-full">
-        {isPending ? "Saving..." : "Confirm RSVP"}
+      {/* Email — clearly optional */}
+      <div className="space-y-1.5">
+        <Label htmlFor="guest-email" className="flex items-center gap-1.5">
+          Email
+          <span className="text-xs font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">optional</span>
+        </Label>
+        <Input
+          id="guest-email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="you@example.com"
+          maxLength={200}
+          className="h-12 text-base"
+        />
+        <p className="text-xs text-muted-foreground">
+          Add your email to get a free account and manage your RSVP later.
+        </p>
+      </div>
+
+      <Button
+        type="submit"
+        disabled={isPending || !status || !name.trim()}
+        size="lg"
+        className="w-full h-12 text-base"
+      >
+        {isPending ? "Saving…" : "Confirm RSVP"}
       </Button>
+
+      {!status && (
+        <p className="text-xs text-center text-muted-foreground -mt-2">
+          Select an option above to continue
+        </p>
+      )}
     </form>
   );
 }
