@@ -153,18 +153,14 @@
 }
 
 /* ─── Invitation reveal — pure CSS, works without JS ────────────────────── */
+/* NOTE: animation-fill-mode is NOT "both" — element is always opacity:1 and
+   interactive. The animation is purely decorative slide-in, never hides content. */
 @keyframes invite-reveal {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
+  from { transform: translateY(20px); }
+  to   { transform: translateY(0); }
 }
 .animate-invite-reveal {
-  animation: invite-reveal 0.7s ease-out 0.08s both;
+  animation: invite-reveal 0.5s ease-out;
 }
 
 /* ─── Safe area padding for sticky bottom bars ──────────────────────────── */

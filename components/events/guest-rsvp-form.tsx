@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition, useCallback, useId } from "react";
+import { useEffect, useState, useTransition, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -64,7 +64,6 @@ export function GuestRsvpForm({
   eventId, eventTitle, communitySlug, shareUrl,
   goingNames = [], maybeNames = [],
 }: Props) {
-  const radioName = useId();
   const storageKey = `guest_rsvp_${eventId}`;
 
   const [status, setStatus] = useState<Status | null>(null);
@@ -214,44 +213,41 @@ export function GuestRsvpForm({
     <form onSubmit={handleSubmit} className="rounded-2xl border bg-card p-5 space-y-5">
       <p className="text-lg font-semibold">Will you be there?</p>
 
-      {/* Status — radio inputs + styled labels (works reliably on all mobile browsers) */}
+      {/* Status — full-width buttons, touch-action:manipulation eliminates iOS 300ms delay */}
       <div className="flex flex-col gap-2" role="group" aria-label="RSVP status">
         {STATUS_OPTIONS.map((opt) => {
           const isSelected = status === opt.value;
           return (
-            <label
+            <button
               key={opt.value}
+              type="button"
+              onPointerDown={(e) => {
+                e.preventDefault();
+                setStatus(opt.value);
+              }}
+              style={{ touchAction: "manipulation" }}
               className={[
-                "flex items-center gap-3 rounded-xl border-2 px-4 py-3 cursor-pointer transition-all select-none",
-                "active:scale-[0.98]",
+                "flex items-center gap-3 rounded-xl border-2 px-4 py-3 text-left w-full select-none transition-colors",
                 isSelected
                   ? opt.selectedCls
                   : "border-border bg-background text-muted-foreground",
               ].join(" ")}
             >
-              <input
-                type="radio"
-                name={radioName}
-                value={opt.value}
-                checked={isSelected}
-                onChange={() => setStatus(opt.value)}
-                className="sr-only"
-              />
               <span className={[
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold transition-all",
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-sm font-bold",
                 isSelected ? "border-current bg-current/10" : "border-border",
               ].join(" ")}>
                 {opt.emoji}
               </span>
               <span className="font-medium text-sm">{opt.label}</span>
               {isSelected && (
-                <span className="ml-auto">
+                <span className="ml-auto shrink-0">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                   </svg>
                 </span>
               )}
-            </label>
+            </button>
           );
         })}
       </div>
