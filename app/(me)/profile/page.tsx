@@ -25,13 +25,12 @@ export default async function ProfilePage() {
           <h1
             style={{
               fontFamily: "var(--font-brand)",
-              fontWeight: 900,
-              textTransform: "uppercase",
-              fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
-              color: "#1a1610",
-              letterSpacing: "0.04em",
+              fontWeight: 800,
+              fontSize: "clamp(1.5rem, 4vw, 2rem)",
+              color: "#1a1a2e",
+              letterSpacing: "-0.01em",
               lineHeight: 1.1,
-              marginBottom: "0.5rem",
+              marginBottom: "0.25rem",
             }}
           >
             {user.display_name}
@@ -39,12 +38,11 @@ export default async function ProfilePage() {
           <p
             style={{
               fontFamily: "var(--font-body)",
-              fontStyle: "italic",
-              color: "#6b6456",
-              fontSize: "1rem",
+              color: "#7c7589",
+              fontSize: "0.9rem",
             }}
           >
-            How you appear to your communities.
+            How you appear to your groups.
           </p>
         </div>
 

@@ -1,18 +1,17 @@
 export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <span
+    <h2
       style={{
         fontFamily: "var(--font-brand)",
-        fontSize: 12,
-        fontWeight: 600,
-        letterSpacing: "0.24em",
-        textTransform: "uppercase",
-        color: "#a07828",
+        fontSize: 15,
+        fontWeight: 700,
+        letterSpacing: "0.01em",
+        color: "#1a1a2e",
         display: "block",
-        marginBottom: "1.25rem",
+        marginBottom: "0.75rem",
       }}
     >
       {children}
-    </span>
+    </h2>
   );
 }

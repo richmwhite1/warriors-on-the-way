@@ -5,20 +5,20 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  /* Typography — Cinzel for headings/display, EB Garamond for body */
-  --font-sans:    var(--font-garamond), Georgia, serif;
-  --font-heading: var(--font-cinzel), 'Trajan Pro', Georgia, serif;
-  --font-display: var(--font-cinzel), 'Trajan Pro', Georgia, serif;
+  /* Typography — Inter for body/UI, Plus Jakarta Sans for headings */
+  --font-sans:    var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-heading: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
+  --font-display: var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
   --font-mono:    ui-monospace, monospace;
 
-  /* Radius — architectural, sharp */
-  --radius-sm:  0;
-  --radius-md:  0;
-  --radius-lg:  0;
-  --radius-xl:  0;
-  --radius-2xl: 0;
-  --radius-3xl: 0;
-  --radius-4xl: 0;
+  /* Radius — friendly, rounded */
+  --radius-sm:  0.375rem;
+  --radius-md:  0.5rem;
+  --radius-lg:  0.75rem;
+  --radius-xl:  1rem;
+  --radius-2xl: 1.25rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
 
   /* Color primitives — reference shadcn vars */
   --color-background:                var(--background);
@@ -49,101 +49,89 @@
   --color-sidebar-ring:              var(--sidebar-ring);
 }
 
-/* ─── Gandalf the White — light is the dominant presence ────────────────── */
+/* ─── Vibrant community palette ──────────────────────────────────────────── */
 :root {
-  --radius: 0;
-
-  /* Design tokens */
-  --white:    #ffffff;
-  --paper:    #f8f7f4;
-  --mist:     #ede9e1;
-  --stone:    #c8c2b4;
-  --slate:    #6b6456;
-  --ink-dim:  #4a4438;
-  --ink-mid:  #2e2820;
-  --ink:      #1a1610;
-  --gold:     #a07828;
-  --gold-lt:  #c4a050;
+  --radius: 0.75rem;
 
   /* Typography shorthand for inline styles */
-  --font-body:    var(--font-garamond), Georgia, serif;
-  --font-brand:   var(--font-cinzel), 'Trajan Pro', Georgia, serif;
+  --font-body:    var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-brand:   var(--font-jakarta), var(--font-inter), system-ui, sans-serif;
 
   /* ── shadcn token mapping ─────────────────────────────────────────────── */
   --background: #ffffff;
-  --foreground: #2e2820;
+  --foreground: #1a1a2e;
 
   --card:            #ffffff;
-  --card-foreground: #2e2820;
+  --card-foreground: #1a1a2e;
 
   --popover:            #ffffff;
-  --popover-foreground: #2e2820;
+  --popover-foreground: #1a1a2e;
 
-  --primary:            #a07828;
+  --primary:            #e07040;
   --primary-foreground: #ffffff;
 
-  --secondary:            #f8f7f4;
-  --secondary-foreground: #4a4438;
+  --secondary:            #f5f0eb;
+  --secondary-foreground: #4a4458;
 
-  --muted:            #f8f7f4;
-  --muted-foreground: #6b6456;
+  --muted:            #f5f0eb;
+  --muted-foreground: #7c7589;
 
-  --accent:            #f8f7f4;
-  --accent-foreground: #1a1610;
+  --accent:            #f5f0eb;
+  --accent-foreground: #1a1a2e;
 
   --destructive: #dc2626;
 
-  --border: #ede9e1;
-  --input:  #ede9e1;
-  --ring:   #a07828;
+  --border: #e8e2da;
+  --input:  #e8e2da;
+  --ring:   #e07040;
 
-  --sidebar:                       #f8f7f4;
-  --sidebar-foreground:            #2e2820;
-  --sidebar-primary:               #a07828;
+  --sidebar:                       #f5f0eb;
+  --sidebar-foreground:            #1a1a2e;
+  --sidebar-primary:               #e07040;
   --sidebar-primary-foreground:    #ffffff;
-  --sidebar-accent:                #ede9e1;
-  --sidebar-accent-foreground:     #1a1610;
-  --sidebar-border:                #ede9e1;
-  --sidebar-ring:                  #a07828;
+  --sidebar-accent:                #e8e2da;
+  --sidebar-accent-foreground:     #1a1a2e;
+  --sidebar-border:                #e8e2da;
+  --sidebar-ring:                  #e07040;
 }
 
 /* ─── Dark mode — used by special pages (sign-in, consciousness map) ─────── */
 .dark {
   --background: #1a1610;
-  --foreground: #f8f7f4;
+  --foreground: #f5f0eb;
 
   --card:            #2e2820;
-  --card-foreground: #f8f7f4;
+  --card-foreground: #f5f0eb;
 
   --popover:            #2e2820;
-  --popover-foreground: #f8f7f4;
+  --popover-foreground: #f5f0eb;
 
-  --primary:            #c4a050;
-  --primary-foreground: #1a1610;
+  --primary:            #e8864e;
+  --primary-foreground: #ffffff;
 
   --secondary:            #2e2820;
-  --secondary-foreground: #f8f7f4;
+  --secondary-foreground: #f5f0eb;
 
   --muted:            #2e2820;
   --muted-foreground: #c8c2b4;
 
   --accent:            #2e2820;
-  --accent-foreground: #f8f7f4;
+  --accent-foreground: #f5f0eb;
 
   --destructive: #ef4444;
 
   --border: rgba(255,255,255,0.1);
   --input:  rgba(255,255,255,0.12);
-  --ring:   #c4a050;
+  --ring:   #e8864e;
 
   --sidebar:                    #2e2820;
-  --sidebar-foreground:         #f8f7f4;
-  --sidebar-primary:            #c4a050;
-  --sidebar-primary-foreground: #1a1610;
+  --sidebar-foreground:         #f5f0eb;
+  --sidebar-primary:            #e8864e;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent:             #1a1610;
-  --sidebar-accent-foreground:  #f8f7f4;
+  --sidebar-accent-foreground:  #f5f0eb;
   --sidebar-border:             rgba(255,255,255,0.1);
-  --sidebar-ring:               #c4a050;
+  --sidebar-ring:               #e8864e;
 }
 
 /* ─── Utility: hide scrollbar while keeping scroll functionality ─────────── */
@@ -165,8 +153,8 @@
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-body);
-    font-size: 18px;
-    line-height: 1.75;
+    font-size: 16px;
+    line-height: 1.6;
     overflow-x: hidden;
     overscroll-behavior-x: none;
     width: 100%;

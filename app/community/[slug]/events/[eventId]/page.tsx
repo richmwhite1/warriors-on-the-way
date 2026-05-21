@@ -100,38 +100,38 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
         {/* ── Hero image ──────────────────────────────────────────────── */}
         <div className="relative">
           {event.image_url ? (
-            <div className="relative h-[44vh] min-h-[280px] max-h-[420px] w-full overflow-hidden">
+            <div className="relative h-[44vh] min-h-[280px] max-h-[420px] w-full overflow-hidden rounded-b-3xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={event.image_url}
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
             </div>
           ) : (
-            <div className="h-32 w-full bg-gradient-to-br from-primary/10 via-primary/5 to-transparent" />
+            <div className="h-32 w-full bg-gradient-to-br from-primary/20 via-primary/5 to-transparent rounded-b-3xl" />
           )}
         </div>
 
         {/* ── Invitation card ─────────────────────────────────────────── */}
         <div className={cn(
           "relative mx-auto max-w-lg px-5 pb-12",
-          event.image_url ? "-mt-24" : "pt-8"
+          event.image_url ? "-mt-24" : "pt-6"
         )}>
 
           {/* Invited-by line */}
-          <div className="mb-5 space-y-1">
-            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
-              {inviterName ? "You're invited by" : "Hosted by"}
-            </p>
-            <p className="text-base font-medium">{hostDisplay}</p>
+          <div className="mb-4 inline-flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border/50 rounded-full px-3.5 py-1.5 shadow-sm">
+            <span className="text-xs font-medium text-muted-foreground">
+              {inviterName ? "Invited by" : "Hosted by"}
+            </span>
+            <span className="text-sm font-semibold text-foreground">{hostDisplay}</span>
           </div>
 
           {/* Personal note */}
           {personalNote && (
-            <div className="mb-6 rounded-xl bg-muted/50 border border-border/50 px-4 py-3">
-              <p className="text-sm italic text-muted-foreground leading-relaxed">
+            <div className="mb-5 rounded-2xl bg-primary/5 border border-primary/10 px-4 py-3">
+              <p className="text-sm text-foreground/80 leading-relaxed">
                 &ldquo;{decodeURIComponent(personalNote)}&rdquo;
               </p>
             </div>
@@ -239,26 +239,28 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
 
           {/* Social proof — who's going */}
           {event.status === "confirmed" && totalGoing > 0 && (
-            <div className="mt-6 flex items-center gap-2.5">
-              <div className="flex -space-x-1.5">
-                {goingNames.slice(0, 5).map((name, i) => (
-                  <div
-                    key={i}
-                    className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-background bg-primary/15 text-[10px] font-bold text-primary uppercase"
-                  >
-                    {name.charAt(0)}
-                  </div>
-                ))}
+            <div className="mt-6 rounded-2xl bg-green-50 border border-green-100 p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {goingNames.slice(0, 5).map((name, i) => (
+                    <div
+                      key={i}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-green-50 bg-green-100 text-xs font-bold text-green-700 uppercase"
+                    >
+                      {name.charAt(0)}
+                    </div>
+                  ))}
+                </div>
+                <p className="text-sm font-medium text-green-800">
+                  {totalGoing === 1
+                    ? `${goingNames[0]} is going`
+                    : totalGoing === 2
+                      ? `${goingNames[0]} and ${goingNames[1]} are going`
+                      : totalGoing <= 4
+                        ? `${goingNames.slice(0, -1).join(", ")} and ${goingNames[totalGoing - 1]} are going`
+                        : `${goingNames.slice(0, 2).join(", ")} and ${totalGoing - 2} others are going`}
+                </p>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {totalGoing === 1
-                  ? `${goingNames[0]} is going`
-                  : totalGoing === 2
-                    ? `${goingNames[0]} and ${goingNames[1]} are going`
-                    : totalGoing <= 4
-                      ? `${goingNames.slice(0, -1).join(", ")} and ${goingNames[totalGoing - 1]} are going`
-                      : `${goingNames.slice(0, 2).join(", ")} and ${totalGoing - 2} others are going`}
-              </p>
             </div>
           )}
 
@@ -302,9 +304,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
 
           {/* Subtle branding footer */}
           <div className="mt-10 pt-6 border-t border-border/40 text-center">
-            <p className="text-xs text-muted-foreground/60">
+            <p className="text-sm text-muted-foreground">
               Powered by{" "}
-              <Link href="/" className="hover:text-foreground transition-colors">
+              <Link href="/" className="font-semibold text-foreground hover:text-primary transition-colors">
                 Warriors on the Way
               </Link>
             </p>

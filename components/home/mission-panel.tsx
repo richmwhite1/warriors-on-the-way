@@ -39,7 +39,7 @@ function AccordionRow({
   last?: boolean;
 }) {
   return (
-    <div style={{ borderBottom: last ? "none" : "1px solid #ede9e1" }}>
+    <div style={{ borderBottom: last ? "none" : "1px solid #e8e2da" }}>
       <button
         onClick={onToggle}
         style={{
@@ -47,7 +47,7 @@ function AccordionRow({
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "1rem 0",
+          padding: "0.85rem 0",
           background: "none",
           border: "none",
           cursor: "pointer",
@@ -58,10 +58,8 @@ function AccordionRow({
           style={{
             fontFamily: "var(--font-brand)",
             fontWeight: 700,
-            textTransform: "uppercase",
-            letterSpacing: "0.1em",
-            color: "#1a1610",
-            fontSize: "1rem",
+            color: "#1a1a2e",
+            fontSize: "0.95rem",
           }}
         >
           {label}
@@ -76,7 +74,7 @@ function AccordionRow({
           style={{
             width: 16,
             height: 16,
-            color: "#c8c2b4",
+            color: "#7c7589",
             flexShrink: 0,
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
             transition: "transform 0.2s",
@@ -89,9 +87,10 @@ function AccordionRow({
       {open && (
         <div
           style={{
-            background: "#f8f7f4",
-            padding: "1rem 1rem 1.5rem",
+            background: "#f5f0eb",
+            padding: "1rem",
             marginBottom: "0.5rem",
+            borderRadius: "0.75rem",
           }}
         >
           {children}
@@ -119,7 +118,7 @@ export function MissionPanel() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/sean-olaoire.webp"
-            alt="Seán Ó'Laoire"
+            alt="Se\u00e1n \u00d3'Laoire"
             style={{
               width: 32,
               height: 32,
@@ -127,7 +126,7 @@ export function MissionPanel() {
               objectFit: "cover",
               objectPosition: "top",
               opacity: 0.9,
-              outline: "1px solid rgba(160,120,40,0.3)",
+              outline: "2px solid #f5f0eb",
             }}
           />
         </a>
@@ -136,33 +135,32 @@ export function MissionPanel() {
             fontFamily: "var(--font-body)",
             flex: 1,
             fontSize: 14,
-            color: "#c8c2b4",
+            color: "#7c7589",
           }}
         >
-          Seán Ó&apos;Laoire · Lightworkers Manifesto
+          Se\u00e1n \u00d3&apos;Laoire &middot; Lightworkers Manifesto
         </p>
         <Link
           href="/"
           style={{
             fontFamily: "var(--font-brand)",
-            fontSize: 12,
-            color: "#a07828",
-            letterSpacing: "0.14em",
-            textTransform: "uppercase",
+            fontSize: 13,
+            fontWeight: 700,
+            color: "#e07040",
             textDecoration: "none",
             flexShrink: 0,
           }}
         >
-          Full text →
+          Full text &rarr;
         </Link>
       </div>
 
       {/* Accordion */}
-      <div style={{ borderTop: "1px solid #ede9e1" }}>
+      <div style={{ borderTop: "1px solid #e8e2da" }}>
 
         {/* The Mission */}
         <AccordionRow label="The Mission" open={missionOpen} onToggle={() => setMissionOpen(v => !v)}>
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {MISSION_POINTS.map((point) => (
               <li
                 key={point}
@@ -171,13 +169,13 @@ export function MissionPanel() {
                   alignItems: "baseline",
                   gap: "0.75rem",
                   padding: "0.4rem 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.7)",
+                  borderBottom: "1px solid rgba(0,0,0,0.06)",
                   fontFamily: "var(--font-body)",
-                  fontSize: "0.95rem",
-                  color: "#2e2820",
+                  fontSize: "0.9rem",
+                  color: "#1a1a2e",
                 }}
               >
-                <span style={{ color: "#a07828", fontSize: "0.5rem", flexShrink: 0 }}>✦</span>
+                <span style={{ color: "#e07040", fontSize: "0.6rem", flexShrink: 0 }}>&bull;</span>
                 {point}
               </li>
             ))}
@@ -189,17 +187,17 @@ export function MissionPanel() {
           <p
             style={{
               fontFamily: "var(--font-body)",
-              fontSize: "0.95rem",
-              color: "#6b6456",
-              lineHeight: 1.7,
+              fontSize: "0.9rem",
+              color: "#4a4458",
+              lineHeight: 1.6,
               marginBottom: "1rem",
             }}
           >
             As a human species, we need a transformation of both our consciousness and our mission.
-            As we move from <em style={{ color: "#2e2820" }}>Homo sapiens sapiens</em> to{" "}
-            <em style={{ color: "#2e2820", fontWeight: 500 }}>Homo spiritualis</em>, we must:
+            As we move from <em style={{ color: "#1a1a2e" }}>Homo sapiens sapiens</em> to{" "}
+            <em style={{ color: "#1a1a2e", fontWeight: 500 }}>Homo spiritualis</em>, we must:
           </p>
-          <ul style={{ listStyle: "none", padding: 0 }}>
+          <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {SHIFTS.map(({ domain, from, to }) => (
               <li
                 key={domain}
@@ -208,7 +206,7 @@ export function MissionPanel() {
                   alignItems: "baseline",
                   gap: "0.75rem",
                   padding: "0.4rem 0",
-                  borderBottom: "1px solid rgba(255,255,255,0.7)",
+                  borderBottom: "1px solid rgba(0,0,0,0.06)",
                 }}
               >
                 <span
@@ -216,19 +214,17 @@ export function MissionPanel() {
                     fontFamily: "var(--font-brand)",
                     fontSize: 11,
                     fontWeight: 700,
-                    letterSpacing: "0.14em",
-                    textTransform: "uppercase",
-                    color: "#a07828",
-                    width: 100,
+                    color: "#e07040",
+                    width: 90,
                     flexShrink: 0,
                   }}
                 >
                   {domain}
                 </span>
-                <span style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", color: "#6b6456" }}>
-                  <span style={{ textDecoration: "line-through", opacity: 0.5 }}>{from}</span>
-                  <span style={{ margin: "0 0.4rem" }}>→</span>
-                  <span style={{ fontWeight: 500, color: "#2e2820" }}>{to}</span>
+                <span style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "#4a4458" }}>
+                  <span style={{ textDecoration: "line-through", opacity: 0.4 }}>{from}</span>
+                  <span style={{ margin: "0 0.4rem", color: "#7c7589" }}>&rarr;</span>
+                  <span style={{ fontWeight: 600, color: "#1a1a2e" }}>{to}</span>
                 </span>
               </li>
             ))}
@@ -240,13 +236,13 @@ export function MissionPanel() {
           <p
             style={{
               fontFamily: "var(--font-body)",
-              fontSize: "0.95rem",
-              color: "#6b6456",
-              lineHeight: 1.7,
+              fontSize: "0.9rem",
+              color: "#4a4458",
+              lineHeight: 1.6,
             }}
           >
             Communities challenge and support one another to raise collective consciousness.
-            Create a community · invite members to gatherings · post discussions · share music &amp; video.
+            Create a community &middot; invite members to gatherings &middot; post discussions &middot; share music &amp; video.
           </p>
         </AccordionRow>
 

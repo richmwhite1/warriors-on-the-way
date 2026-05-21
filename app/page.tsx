@@ -93,7 +93,7 @@ export default async function LandingPage() {
           justifyContent: "space-between",
           alignItems: "center",
           background: "rgba(255,255,255,0.96)",
-          borderBottom: "1px solid #ede9e1",
+          borderBottom: "1px solid #e8e2da",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
@@ -104,7 +104,7 @@ export default async function LandingPage() {
             fontSize: 12,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
-            color: "#1a1610",
+            color: "#1a1a2e",
             fontWeight: 700,
           }}
         >
@@ -127,7 +127,7 @@ export default async function LandingPage() {
                   fontSize: 10,
                   letterSpacing: "0.16em",
                   textTransform: "uppercase",
-                  color: "#6b6456",
+                  color: "#7c7589",
                   textDecoration: "none",
                 }}
               >
@@ -145,10 +145,10 @@ export default async function LandingPage() {
             letterSpacing: "0.16em",
             textTransform: "uppercase",
             color: "#ffffff",
-            background: "#1a1610",
+            background: "#1a1a2e",
             padding: "0.6rem 1.5rem",
             textDecoration: "none",
-            border: "1px solid #1a1610",
+            border: "1px solid #1a1a2e",
           }}
         >
           Join the Path
@@ -188,20 +188,20 @@ export default async function LandingPage() {
         {/* SVG Orb */}
         <div style={{ width: 96, height: 96, margin: "0 auto 2.5rem", position: "relative", zIndex: 1 }}>
           <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" width="96" height="96">
-            <circle cx="48" cy="48" r="46" stroke="#c8c2b4" strokeWidth="0.5" strokeDasharray="3 5"/>
-            <circle cx="48" cy="48" r="34" stroke="#c8c2b4" strokeWidth="0.5"/>
-            <circle cx="48" cy="48" r="22" stroke="#a07828" strokeWidth="0.5" opacity="0.4"/>
-            <circle cx="48" cy="48" r="10" fill="rgba(160,120,40,0.08)" stroke="#a07828" strokeWidth="0.75" opacity="0.6"/>
-            <circle cx="48" cy="48" r="4" fill="#a07828" opacity="0.5"/>
-            <circle cx="48" cy="48" r="1.5" fill="#1a1610"/>
-            <line x1="48" y1="2" x2="48" y2="12" stroke="#c8c2b4" strokeWidth="0.75" opacity="0.5"/>
-            <line x1="48" y1="84" x2="48" y2="94" stroke="#c8c2b4" strokeWidth="0.75" opacity="0.5"/>
-            <line x1="2" y1="48" x2="12" y2="48" stroke="#c8c2b4" strokeWidth="0.75" opacity="0.5"/>
-            <line x1="84" y1="48" x2="94" y2="48" stroke="#c8c2b4" strokeWidth="0.75" opacity="0.5"/>
-            <line x1="16" y1="16" x2="22" y2="22" stroke="#c8c2b4" strokeWidth="0.5" opacity="0.35"/>
-            <line x1="74" y1="16" x2="68" y2="22" stroke="#c8c2b4" strokeWidth="0.5" opacity="0.35"/>
-            <line x1="16" y1="80" x2="22" y2="74" stroke="#c8c2b4" strokeWidth="0.5" opacity="0.35"/>
-            <line x1="80" y1="80" x2="74" y2="74" stroke="#c8c2b4" strokeWidth="0.5" opacity="0.35"/>
+            <circle cx="48" cy="48" r="46" stroke="#7c7589" strokeWidth="0.5" strokeDasharray="3 5"/>
+            <circle cx="48" cy="48" r="34" stroke="#7c7589" strokeWidth="0.5"/>
+            <circle cx="48" cy="48" r="22" stroke="#e07040" strokeWidth="0.5" opacity="0.4"/>
+            <circle cx="48" cy="48" r="10" fill="rgba(160,120,40,0.08)" stroke="#e07040" strokeWidth="0.75" opacity="0.6"/>
+            <circle cx="48" cy="48" r="4" fill="#e07040" opacity="0.5"/>
+            <circle cx="48" cy="48" r="1.5" fill="#1a1a2e"/>
+            <line x1="48" y1="2" x2="48" y2="12" stroke="#7c7589" strokeWidth="0.75" opacity="0.5"/>
+            <line x1="48" y1="84" x2="48" y2="94" stroke="#7c7589" strokeWidth="0.75" opacity="0.5"/>
+            <line x1="2" y1="48" x2="12" y2="48" stroke="#7c7589" strokeWidth="0.75" opacity="0.5"/>
+            <line x1="84" y1="48" x2="94" y2="48" stroke="#7c7589" strokeWidth="0.75" opacity="0.5"/>
+            <line x1="16" y1="16" x2="22" y2="22" stroke="#7c7589" strokeWidth="0.5" opacity="0.35"/>
+            <line x1="74" y1="16" x2="68" y2="22" stroke="#7c7589" strokeWidth="0.5" opacity="0.35"/>
+            <line x1="16" y1="80" x2="22" y2="74" stroke="#7c7589" strokeWidth="0.5" opacity="0.35"/>
+            <line x1="80" y1="80" x2="74" y2="74" stroke="#7c7589" strokeWidth="0.5" opacity="0.35"/>
           </svg>
         </div>
 
@@ -212,7 +212,7 @@ export default async function LandingPage() {
             fontSize: 9,
             letterSpacing: "0.38em",
             textTransform: "uppercase",
-            color: "#c8c2b4",
+            color: "#7c7589",
             marginBottom: "1.75rem",
             display: "flex",
             alignItems: "center",
@@ -222,9 +222,9 @@ export default async function LandingPage() {
             zIndex: 1,
           }}
         >
-          <span style={{ display: "block", width: 56, height: 1, background: "linear-gradient(to left, #c8c2b4, transparent)", opacity: 0.6 }} />
+          <span style={{ display: "block", width: 56, height: 1, background: "linear-gradient(to left, #7c7589, transparent)", opacity: 0.6 }} />
           Another name for lightworkers
-          <span style={{ display: "block", width: 56, height: 1, background: "linear-gradient(to right, #c8c2b4, transparent)", opacity: 0.6 }} />
+          <span style={{ display: "block", width: 56, height: 1, background: "linear-gradient(to right, #7c7589, transparent)", opacity: 0.6 }} />
         </div>
 
         {/* H1 */}
@@ -234,7 +234,7 @@ export default async function LandingPage() {
             fontWeight: 900,
             lineHeight: 0.92,
             letterSpacing: "0.05em",
-            color: "#1a1610",
+            color: "#1a1a2e",
             textTransform: "uppercase",
             position: "relative",
             zIndex: 1,
@@ -248,7 +248,7 @@ export default async function LandingPage() {
               fontSize: "clamp(0.9rem, 2vw, 1.5rem)",
               fontWeight: 400,
               letterSpacing: "0.45em",
-              color: "#6b6456",
+              color: "#7c7589",
               marginBottom: "0.5rem",
             }}
           >
@@ -263,7 +263,7 @@ export default async function LandingPage() {
             fontFamily: "var(--font-body)",
             fontSize: "clamp(1rem, 1.6vw, 1.15rem)",
             fontStyle: "italic",
-            color: "#6b6456",
+            color: "#7c7589",
             maxWidth: 520,
             margin: "2rem auto 3rem",
             lineHeight: 1.75,
@@ -297,10 +297,10 @@ export default async function LandingPage() {
               letterSpacing: "0.2em",
               textTransform: "uppercase",
               color: "#ffffff",
-              background: "#1a1610",
+              background: "#1a1a2e",
               padding: "1rem 2.5rem",
               textDecoration: "none",
-              border: "1px solid #1a1610",
+              border: "1px solid #1a1a2e",
             }}
           >
             Join the Path
@@ -317,7 +317,7 @@ export default async function LandingPage() {
               background: "transparent",
               padding: "1rem 2.5rem",
               textDecoration: "none",
-              border: "1px solid #c8c2b4",
+              border: "1px solid #7c7589",
             }}
           >
             Read the Manifesto
@@ -333,8 +333,8 @@ export default async function LandingPage() {
           {nextEvent ? (
             <div
               style={{
-                border: "1px solid #ede9e1",
-                borderTop: "2px solid #a07828",
+                border: "1px solid #e8e2da",
+                borderTop: "2px solid #e07040",
                 padding: "1.5rem",
                 background: "#ffffff",
               }}
@@ -345,7 +345,7 @@ export default async function LandingPage() {
                   fontFamily: "var(--font-brand)",
                   fontSize: "1.1rem",
                   fontWeight: 700,
-                  color: "#1a1610",
+                  color: "#1a1a2e",
                   textTransform: "uppercase",
                   letterSpacing: "0.04em",
                   marginBottom: "0.25rem",
@@ -353,12 +353,12 @@ export default async function LandingPage() {
               >
                 {nextEvent.title}
               </p>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.75rem" }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", marginBottom: "0.75rem" }}>
                 {formatEventDate(nextEvent.starts_at!, nextEvent.timezone)}
                 {nextEvent.location && ` · ${nextEvent.location}`}
               </p>
               {nextEvent.description && (
-                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#6b6456", fontSize: "1rem", marginBottom: "1rem" }}>
+                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "1rem", marginBottom: "1rem" }}>
                   {nextEvent.description}
                 </p>
               )}
@@ -369,7 +369,7 @@ export default async function LandingPage() {
                   fontSize: 10,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
-                  color: "#a07828",
+                  color: "#e07040",
                   textDecoration: "none",
                 }}
               >
@@ -379,8 +379,8 @@ export default async function LandingPage() {
           ) : latestPost ? (
             <div
               style={{
-                border: "1px solid #ede9e1",
-                borderTop: "2px solid #a07828",
+                border: "1px solid #e8e2da",
+                borderTop: "2px solid #e07040",
                 padding: "1.5rem",
                 background: "#ffffff",
               }}
@@ -392,7 +392,7 @@ export default async function LandingPage() {
                     fontFamily: "var(--font-brand)",
                     fontSize: "1.1rem",
                     fontWeight: 700,
-                    color: "#1a1610",
+                    color: "#1a1a2e",
                     textTransform: "uppercase",
                     letterSpacing: "0.04em",
                     marginBottom: "0.25rem",
@@ -401,7 +401,7 @@ export default async function LandingPage() {
                   {latestPost.title}
                 </p>
               )}
-              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4", marginBottom: "0.75rem" }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", marginBottom: "0.75rem" }}>
                 {latestPost.author.display_name} ·{" "}
                 {new Date(latestPost.created_at).toLocaleDateString("en-US", {
                   month: "long",
@@ -410,7 +410,7 @@ export default async function LandingPage() {
                 })}
               </p>
               {latestPost.body && (
-                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#6b6456", marginBottom: "1rem" }}>
+                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", marginBottom: "1rem" }}>
                   {latestPost.body.slice(0, 200)}{latestPost.body.length > 200 ? "…" : ""}
                 </p>
               )}
@@ -421,7 +421,7 @@ export default async function LandingPage() {
                   fontSize: 10,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
-                  color: "#a07828",
+                  color: "#e07040",
                   textDecoration: "none",
                 }}
               >
@@ -447,7 +447,7 @@ export default async function LandingPage() {
               style={{
                 position: "absolute",
                 inset: -7,
-                border: "1px solid #ede9e1",
+                border: "1px solid #e8e2da",
                 pointerEvents: "none",
                 zIndex: 1,
               }}
@@ -480,7 +480,7 @@ export default async function LandingPage() {
                 fontFamily: "var(--font-brand)",
                 fontSize: "clamp(1.4rem, 3vw, 2rem)",
                 fontWeight: 900,
-                color: "#1a1610",
+                color: "#1a1a2e",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
                 marginBottom: "0.3rem",
@@ -495,7 +495,7 @@ export default async function LandingPage() {
                 fontSize: 9,
                 letterSpacing: "0.26em",
                 textTransform: "uppercase",
-                color: "#a07828",
+                color: "#e07040",
                 display: "block",
                 marginBottom: "1.25rem",
                 fontWeight: 600,
@@ -506,7 +506,7 @@ export default async function LandingPage() {
             <p
               style={{
                 fontFamily: "var(--font-body)",
-                color: "#6b6456",
+                color: "#7c7589",
                 fontSize: "1rem",
                 lineHeight: 1.85,
                 fontStyle: "italic",
@@ -536,7 +536,7 @@ export default async function LandingPage() {
                   background: "transparent",
                   padding: "0.7rem 1.6rem",
                   textDecoration: "none",
-                  border: "1px solid #c8c2b4",
+                  border: "1px solid #7c7589",
                   display: "inline-block",
                 }}
               >
@@ -550,7 +550,7 @@ export default async function LandingPage() {
       <OrnamentalDivider />
 
       {/* ── Manifesto (DARK BAND) ───────────────────────────────────────────── */}
-      <div id="mission" style={{ background: "#1a1610", padding: "5rem 0" }}>
+      <div id="mission" style={{ background: "#1a1a2e", padding: "5rem 0" }}>
         <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
           <SectionLabel>The Lightworkers Manifesto</SectionLabel>
           <SectionTitle light>
@@ -585,7 +585,7 @@ export default async function LandingPage() {
               >
                 <span
                   style={{
-                    color: "#c4a050",
+                    color: "#e07040",
                     fontSize: "0.55rem",
                     flexShrink: 0,
                     opacity: 0.8,
@@ -603,13 +603,13 @@ export default async function LandingPage() {
       </div>
 
       {/* ── The Great Turning (PAPER BAND) ─────────────────────────────────── */}
-      <div style={{ background: "#f8f7f4", padding: "5rem 0" }}>
+      <div style={{ background: "#f5f0eb", padding: "5rem 0" }}>
         <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
           <SectionLabel>The Great Turning</SectionLabel>
           <p
             style={{
               fontFamily: "var(--font-body)",
-              color: "#6b6456",
+              color: "#7c7589",
               fontStyle: "italic",
               fontSize: "1rem",
               maxWidth: 560,
@@ -624,8 +624,8 @@ export default async function LandingPage() {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
               gap: 1,
-              background: "#ede9e1",
-              border: "1px solid #ede9e1",
+              background: "#e8e2da",
+              border: "1px solid #e8e2da",
               marginTop: "2rem",
             }}
           >
@@ -643,7 +643,7 @@ export default async function LandingPage() {
                     fontSize: 9,
                     letterSpacing: "0.24em",
                     textTransform: "uppercase",
-                    color: "#a07828",
+                    color: "#e07040",
                     display: "block",
                     marginBottom: "0.5rem",
                     fontWeight: 600,
@@ -655,7 +655,7 @@ export default async function LandingPage() {
                   style={{
                     fontFamily: "var(--font-body)",
                     fontSize: "0.9rem",
-                    color: "#6b6456",
+                    color: "#7c7589",
                     lineHeight: 1.45,
                   }}
                 >
@@ -670,7 +670,7 @@ export default async function LandingPage() {
       </div>
 
       {/* ── The Structure (DARK BAND) ──────────────────────────────────────── */}
-      <div id="path" style={{ background: "#1a1610", padding: "5rem 0" }}>
+      <div id="path" style={{ background: "#1a1a2e", padding: "5rem 0" }}>
         <div style={{ maxWidth: 880, margin: "0 auto", padding: "0 2rem" }}>
           <SectionLabel>The Structure</SectionLabel>
           <SectionTitle light>
@@ -768,7 +768,7 @@ export default async function LandingPage() {
             fontWeight: 600,
             letterSpacing: "0.36em",
             textTransform: "uppercase",
-            color: "#a07828",
+            color: "#e07040",
             marginBottom: "2rem",
             display: "flex",
             alignItems: "center",
@@ -776,9 +776,9 @@ export default async function LandingPage() {
             gap: "1rem",
           }}
         >
-          <span style={{ display: "block", width: 40, height: 1, background: "#a07828", opacity: 0.35 }} />
+          <span style={{ display: "block", width: 40, height: 1, background: "#e07040", opacity: 0.35 }} />
           The call
-          <span style={{ display: "block", width: 40, height: 1, background: "#a07828", opacity: 0.35 }} />
+          <span style={{ display: "block", width: 40, height: 1, background: "#e07040", opacity: 0.35 }} />
         </div>
         <p
           style={{
@@ -792,7 +792,7 @@ export default async function LandingPage() {
         >
           &ldquo;If you feel the call to reclaim what has been captured — and to walk that
           path in community with others —{" "}
-          <em style={{ fontStyle: "normal", color: "#1a1610", fontWeight: 500 }}>
+          <em style={{ fontStyle: "normal", color: "#1a1a2e", fontWeight: 500 }}>
             this is your home.
           </em>
           &rdquo;
@@ -806,10 +806,10 @@ export default async function LandingPage() {
             letterSpacing: "0.2em",
             textTransform: "uppercase",
             color: "#ffffff",
-            background: "#1a1610",
+            background: "#1a1a2e",
             padding: "1rem 2.5rem",
             textDecoration: "none",
-            border: "1px solid #1a1610",
+            border: "1px solid #1a1a2e",
           }}
         >
           Answer the Call
@@ -817,7 +817,7 @@ export default async function LandingPage() {
       </div>
 
       {/* ── Footer ──────────────────────────────────────────────────────────── */}
-      <div style={{ height: 1, background: "#ede9e1", maxWidth: 880, margin: "0 auto" }} />
+      <div style={{ height: 1, background: "#e8e2da", maxWidth: 880, margin: "0 auto" }} />
       <footer
         style={{
           maxWidth: 880,
@@ -836,7 +836,7 @@ export default async function LandingPage() {
             fontSize: 9,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: "#c8c2b4",
+            color: "#7c7589",
             fontWeight: 600,
           }}
         >
@@ -857,7 +857,7 @@ export default async function LandingPage() {
                   fontSize: 9,
                   letterSpacing: "0.16em",
                   textTransform: "uppercase",
-                  color: "#c8c2b4",
+                  color: "#7c7589",
                   textDecoration: "none",
                 }}
               >

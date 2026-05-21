@@ -22,7 +22,7 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
       ),
     },
     {
-      label: "Communities",
+      label: "Groups",
       href: "/community",
       active: pathname.startsWith("/community"),
       badge: 0,
@@ -63,14 +63,14 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
     <nav
       className="fixed bottom-0 inset-x-0 z-40 sm:hidden"
       style={{
-        background: "rgba(26,22,16,0.96)",
-        borderTop: "1px solid rgba(255,255,255,0.08)",
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
+        background: "rgba(255,255,255,0.95)",
+        borderTop: "1px solid #e8e2da",
+        backdropFilter: "blur(16px)",
+        WebkitBackdropFilter: "blur(16px)",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
-      <div style={{ display: "flex", alignItems: "stretch", height: 64 }}>
+      <div style={{ display: "flex", alignItems: "stretch", height: 56 }}>
         {items.map((item) => (
           <Link
             key={item.href}
@@ -83,8 +83,8 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
               justifyContent: "center",
               gap: 2,
               textDecoration: "none",
-              borderTop: item.active ? "2px solid #a07828" : "2px solid transparent",
-              color: item.active ? "#f8f7f4" : "#6b6456",
+              color: item.active ? "#e07040" : "#7c7589",
+              transition: "color 0.15s",
             }}
           >
             <span style={{ position: "relative" }}>
@@ -102,7 +102,7 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: 9999,
-                    background: "#a07828",
+                    background: "#e07040",
                     color: "#ffffff",
                     fontSize: 10,
                     fontFamily: "var(--font-brand)",
@@ -116,10 +116,9 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
             </span>
             <span
               style={{
-                fontFamily: "var(--font-brand)",
+                fontFamily: "var(--font-body)",
                 fontSize: 11,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
+                fontWeight: item.active ? 600 : 500,
               }}
             >
               {item.label}

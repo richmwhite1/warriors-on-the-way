@@ -3,7 +3,6 @@ import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { PostCard } from "@/components/feed/post-card";
 import { MissionPanel } from "@/components/home/mission-panel";
-import { OrnamentalDivider } from "@/components/ui/OrnamentalDivider";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listUserCommunities, type UserMembership } from "@/lib/queries/communities";
@@ -46,13 +45,14 @@ export default async function HomePage() {
       <main style={{ maxWidth: 680, margin: "0 auto", padding: "0 1rem 6rem" }}>
 
         {/* ── Welcome Block ─────────────────────────────────────────────────── */}
-        <div style={{ padding: "2rem 0 0" }}>
+        <div style={{ padding: "1.5rem 0 0" }}>
           <p
             style={{
               fontFamily: "var(--font-body)",
-              fontStyle: "italic",
-              color: "#6b6456",
-              fontSize: "1rem",
+              color: "#7c7589",
+              fontSize: "0.9rem",
+              fontWeight: 500,
+              marginBottom: "0.15rem",
             }}
           >
             Welcome back,
@@ -60,61 +60,331 @@ export default async function HomePage() {
           <h1
             style={{
               fontFamily: "var(--font-brand)",
-              fontWeight: 900,
-              textTransform: "uppercase",
-              fontSize: "clamp(1.8rem, 5vw, 3rem)",
-              color: "#1a1610",
-              lineHeight: 1.05,
-              letterSpacing: "0.04em",
+              fontWeight: 800,
+              fontSize: "clamp(1.6rem, 5vw, 2.2rem)",
+              color: "#1a1a2e",
+              lineHeight: 1.15,
+              letterSpacing: "-0.02em",
             }}
           >
             {firstName}
           </h1>
-          <p
-            style={{
-              fontFamily: "var(--font-body)",
-              fontStyle: "italic",
-              color: "#6b6456",
-              fontSize: "1rem",
-              marginTop: "0.5rem",
-            }}
-          >
-            The path is walked together.
-          </p>
         </div>
 
-        <OrnamentalDivider />
+        {/* ── Upcoming Events (FIRST — the heartbeat) ─────────────────────── */}
+        <section style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+            <SectionLabel>Upcoming Events</SectionLabel>
+            {myCommunities.length > 0 && (
+              <Link
+                href={`/community/${myCommunities[0].community.slug}/events/new`}
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 13,
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  background: "#e07040",
+                  padding: "0.4rem 0.9rem",
+                  borderRadius: "9999px",
+                  textDecoration: "none",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.3rem",
+                }}
+              >
+                + Create
+              </Link>
+            )}
+          </div>
 
-        {/* ── Latest Transmission ───────────────────────────────────────────── */}
-        <div
-          style={{
-            background: "#ffffff",
-            border: "1px solid #ede9e1",
-            borderTop: "2px solid #a07828",
-            padding: "1.5rem",
-            marginBottom: "2rem",
-          }}
-        >
-          <SectionLabel>Latest Transmission</SectionLabel>
+          {upcomingEvents.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              {upcomingEvents.map((event) => {
+                const startsAt = event.starts_at ? new Date(event.starts_at) : null;
+                return (
+                  <Link
+                    key={event.id}
+                    href={`/community/${event.community_slug}/events/${event.id}`}
+                    style={{
+                      display: "flex",
+                      gap: "0.85rem",
+                      alignItems: "flex-start",
+                      background: "#ffffff",
+                      border: "1px solid #e8e2da",
+                      borderRadius: "1rem",
+                      padding: "0.9rem 1rem",
+                      textDecoration: "none",
+                      transition: "box-shadow 0.15s, transform 0.15s",
+                    }}
+                    className="hover:shadow-md active:scale-[0.99]"
+                  >
+                    {/* Date chip */}
+                    {startsAt && (
+                      <div
+                        style={{
+                          flexShrink: 0,
+                          width: 52,
+                          textAlign: "center",
+                          background: "#fff5f0",
+                          borderRadius: "0.75rem",
+                          padding: "0.5rem 0.25rem",
+                        }}
+                      >
+                        <p style={{
+                          fontFamily: "var(--font-brand)",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: "#e07040",
+                          textTransform: "uppercase",
+                          lineHeight: 1,
+                        }}>
+                          {startsAt.toLocaleDateString("en-US", { month: "short" })}
+                        </p>
+                        <p style={{
+                          fontFamily: "var(--font-brand)",
+                          fontSize: 22,
+                          fontWeight: 800,
+                          color: "#1a1a2e",
+                          lineHeight: 1.2,
+                        }}>
+                          {startsAt.getDate()}
+                        </p>
+                      </div>
+                    )}
 
-          {latestTransmission ? (
-            <>
+                    <div style={{ minWidth: 0, flex: 1 }}>
+                      <p style={{
+                        fontFamily: "var(--font-brand)",
+                        fontWeight: 700,
+                        color: "#1a1a2e",
+                        fontSize: "0.95rem",
+                        lineHeight: 1.3,
+                        marginBottom: "0.2rem",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}>
+                        {event.title}
+                      </p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", lineHeight: 1.4 }}>
+                        {startsAt
+                          ? startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                          : "Date TBD"}
+                        {event.location && ` \u00b7 ${event.location}`}
+                      </p>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginTop: "0.35rem" }}>
+                        <span
+                          style={{
+                            fontFamily: "var(--font-body)",
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: "#e07040",
+                            background: "#fff5f0",
+                            padding: "0.15rem 0.5rem",
+                            borderRadius: "9999px",
+                          }}
+                        >
+                          {event.community_name}
+                        </span>
+                        {event.rsvp_counts && event.rsvp_counts.yes > 0 && (
+                          <span style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, color: "#16a34a" }}>
+                            {event.rsvp_counts.yes} going
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div
+              style={{
+                border: "2px dashed #e8e2da",
+                borderRadius: "1rem",
+                padding: "2rem",
+                textAlign: "center",
+              }}
+            >
+              <p style={{ fontSize: 28, marginBottom: "0.5rem" }}>&#127881;</p>
+              <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: "0.95rem", color: "#1a1a2e", marginBottom: "0.25rem" }}>
+                No upcoming events
+              </p>
+              <p style={{ fontFamily: "var(--font-body)", color: "#7c7589", fontSize: 14, marginBottom: "1rem" }}>
+                Create one and get your people together!
+              </p>
+              {myCommunities.length > 0 && (
+                <Link
+                  href={`/community/${myCommunities[0].community.slug}/events/new`}
+                  style={{
+                    fontFamily: "var(--font-brand)",
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: "#ffffff",
+                    background: "#e07040",
+                    padding: "0.6rem 1.5rem",
+                    borderRadius: "9999px",
+                    textDecoration: "none",
+                    display: "inline-block",
+                  }}
+                >
+                  Create an event
+                </Link>
+              )}
+            </div>
+          )}
+        </section>
+
+        {/* ── Your Communities ──────────────────────────────────────────────── */}
+        <section style={{ marginBottom: "1.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>
+            <SectionLabel>Your Groups</SectionLabel>
+            <Link
+              href="/community"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: 13,
+                fontWeight: 600,
+                color: "#e07040",
+                textDecoration: "none",
+              }}
+            >
+              See all
+            </Link>
+          </div>
+
+          {myCommunities.length === 0 ? (
+            <div
+              style={{
+                border: "2px dashed #e8e2da",
+                borderRadius: "1rem",
+                padding: "2rem",
+                textAlign: "center",
+              }}
+            >
+              <p style={{
+                fontFamily: "var(--font-brand)",
+                fontSize: "0.95rem",
+                fontWeight: 700,
+                color: "#1a1a2e",
+                marginBottom: "0.25rem",
+              }}>
+                No groups yet
+              </p>
+              <p style={{ fontFamily: "var(--font-body)", color: "#7c7589", fontSize: 14, marginBottom: "1rem" }}>
+                Find your people and join a group.
+              </p>
+              <Link
+                href="/community"
+                style={{
+                  fontFamily: "var(--font-brand)",
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "#ffffff",
+                  background: "#e07040",
+                  padding: "0.6rem 1.5rem",
+                  borderRadius: "9999px",
+                  textDecoration: "none",
+                  display: "inline-block",
+                }}
+              >
+                Browse Groups
+              </Link>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: "flex",
+                gap: "0.75rem",
+                overflowX: "auto",
+                paddingBottom: "0.5rem",
+              }}
+              className="no-scrollbar"
+            >
+              {myCommunities.map((m: UserMembership, i) => {
+                const c = m.community;
+                return (
+                  <Link
+                    key={c.id}
+                    href={`/community/${c.slug}`}
+                    style={{
+                      minWidth: 160,
+                      background: "#ffffff",
+                      border: "1px solid #e8e2da",
+                      borderRadius: "1rem",
+                      padding: "1rem",
+                      textDecoration: "none",
+                      flexShrink: 0,
+                      display: "block",
+                      transition: "box-shadow 0.15s",
+                    }}
+                    className="hover:shadow-md"
+                  >
+                    <p
+                      style={{
+                        fontFamily: "var(--font-brand)",
+                        fontWeight: 700,
+                        color: "#1a1a2e",
+                        fontSize: "0.9rem",
+                        marginBottom: "0.2rem",
+                        lineHeight: 1.3,
+                      }}
+                    >
+                      {c.name}
+                    </p>
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589" }}>
+                      {myMemberCounts[i] ?? 0} members
+                    </p>
+                    <span
+                      style={{
+                        display: "inline-block",
+                        marginTop: "0.5rem",
+                        fontFamily: "var(--font-body)",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        color: "#e07040",
+                        background: "#fff5f0",
+                        padding: "0.15rem 0.5rem",
+                        borderRadius: "9999px",
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {m.role}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+        </section>
+
+        {/* ── Latest Update ────────────────────────────────────────────────── */}
+        {latestTransmission && (
+          <section style={{ marginBottom: "1.5rem" }}>
+            <SectionLabel>Latest Update</SectionLabel>
+            <div
+              style={{
+                background: "#ffffff",
+                border: "1px solid #e8e2da",
+                borderRadius: "1rem",
+                padding: "1.25rem",
+              }}
+            >
               {latestTransmission.title && (
                 <p
                   style={{
                     fontFamily: "var(--font-brand)",
                     fontWeight: 700,
-                    textTransform: "uppercase",
-                    color: "#1a1610",
-                    fontSize: "1.1rem",
-                    letterSpacing: "0.04em",
+                    color: "#1a1a2e",
+                    fontSize: "1rem",
                     marginBottom: "0.25rem",
+                    lineHeight: 1.3,
                   }}
                 >
                   {latestTransmission.title}
                 </p>
               )}
-              <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#c8c2b4", marginBottom: "0.75rem" }}>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", marginBottom: "0.5rem" }}>
                 {new Date(latestTransmission.created_at).toLocaleDateString("en-US", {
                   month: "long",
                   day: "numeric",
@@ -125,232 +395,36 @@ export default async function HomePage() {
                 <p
                   style={{
                     fontFamily: "var(--font-body)",
-                    fontStyle: "italic",
-                    color: "#6b6456",
-                    fontSize: "1rem",
-                    lineHeight: 1.7,
-                    marginBottom: "1rem",
+                    color: "#4a4458",
+                    fontSize: "0.9rem",
+                    lineHeight: 1.6,
+                    marginBottom: "0.75rem",
                   }}
                 >
-                  {latestTransmission.body.slice(0, 220)}{latestTransmission.body.length > 220 ? "…" : ""}
+                  {latestTransmission.body.slice(0, 220)}{latestTransmission.body.length > 220 ? "\u2026" : ""}
                 </p>
               )}
               <Link
                 href="/community/warriors-on-the-way"
                 style={{
                   fontFamily: "var(--font-brand)",
-                  fontSize: 12,
-                  letterSpacing: "0.16em",
-                  textTransform: "uppercase",
-                  color: "#a07828",
-                  textDecoration: "none",
-                }}
-              >
-                Read transmission →
-              </Link>
-            </>
-          ) : (
-            <p
-              style={{
-                fontFamily: "var(--font-body)",
-                fontStyle: "italic",
-                color: "#c8c2b4",
-                fontSize: "1rem",
-              }}
-            >
-              No transmissions yet. Check back soon.
-            </p>
-          )}
-        </div>
-
-        {/* ── Your Communities ──────────────────────────────────────────────── */}
-        <section style={{ marginBottom: "2rem" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-            <SectionLabel>Your Communities</SectionLabel>
-            <Link
-              href="/community"
-              style={{
-                fontFamily: "var(--font-brand)",
-                fontSize: 12,
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                color: "#c8c2b4",
-                textDecoration: "none",
-              }}
-            >
-              Browse all →
-            </Link>
-          </div>
-
-          {myCommunities.length === 0 ? (
-            <div
-              style={{
-                border: "1px dashed #ede9e1",
-                padding: "2.5rem",
-                textAlign: "center",
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: "var(--font-brand)",
-                  fontSize: "0.9rem",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  color: "#1a1610",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                No communities yet
-              </p>
-              <p style={{ fontFamily: "var(--font-body)", color: "#c8c2b4", fontSize: 15, marginBottom: "1rem" }}>
-                Browse to find your group.
-              </p>
-              <Link
-                href="/community"
-                style={{
-                  fontFamily: "var(--font-brand)",
                   fontSize: 13,
                   fontWeight: 700,
-                  letterSpacing: "0.14em",
-                  textTransform: "uppercase",
-                  color: "#ffffff",
-                  background: "#1a1610",
-                  padding: "0.75rem 1.75rem",
+                  color: "#e07040",
                   textDecoration: "none",
-                  border: "1px solid #1a1610",
-                  display: "inline-block",
                 }}
               >
-                Browse Communities
+                Read more &rarr;
               </Link>
-            </div>
-          ) : (
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                overflowX: "auto",
-                paddingBottom: "0.5rem",
-              }}
-            >
-              {myCommunities.map((m: UserMembership, i) => {
-                const c = m.community;
-                return (
-                  <Link
-                    key={c.id}
-                    href={`/community/${c.slug}`}
-                    style={{
-                      minWidth: 200,
-                      background: "#f8f7f4",
-                      border: "1px solid #ede9e1",
-                      borderTop: "2px solid #1a1610",
-                      padding: "1.25rem",
-                      textDecoration: "none",
-                      flexShrink: 0,
-                      display: "block",
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontFamily: "var(--font-brand)",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        color: "#1a1610",
-                        fontSize: "0.9rem",
-                        letterSpacing: "0.04em",
-                        marginBottom: "0.25rem",
-                      }}
-                    >
-                      {c.name}
-                    </p>
-                    <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#c8c2b4", marginBottom: "0.5rem" }}>
-                      {myMemberCounts[i] ?? 0} members
-                    </p>
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                      <span
-                        style={{
-                          fontFamily: "var(--font-brand)",
-                          fontSize: 11,
-                          color: "#a07828",
-                          letterSpacing: "0.14em",
-                          textTransform: "uppercase",
-                        }}
-                      >
-                        {m.role}
-                      </span>
-                      <span style={{ color: "#a07828", fontSize: "1rem" }}>→</span>
-                    </div>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* ── Upcoming Events ───────────────────────────────────────────────── */}
-        {upcomingEvents.length > 0 && (
-          <section style={{ marginBottom: "2rem" }}>
-            <SectionLabel>Upcoming Events</SectionLabel>
-            <div className="space-y-2">
-              {upcomingEvents.map((event) => (
-                <Link
-                  key={event.id}
-                  href={`/community/${event.community_slug}/events/${event.id}`}
-                  style={{
-                    display: "block",
-                    background: "#ffffff",
-                    border: "1px solid #ede9e1",
-                    borderLeft: "3px solid #a07828",
-                    padding: "1rem 1.25rem",
-                    textDecoration: "none",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
-                    <div style={{ minWidth: 0 }}>
-                      <p style={{
-                        fontFamily: "var(--font-brand)",
-                        fontWeight: 700,
-                        textTransform: "uppercase",
-                        color: "#1a1610",
-                        fontSize: "0.85rem",
-                        letterSpacing: "0.04em",
-                        marginBottom: "0.2rem",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}>
-                        {event.title}
-                      </p>
-                      <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#c8c2b4" }}>
-                        {event.starts_at
-                          ? new Date(event.starts_at).toLocaleDateString("en-US", {
-                              weekday: "short", month: "short", day: "numeric",
-                              hour: "numeric", minute: "2-digit",
-                            })
-                          : "Date TBD — voting open"}
-                        {event.location && ` · ${event.location}`}
-                      </p>
-                      <p style={{ fontFamily: "var(--font-brand)", fontSize: 11, color: "#a07828", letterSpacing: "0.1em", textTransform: "uppercase", marginTop: "0.25rem" }}>
-                        {event.community_name}
-                      </p>
-                    </div>
-                    {event.rsvp_counts && event.rsvp_counts.yes > 0 && (
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#16a34a", whiteSpace: "nowrap", flexShrink: 0 }}>
-                        ✓ {event.rsvp_counts.yes} going
-                      </span>
-                    )}
-                  </div>
-                </Link>
-              ))}
             </div>
           </section>
         )}
 
         {/* ── Activity Feed ─────────────────────────────────────────────────── */}
         {feedPosts.length > 0 && (
-          <section style={{ marginBottom: "2rem" }}>
-            <SectionLabel>Across the Network</SectionLabel>
-            <div>
+          <section style={{ marginBottom: "1.5rem" }}>
+            <SectionLabel>Activity</SectionLabel>
+            <div className="space-y-3">
               {feedPosts.map((post) => {
                 const community = post.community as { name: string; slug: string } | undefined;
                 return (
@@ -359,14 +433,13 @@ export default async function HomePage() {
                       <Link
                         href={`/community/${community.slug}`}
                         style={{
-                          fontFamily: "var(--font-brand)",
+                          fontFamily: "var(--font-body)",
                           fontSize: 12,
-                          letterSpacing: "0.12em",
-                          textTransform: "uppercase",
-                          color: "#c8c2b4",
+                          fontWeight: 600,
+                          color: "#e07040",
                           textDecoration: "none",
                           display: "inline-block",
-                          marginBottom: "0.5rem",
+                          marginBottom: "0.35rem",
                         }}
                       >
                         {community.name}
@@ -388,9 +461,9 @@ export default async function HomePage() {
           </section>
         )}
 
-        {/* ── Manifesto Accordion ───────────────────────────────────────────── */}
+        {/* ── Mission ─────────────────────────────────────────────────────── */}
         <section>
-          <SectionLabel>The Lightworkers Manifesto</SectionLabel>
+          <SectionLabel>Our Mission</SectionLabel>
           <MissionPanel />
         </section>
 

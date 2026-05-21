@@ -1,11 +1,11 @@
 {
   "name": "Warriors on the Way",
   "short_name": "Warriors",
-  "description": "A gathering place for devotional non-duality — intimate communities, sacred events, and the path walked together.",
+  "description": "Build vibrant communities. Create events. Get your people together.",
   "start_url": "/home",
   "display": "standalone",
   "background_color": "#f9f4ef",
-  "theme_color": "#c4704a",
+  "theme_color": "#e07040",
   "orientation": "portrait-primary",
   "categories": ["social", "lifestyle"],
   "icons": [

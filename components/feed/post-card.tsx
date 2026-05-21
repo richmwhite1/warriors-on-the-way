@@ -38,7 +38,7 @@ const TYPE_ICONS: Record<string, string> = {
 };
 
 const TYPE_CARD_CLASS: Record<string, string> = {
-  wisdom: "border-[#a07828] border-2",
+  wisdom: "border-primary border-2",
   prayer: "shadow-[0_0_16px_rgba(160,120,40,0.12)]",
 };
 

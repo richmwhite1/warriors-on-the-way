@@ -26,7 +26,7 @@ export default function Image() {
             width: 800,
             height: 600,
             background:
-              "radial-gradient(ellipse at 50% 30%, rgba(160,120,40,0.18) 0%, rgba(160,120,40,0.04) 50%, transparent 70%)",
+              "radial-gradient(ellipse at 50% 30%, rgba(224,112,64,0.18) 0%, rgba(224,112,64,0.04) 50%, transparent 70%)",
           }}
         />
 
@@ -51,18 +51,18 @@ export default function Image() {
               marginBottom: "36px",
             }}
           >
-            <div style={{ width: 60, height: 1, background: "#a07828", opacity: 0.5 }} />
+            <div style={{ width: 60, height: 1, background: "#e07040", opacity: 0.5 }} />
             <span
               style={{
                 fontSize: 12,
                 letterSpacing: "0.4em",
-                color: "#a07828",
+                color: "#e07040",
                 textTransform: "uppercase",
               }}
             >
               Another name for lightworkers
             </span>
-            <div style={{ width: 60, height: 1, background: "#a07828", opacity: 0.5 }} />
+            <div style={{ width: 60, height: 1, background: "#e07040", opacity: 0.5 }} />
           </div>
 
           {/* Wordmark */}

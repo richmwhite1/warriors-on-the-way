@@ -22,7 +22,7 @@ export default function TermsPage() {
           justifyContent: "space-between",
           alignItems: "center",
           background: "rgba(255,255,255,0.96)",
-          borderBottom: "1px solid #ede9e1",
+          borderBottom: "1px solid #e8e2da",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
@@ -34,7 +34,7 @@ export default function TermsPage() {
             fontSize: 12,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
-            color: "#1a1610",
+            color: "#1a1a2e",
             fontWeight: 700,
             textDecoration: "none",
           }}
@@ -50,7 +50,7 @@ export default function TermsPage() {
             letterSpacing: "0.16em",
             textTransform: "uppercase",
             color: "#ffffff",
-            background: "#1a1610",
+            background: "#1a1a2e",
             padding: "0.5rem 1.25rem",
             textDecoration: "none",
           }}
@@ -77,7 +77,7 @@ export default function TermsPage() {
               fontFamily: "var(--font-brand)",
               fontWeight: 900,
               fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-              color: "#1a1610",
+              color: "#1a1a2e",
               textTransform: "uppercase",
               letterSpacing: "0.04em",
               lineHeight: 1.1,
@@ -90,7 +90,7 @@ export default function TermsPage() {
             style={{
               fontFamily: "var(--font-body)",
               fontSize: 14,
-              color: "#c8c2b4",
+              color: "#7c7589",
             }}
           >
             Last updated: April 2026
@@ -105,7 +105,7 @@ export default function TermsPage() {
             fontSize: "1rem",
           }}
         >
-          <p style={{ color: "#6b6456", fontStyle: "italic", marginBottom: "2rem" }}>
+          <p style={{ color: "#7c7589", fontStyle: "italic", marginBottom: "2rem" }}>
             These Terms of Use are being finalized. Full terms will be published shortly.
             By using Warriors on the Way, you agree to participate in good faith, treat
             fellow members with respect, and uphold the values expressed in the
@@ -134,7 +134,7 @@ export default function TermsPage() {
                   fontSize: "1rem",
                   textTransform: "uppercase",
                   letterSpacing: "0.12em",
-                  color: "#1a1610",
+                  color: "#1a1a2e",
                   marginBottom: "0.75rem",
                 }}
               >
@@ -152,7 +152,7 @@ export default function TermsPage() {
             fontSize: 9,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: "#c8c2b4",
+            color: "#7c7589",
             textDecoration: "none",
             display: "inline-flex",
             alignItems: "center",
@@ -167,7 +167,7 @@ export default function TermsPage() {
       {/* Footer */}
       <footer
         style={{
-          borderTop: "1px solid #ede9e1",
+          borderTop: "1px solid #e8e2da",
           padding: "1.5rem 2rem",
           display: "flex",
           justifyContent: "space-between",
@@ -183,7 +183,7 @@ export default function TermsPage() {
           style={{
             fontFamily: "var(--font-brand)",
             fontSize: 9,
-            color: "#c8c2b4",
+            color: "#7c7589",
             letterSpacing: "0.2em",
             textTransform: "uppercase",
           }}
@@ -200,7 +200,7 @@ export default function TermsPage() {
                 fontSize: 9,
                 letterSpacing: "0.16em",
                 textTransform: "uppercase",
-                color: "#c8c2b4",
+                color: "#7c7589",
                 textDecoration: "none",
               }}
             >

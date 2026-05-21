@@ -63,14 +63,14 @@ export function CommunityCard({
                 style={{ background: "radial-gradient(ellipse 90% 120% at 50% 120%, #D4AF3720 0%, transparent 65%)" }}
               />
               <p
-                className="text-[11px] font-bold uppercase tracking-[0.2em]"
-                style={{ color: "#D4AF3799", fontFamily: "var(--font-sans)" }}
+                className="text-[11px] font-semibold uppercase tracking-[0.12em]"
+                style={{ color: "#D4AF3799", fontFamily: "var(--font-body)" }}
               >
                 Another name for lightworkers
               </p>
               <p
                 className="text-base font-bold text-stone-100 tracking-tight"
-                style={{ fontFamily: "var(--font-display, var(--font-heading))" }}
+                style={{ fontFamily: "var(--font-brand)" }}
               >
                 Warriors on the Way
               </p>

@@ -126,15 +126,15 @@ export default function SignInPage() {
         {/* Header */}
         <div className="text-center space-y-3">
           <p
-            className="text-xs font-bold uppercase tracking-[0.25em]"
+            className="text-xs font-semibold uppercase tracking-[0.15em]"
             style={{ color: "#D4AF37" }}
           >
             Another name for lightworkers
           </p>
           <h1
-            className="text-4xl font-bold tracking-tight"
+            className="text-4xl font-extrabold tracking-tight"
             style={{
-              fontFamily: "var(--font-display, var(--font-heading))",
+              fontFamily: "var(--font-brand)",
               color: "#f0e8d8",
               textShadow: "0 2px 30px rgba(0,0,0,0.6)",
             }}
