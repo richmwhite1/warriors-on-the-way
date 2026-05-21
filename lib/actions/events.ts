@@ -130,10 +130,13 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const endsStr = formData.get("ends_at") as string;
   const starts_at = dateStr ? new Date(dateStr).toISOString() : null;
   const ends_at = endsStr ? new Date(endsStr).toISOString() : null;
+  const timezone = (formData.get("timezone") as string)?.trim() || "America/Los_Angeles";
+  const feeStr = formData.get("registration_fee") as string;
+  const registration_fee = feeStr && feeStr.trim() !== "" ? parseFloat(feeStr) : null;
 
   const { data: event, error } = await supabase
     .from("events")
-    .update({ title, description, location, virtual_url, image_url, starts_at, ends_at })
+    .update({ title, description, location, virtual_url, image_url, starts_at, ends_at, timezone, registration_fee })
     .eq("id", eventId)
     .select("community_id")
     .single();

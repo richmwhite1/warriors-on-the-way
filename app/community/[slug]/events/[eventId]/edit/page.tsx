@@ -55,6 +55,8 @@ export default async function EditEventPage({ params }: Props) {
             starts_at: event.starts_at ? toDatetimeLocal(event.starts_at) : "",
             ends_at: event.ends_at ? toDatetimeLocal(event.ends_at) : "",
             image_url: (event as unknown as { image_url?: string | null }).image_url ?? null,
+            timezone: event.timezone,
+            registration_fee: event.registration_fee,
           }}
         />
       </main>

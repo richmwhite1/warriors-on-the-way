@@ -9,6 +9,13 @@ import { ImageUpload } from "@/components/ui/image-upload";
 import { updateEvent } from "@/lib/actions/events";
 import { toast } from "sonner";
 
+const TIMEZONES = [
+  "UTC", "America/New_York", "America/Chicago", "America/Denver",
+  "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu",
+  "Europe/London", "Europe/Paris", "Europe/Berlin",
+  "Asia/Dubai", "Asia/Kolkata", "Asia/Tokyo", "Australia/Sydney",
+];
+
 type Props = {
   eventId: string;
   communitySlug: string;
@@ -20,6 +27,8 @@ type Props = {
     starts_at: string;
     ends_at: string;
     image_url: string | null;
+    timezone: string;
+    registration_fee: number | null;
   };
 };
 
@@ -96,6 +105,35 @@ export function EditEventForm({ eventId, communitySlug, initialValues }: Props) 
             defaultValue={initialValues.virtual_url}
             placeholder="https://meet.google.com/..."
           />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="registration_fee">Registration fee ($)</Label>
+          <Input
+            id="registration_fee"
+            name="registration_fee"
+            type="number"
+            min="0"
+            step="0.01"
+            placeholder="0.00 (free)"
+            defaultValue={initialValues.registration_fee ?? ""}
+          />
+          <p className="text-xs text-muted-foreground">Leave blank for free events</p>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="timezone">Timezone</Label>
+          <select
+            id="timezone"
+            name="timezone"
+            defaultValue={initialValues.timezone}
+            className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {TIMEZONES.map((tz) => (
+              <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>
+            ))}
+          </select>
         </div>
       </div>
 
