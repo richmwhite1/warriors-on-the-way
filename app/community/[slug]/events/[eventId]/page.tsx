@@ -146,6 +146,22 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
 
     return (
       <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
+        {/* ── Guest header bar ────────────────────────────────────────── */}
+        <header className="sticky top-0 z-50 bg-background/95 backdrop-blur border-b border-border/40 px-4 py-3 flex items-center justify-between">
+          <Link
+            href="/"
+            className="font-heading font-bold text-base tracking-tight text-foreground hover:text-primary transition-colors"
+          >
+            Warriors on the Way
+          </Link>
+          <Link
+            href="/"
+            className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Visit site →
+          </Link>
+        </header>
+
         {/* ── Hero image ──────────────────────────────────────────────── */}
         <div className="relative">
           {event.image_url ? (
@@ -167,9 +183,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
 
               {/* Community name on hero */}
               <div className="absolute top-4 left-4">
-                <span className="text-xs font-semibold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5 tracking-wide uppercase">
+                <Link href="/" className="text-xs font-semibold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5 tracking-wide uppercase hover:text-white transition-colors">
                   {community.name}
-                </span>
+                </Link>
               </div>
             </div>
           ) : (
@@ -183,9 +199,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
                 </div>
               )}
               <div className="absolute top-4 left-4">
-                <span className="text-xs font-semibold text-foreground/60 bg-background/60 backdrop-blur-sm rounded-full px-3 py-1.5 tracking-wide uppercase">
+                <Link href="/" className="text-xs font-semibold text-foreground/60 bg-background/60 backdrop-blur-sm rounded-full px-3 py-1.5 tracking-wide uppercase hover:text-foreground transition-colors">
                   {community.name}
-                </span>
+                </Link>
               </div>
             </div>
           )}

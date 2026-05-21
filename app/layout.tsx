@@ -62,7 +62,7 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${jakarta.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col w-full max-w-[100vw] overflow-x-hidden">
+      <body className="min-h-full flex flex-col w-full overflow-x-clip">
         {children}
         <Toaster richColors position="bottom-center" />
         <PwaRegister />

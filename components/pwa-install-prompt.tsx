@@ -77,8 +77,9 @@ export function PwaInstallPrompt() {
       {/* Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 px-4 pb-4 sm:pb-0">
-          <div className="w-full max-w-sm rounded-2xl bg-background shadow-xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b">
+          <div className="w-full max-w-sm rounded-2xl bg-background shadow-xl flex flex-col max-h-[85dvh]">
+            {/* Fixed header */}
+            <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b shrink-0">
               <h2 className="font-heading font-semibold text-base">Add to Home Screen</h2>
               <button onClick={dismiss} className="text-muted-foreground hover:text-foreground">
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,15 +88,19 @@ export function PwaInstallPrompt() {
               </button>
             </div>
 
-            <div className="px-5 py-4 space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Adding WoW to your home screen lets you receive <strong>push notifications</strong> for new events and messages — just like a native app.
-              </p>
+            {/* Scrollable body */}
+            <div className="overflow-y-auto overscroll-contain">
+              <div className="px-5 py-4 space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  Adding WoW to your home screen lets you receive <strong>push notifications</strong> for new events and messages — just like a native app.
+                </p>
+              </div>
+
+              {platform === "ios" ? <IosSteps /> : <AndroidSteps />}
             </div>
 
-            {platform === "ios" ? <IosSteps /> : <AndroidSteps />}
-
-            <div className="px-5 pb-5">
+            {/* Fixed footer */}
+            <div className="px-5 pb-5 pt-3 shrink-0">
               <button
                 onClick={dismiss}
                 className="w-full rounded-xl bg-primary text-primary-foreground text-sm font-semibold py-3"

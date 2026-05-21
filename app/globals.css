@@ -189,19 +189,17 @@
     font-family: var(--font-body);
     font-size: 16px;
     line-height: 1.6;
-    overflow-x: hidden;
+    overflow-x: clip;
     overscroll-behavior-x: none;
     width: 100%;
-    max-width: 100vw;
     /* Prevent iOS lateral rubber-band scroll */
     touch-action: pan-y;
   }
 
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
     overscroll-behavior-x: none;
     width: 100%;
-    max-width: 100vw;
   }
 
   h1, h2, h3, h4, h5, h6 {
