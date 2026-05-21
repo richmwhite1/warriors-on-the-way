@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useTransition, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,11 +22,46 @@ type Props = {
   maybeNames?: string[];
 };
 
-const STATUS_OPTIONS: { value: Status; label: string; icon: string; color: string }[] = [
-  { value: "yes",   label: "I'm going!",    icon: "✓", color: "bg-green-600 text-white border-green-600" },
-  { value: "maybe", label: "Maybe",          icon: "?", color: "bg-amber-500 text-white border-amber-500" },
-  { value: "no",    label: "Can't make it",  icon: "✗", color: "bg-muted text-muted-foreground border-border" },
+const STATUS_OPTIONS: { value: Status; label: string; icon: string; color: string; activeGlow: string }[] = [
+  { value: "yes",   label: "I'm going!",    icon: "\u2713", color: "bg-green-600 text-white border-green-600", activeGlow: "shadow-green-200" },
+  { value: "maybe", label: "Maybe",          icon: "?", color: "bg-amber-500 text-white border-amber-500", activeGlow: "shadow-amber-200" },
+  { value: "no",    label: "Can't make it",  icon: "\u2717", color: "bg-muted text-muted-foreground border-border", activeGlow: "" },
 ];
+
+/** Lightweight confetti burst using CSS-only particles */
+function ConfettiBurst() {
+  const [particles] = useState(() =>
+    Array.from({ length: 24 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 200 - 100,
+      y: -(Math.random() * 120 + 40),
+      rotate: Math.random() * 360,
+      scale: Math.random() * 0.6 + 0.4,
+      color: ["#e07040", "#22c55e", "#f59e0b", "#3b82f6", "#ec4899", "#8b5cf6"][i % 6],
+      delay: Math.random() * 200,
+    }))
+  );
+
+  return (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full animate-confetti-burst"
+          style={{
+            backgroundColor: p.color,
+            // @ts-expect-error -- CSS custom properties for the keyframe
+            "--confetti-x": `${p.x}px`,
+            "--confetti-y": `${p.y}px`,
+            "--confetti-rotate": `${p.rotate}deg`,
+            "--confetti-scale": p.scale,
+            animationDelay: `${p.delay}ms`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, goingNames = [], maybeNames = [] }: Props) {
   const storageKey = `guest_rsvp_${eventId}`;
@@ -36,6 +71,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
   const [email, setEmail] = useState("");
   const [isPending, startTransition] = useTransition();
   const [done, setDone] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
     try {
@@ -52,6 +88,11 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
     }
   }, [storageKey]);
 
+  const triggerConfetti = useCallback(() => {
+    setShowConfetti(true);
+    setTimeout(() => setShowConfetti(false), 1200);
+  }, []);
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
@@ -64,6 +105,9 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
         setSaved(s);
         setDone(true);
 
+        // Fire confetti for "yes" responses
+        if (status === "yes") triggerConfetti();
+
         if (email.trim()) {
           try {
             await signInWithMagicLink(email.trim(), `/community/${communitySlug}/events/${eventId}`);
@@ -71,14 +115,14 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
           } catch {
             toast.success(
               status === "yes" ? "You're in! See you there." :
-              status === "maybe" ? "Got it — hope you can make it!" :
+              status === "maybe" ? "Got it \u2014 hope you can make it!" :
               "Thanks for letting us know."
             );
           }
         } else {
           toast.success(
             status === "yes" ? "You're in! See you there." :
-            status === "maybe" ? "Got it — hope you can make it!" :
+            status === "maybe" ? "Got it \u2014 hope you can make it!" :
             "Thanks for letting us know."
           );
         }
@@ -92,7 +136,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
     setDone(false);
   }
 
-  // ── Post-RSVP confirmation with social proof ──────────────────────────────
+  // ── Post-RSVP confirmation — celebration + share CTA ──────────────────────
   if (done && saved) {
     const opted = STATUS_OPTIONS.find((o) => o.value === saved.status)!;
 
@@ -102,21 +146,24 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
       : goingNames;
 
     return (
-      <div className="rounded-2xl border bg-card p-5 space-y-4">
-        {/* Confirmation header */}
-        <div className="flex items-center gap-3">
-          <div className={`size-10 rounded-full flex items-center justify-center text-lg font-bold shrink-0 ${
-            saved.status === "yes" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
+      <div className="relative rounded-2xl border bg-card p-5 space-y-5 overflow-hidden">
+        {/* Confetti burst */}
+        {showConfetti && <ConfettiBurst />}
+
+        {/* Confirmation header — larger, more celebratory */}
+        <div className="flex items-center gap-4">
+          <div className={`size-12 rounded-full flex items-center justify-center text-xl font-bold shrink-0 transition-transform duration-500 ${
+            saved.status === "yes" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 scale-110" :
             saved.status === "maybe" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" :
             "bg-muted text-muted-foreground"
           }`}>
             {opted.icon}
           </div>
           <div>
-            <p className="font-semibold text-lg">
-              {saved.status === "yes" ? "You're going!" :
+            <p className="font-bold text-xl">
+              {saved.status === "yes" ? "You\u2019re going!" :
                saved.status === "maybe" ? "Marked as maybe" :
-               "Can't make it"}
+               "Can\u2019t make it"}
             </p>
             <p className="text-sm text-muted-foreground">
               {saved.status === "yes" ? `See you there, ${saved.name}!` : `Thanks, ${saved.name}.`}
@@ -126,19 +173,19 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
 
         {/* Social proof — who else is going */}
         {saved.status === "yes" && allGoing.length > 1 && (
-          <div className="rounded-xl bg-muted/50 px-4 py-3">
+          <div className="rounded-xl bg-green-50 border border-green-100 px-4 py-3">
             <div className="flex items-center gap-2">
               <div className="flex -space-x-1.5">
                 {allGoing.slice(0, 4).map((n, i) => (
                   <div
                     key={i}
-                    className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-primary/15 text-[9px] font-bold text-primary uppercase"
+                    className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-green-50 bg-green-100 text-[10px] font-bold text-green-700 uppercase"
                   >
                     {n.charAt(0)}
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-green-800 font-medium">
                 {allGoing.length === 2
                   ? `You and ${allGoing[1]} are going`
                   : `You, ${allGoing[1]}, and ${allGoing.length - 2} ${allGoing.length - 2 === 1 ? "other" : "others"} are going`}
@@ -155,23 +202,38 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
           </p>
         )}
 
-        {/* Actions */}
-        <div className="flex items-center gap-3 flex-wrap">
+        {/* Share CTA — big and prominent for "yes" */}
+        {saved.status === "yes" ? (
+          <div className="rounded-xl bg-primary/5 border border-primary/10 p-4 space-y-3">
+            <p className="text-sm font-medium text-foreground">
+              Spread the word — invite a friend!
+            </p>
+            <ShareButton
+              title={`Join me at ${eventTitle}`}
+              text={`I\u2019m going to ${eventTitle} \u2014 come join!`}
+              url={shareUrl}
+              variant="default"
+              size="default"
+            />
+          </div>
+        ) : (
           <ShareButton
-            title={`Join me at ${eventTitle}`}
-            text={`I'm going to ${eventTitle} — come join!`}
+            title={eventTitle}
+            text={`Check out ${eventTitle}`}
             url={shareUrl}
-            variant="default"
+            variant="outline"
             size="sm"
           />
-          <button
-            type="button"
-            onClick={handleChange}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
-          >
-            Change my RSVP
-          </button>
-        </div>
+        )}
+
+        {/* Change RSVP link */}
+        <button
+          type="button"
+          onClick={handleChange}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+        >
+          Change my RSVP
+        </button>
       </div>
     );
   }
@@ -191,7 +253,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
             className={[
               "flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium border transition-all",
               status === opt.value
-                ? opt.color
+                ? `${opt.color} shadow-md ${opt.activeGlow}`
                 : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
             ].join(" ")}
           >
@@ -218,7 +280,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
         <div className="space-y-1.5">
           <Label htmlFor="guest-email">
             Email{" "}
-            <span className="text-muted-foreground font-normal text-xs">— optional, creates your free account</span>
+            <span className="text-muted-foreground font-normal text-xs">\u2014 optional, creates your free account</span>
           </Label>
           <Input
             id="guest-email"

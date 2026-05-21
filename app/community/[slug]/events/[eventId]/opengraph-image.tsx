@@ -38,6 +38,9 @@ export default async function Image({
       })
     : null;
 
+  const going = event?.rsvp_counts?.yes ?? 0;
+  const maybe = event?.rsvp_counts?.maybe ?? 0;
+
   return new ImageResponse(
     (
       <div
@@ -90,7 +93,7 @@ export default async function Image({
             padding: "64px",
           }}
         >
-          {/* Eyebrow */}
+          {/* Top badge — "You're Invited" */}
           <div
             style={{
               display: "flex",
@@ -101,23 +104,27 @@ export default async function Image({
           >
             <div
               style={{
-                width: 40,
-                height: 1,
-                background: "#e07040",
-                opacity: 0.7,
-              }}
-            />
-            <span
-              style={{
-                fontSize: 14,
-                letterSpacing: "0.3em",
-                color: "#e07040",
-                textTransform: "uppercase",
-                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                gap: "12px",
+                background: "rgba(224,112,64,0.15)",
+                border: "1px solid rgba(224,112,64,0.3)",
+                borderRadius: "999px",
+                padding: "8px 20px",
               }}
             >
-              Warriors on the Way
-            </span>
+              <span
+                style={{
+                  fontSize: 16,
+                  letterSpacing: "0.15em",
+                  color: "#e07040",
+                  textTransform: "uppercase",
+                  fontWeight: 700,
+                }}
+              >
+                You&apos;re Invited
+              </span>
+            </div>
           </div>
 
           {/* Title */}
@@ -129,25 +136,79 @@ export default async function Image({
               lineHeight: 1.05,
               letterSpacing: "0.02em",
               textTransform: "uppercase",
-              marginBottom: formattedDate ? "20px" : "0",
+              marginBottom: "24px",
             }}
           >
             {title}
           </div>
 
-          {/* Date */}
-          {formattedDate && (
-            <div
-              style={{
-                fontSize: 22,
-                color: "rgba(255,255,255,0.55)",
-                letterSpacing: "0.04em",
-              }}
-            >
-              {formattedDate}
-              {event?.location ? ` · ${event.location}` : ""}
-            </div>
-          )}
+          {/* Date + location + attendees in a single row */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "24px",
+              flexWrap: "wrap",
+            }}
+          >
+            {formattedDate && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  fontSize: 22,
+                  color: "rgba(255,255,255,0.7)",
+                  letterSpacing: "0.02em",
+                }}
+              >
+                <span>{formattedDate}</span>
+                {event?.location && (
+                  <span style={{ color: "rgba(255,255,255,0.35)" }}> · </span>
+                )}
+                {event?.location && <span>{event.location}</span>}
+              </div>
+            )}
+
+            {going > 0 && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  background: "rgba(255,255,255,0.1)",
+                  borderRadius: "999px",
+                  padding: "6px 16px",
+                }}
+              >
+                {/* Attendee dots */}
+                <div style={{ display: "flex" }}>
+                  {Array.from({ length: Math.min(going, 4) }).map((_, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: "50%",
+                        background: "#e07040",
+                        border: "2px solid rgba(26,22,16,0.8)",
+                        marginLeft: i > 0 ? -6 : 0,
+                      }}
+                    />
+                  ))}
+                </div>
+                <span
+                  style={{
+                    fontSize: 16,
+                    color: "rgba(255,255,255,0.8)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {going} going{maybe > 0 ? ` · ${maybe} maybe` : ""}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     ),

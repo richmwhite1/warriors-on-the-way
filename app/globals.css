@@ -134,6 +134,29 @@
   --sidebar-ring:               #e8864e;
 }
 
+/* ─── Confetti burst animation for RSVP celebration ─────────────────────── */
+@keyframes confetti-burst {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform:
+      translate(var(--confetti-x, 0), var(--confetti-y, -80px))
+      rotate(var(--confetti-rotate, 180deg))
+      scale(var(--confetti-scale, 0.5));
+    opacity: 0;
+  }
+}
+.animate-confetti-burst {
+  animation: confetti-burst 0.9s ease-out forwards;
+}
+
+/* ─── Safe area padding for sticky bottom bars ──────────────────────────── */
+.safe-bottom {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
 /* ─── Utility: hide scrollbar while keeping scroll functionality ─────────── */
 .no-scrollbar {
   -ms-overflow-style: none;
