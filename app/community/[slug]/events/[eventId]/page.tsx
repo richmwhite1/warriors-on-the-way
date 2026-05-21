@@ -148,7 +148,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={event.image_url}
-                alt=""
+                alt={event.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
@@ -463,7 +463,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
         {event.image_url && (
           // eslint-disable-next-line @next/next/no-img-element
           <div className="rounded-2xl overflow-hidden">
-            <img src={event.image_url} alt="" className="w-full max-h-72 object-cover" />
+            <img src={event.image_url} alt={event.title} className="w-full max-h-72 object-cover" />
           </div>
         )}
 

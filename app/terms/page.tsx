@@ -93,7 +93,7 @@ export default function TermsPage() {
               color: "#7c7589",
             }}
           >
-            Last updated: April 2026
+            Last updated: May 2026
           </p>
         </div>
 
@@ -105,21 +105,30 @@ export default function TermsPage() {
             fontSize: "1rem",
           }}
         >
-          <p style={{ color: "#7c7589", fontStyle: "italic", marginBottom: "2rem" }}>
-            These Terms of Use are being finalized. Full terms will be published shortly.
-            By using Warriors on the Way, you agree to participate in good faith, treat
-            fellow members with respect, and uphold the values expressed in the
-            Lightworkers Manifesto.
-          </p>
-
           {[
             {
+              heading: "Acceptance of Terms",
+              body: "By accessing or using the Warriors on the Way platform, you agree to be bound by these Terms of Use. If you do not agree, please do not use the platform. We may update these terms from time to time, and continued use constitutes acceptance of any changes.",
+            },
+            {
               heading: "Community Standards",
-              body: "Warriors on the Way communities are spaces for sincere engagement with the spiritual and social mission outlined by our Spiritual Director, Fr. Seán Ó'Laoire. Members are expected to engage with honesty, care, and respect for the dignity of all people.",
+              body: "Warriors on the Way communities are spaces for sincere engagement with the spiritual and social mission outlined by our Spiritual Director, Fr. Seán Ó'Laoire. Members are expected to engage with honesty, care, and respect for the dignity of all people. Harassment, hate speech, spam, and intentionally disruptive behaviour are not tolerated.",
             },
             {
               heading: "Membership",
-              body: "Each local community is capped at 150 members to maintain the depth of relationship that makes genuine transformation possible. Community admins may remove members who violate community standards.",
+              body: "Each local community is capped at 150 members to maintain the depth of relationship that makes genuine transformation possible. Community admins may remove members who violate community standards. Membership may be revoked at any time for conduct that undermines the safety or integrity of the community.",
+            },
+            {
+              heading: "User Content",
+              body: "You retain ownership of the content you post. By posting, you grant Warriors on the Way a non-exclusive licence to display your content within the platform. You are responsible for ensuring your content does not infringe on any third-party rights.",
+            },
+            {
+              heading: "Prohibited Conduct",
+              body: "You agree not to: impersonate others; distribute malware or harmful code; scrape or collect data from the platform without authorisation; use the platform for commercial solicitation; or attempt to circumvent any security measures.",
+            },
+            {
+              heading: "Limitation of Liability",
+              body: "Warriors on the Way is provided on an \"as is\" basis. We make no warranties regarding availability, accuracy, or fitness for a particular purpose. To the fullest extent permitted by law, we shall not be liable for any indirect, incidental, or consequential damages arising from your use of the platform.",
             },
             {
               heading: "Contact",

@@ -16,6 +16,15 @@ const TIMEZONES = [
   "Asia/Dubai", "Asia/Kolkata", "Asia/Tokyo", "Australia/Sydney",
 ];
 
+function getDefaultTimezone(): string {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return TIMEZONES.includes(tz) ? tz : "America/Los_Angeles";
+  } catch {
+    return "America/Los_Angeles";
+  }
+}
+
 type Props = { communityId: string; communitySlug: string };
 
 export function CreateEventForm({ communityId, communitySlug }: Props) {
@@ -97,7 +106,7 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="timezone">Timezone</Label>
-          <select id="timezone" name="timezone" defaultValue="America/Los_Angeles"
+          <select id="timezone" name="timezone" defaultValue={getDefaultTimezone()}
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
             {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>)}
           </select>

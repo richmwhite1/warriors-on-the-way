@@ -93,7 +93,7 @@ export default function PrivacyPage() {
               color: "#7c7589",
             }}
           >
-            Last updated: April 2026
+            Last updated: May 2026
           </p>
         </div>
 
@@ -105,12 +105,6 @@ export default function PrivacyPage() {
             fontSize: "1rem",
           }}
         >
-          <p style={{ color: "#7c7589", fontStyle: "italic", marginBottom: "2rem" }}>
-            This Privacy Policy is being finalized. Full policy will be published shortly.
-            Warriors on the Way takes the privacy of its members seriously. We collect
-            only what we need to operate the platform and connect you with your community.
-          </p>
-
           {[
             {
               heading: "What We Collect",
@@ -125,8 +119,16 @@ export default function PrivacyPage() {
               body: "We use Supabase for authentication and data storage, Cloudinary for image hosting, and optionally Telegram for community group chat. Each of these services has its own privacy policy.",
             },
             {
+              heading: "Data Retention",
+              body: "We retain your account and content data for as long as your account is active. If you delete your account, we will remove your personal data within 30 days, except where retention is required by law.",
+            },
+            {
+              heading: "Cookies & Local Storage",
+              body: "We use essential cookies and local storage for authentication and session management. We do not use tracking cookies or third-party analytics.",
+            },
+            {
               heading: "Your Rights",
-              body: "You may request deletion of your account and associated data at any time by contacting a community administrator or reaching out through your local community page.",
+              body: "You may request access to, correction of, or deletion of your personal data at any time by contacting a community administrator. You also have the right to export your data. Depending on your jurisdiction, additional rights may apply under GDPR, CCPA, or equivalent legislation.",
             },
             {
               heading: "Contact",

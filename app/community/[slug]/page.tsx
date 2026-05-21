@@ -189,7 +189,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={community.banner_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={community.banner_url} alt={`${community.name} banner`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             </div>
           )}
           <div style={{ position: "relative", zIndex: 1, maxWidth: 640, margin: "0 auto" }}>
