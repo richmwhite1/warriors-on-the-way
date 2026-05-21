@@ -152,6 +152,21 @@
   animation: confetti-burst 0.9s ease-out forwards;
 }
 
+/* ─── Invitation reveal — pure CSS, works without JS ────────────────────── */
+@keyframes invite-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.animate-invite-reveal {
+  animation: invite-reveal 0.7s ease-out 0.08s both;
+}
+
 /* ─── Safe area padding for sticky bottom bars ──────────────────────────── */
 .safe-bottom {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));

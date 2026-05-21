@@ -1,30 +1,13 @@
-"use client";
-
-import { useEffect, useState, type ReactNode } from "react";
-
 /**
  * A card-reveal entrance animation for the guest invitation experience.
- * Inspired by Paperless Post's envelope reveal — a brief moment of delight
- * before showing the full event invitation.
+ *
+ * Uses a pure CSS animation so the content is ALWAYS visible — even if
+ * JavaScript fails to load or hydrate. The animation is progressive
+ * enhancement only; the content itself never depends on JS.
  */
-export function InvitationReveal({ children }: { children: ReactNode }) {
-  const [revealed, setRevealed] = useState(false);
-
-  useEffect(() => {
-    // Small delay so the animation is visible even on fast connections
-    const timer = setTimeout(() => setRevealed(true), 80);
-    return () => clearTimeout(timer);
-  }, []);
-
+export function InvitationReveal({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      className={[
-        "transition-all duration-700 ease-out",
-        revealed
-          ? "opacity-100 translate-y-0 scale-100"
-          : "opacity-0 translate-y-6 scale-[0.97]",
-      ].join(" ")}
-    >
+    <div className="animate-invite-reveal">
       {children}
     </div>
   );
