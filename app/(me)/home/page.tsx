@@ -5,21 +5,23 @@ import { PostCard } from "@/components/feed/post-card";
 import { MissionPanel } from "@/components/home/mission-panel";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { requireUserProfile } from "@/lib/queries/users";
-import { listUserCommunities, type UserMembership } from "@/lib/queries/communities";
+import { listUserCommunities, getParentCommunity, type UserMembership } from "@/lib/queries/communities";
 import { getActiveMemberCount } from "@/lib/queries/members";
 import { listPersonalFeed, getLatestParentPost } from "@/lib/queries/posts";
 import { listUpcomingEventsForUser } from "@/lib/queries/events";
 import { listCommentsByPostIds } from "@/lib/queries/comments";
+import { TelegramJoinBanner } from "@/components/telegram-join-banner";
 
 export default async function HomePage() {
   const user = await requireUserProfile().catch(() => null);
   if (!user) redirect("/sign-in");
 
-  const [myCommunities, feedPosts, latestTransmission, upcomingEvents] = await Promise.all([
+  const [myCommunities, feedPosts, latestTransmission, upcomingEvents, parentCommunity] = await Promise.all([
     listUserCommunities(user.id),
     listPersonalFeed(user.id),
     getLatestParentPost(),
     listUpcomingEventsForUser(user.id),
+    getParentCommunity(),
   ]);
 
   const myMemberCounts = await Promise.all(
@@ -468,6 +470,14 @@ export default async function HomePage() {
         </section>
 
       </main>
+
+      {parentCommunity?.telegram_invite_link && (
+        <TelegramJoinBanner
+          telegramUrl={parentCommunity.telegram_invite_link}
+          communityName={parentCommunity.name}
+          communityId={parentCommunity.id}
+        />
+      )}
     </>
   );
 }

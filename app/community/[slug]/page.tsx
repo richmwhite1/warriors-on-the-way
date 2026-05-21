@@ -37,6 +37,7 @@ import { requireUserProfile } from "@/lib/queries/users";
 import { listCommunityPosts, listParentPushPosts } from "@/lib/queries/posts";
 import { listCommunityEvents } from "@/lib/queries/events";
 import { listCommentsByPostIds } from "@/lib/queries/comments";
+import { TelegramJoinBanner } from "@/components/telegram-join-banner";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -497,6 +498,14 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           </div>
         )}
       </main>
+
+      {isMember && community.telegram_invite_link && (
+        <TelegramJoinBanner
+          telegramUrl={community.telegram_invite_link}
+          communityName={community.name}
+          communityId={community.id}
+        />
+      )}
     </>
   );
 }
