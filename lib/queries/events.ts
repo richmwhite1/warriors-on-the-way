@@ -179,6 +179,52 @@ export async function listUpcomingEventsForUser(
   });
 }
 
+/**
+ * Fetch event details using the admin client — bypasses RLS.
+ * Used for guest/public pages where the viewer is not authenticated.
+ */
+export async function getEventForGuest(eventId: string): Promise<EventRow | null> {
+  const admin = createAdminClient();
+
+  const { data: event } = await admin
+    .from("events")
+    .select(`
+      id, community_id, created_by, title, description, location, virtual_url, image_url,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      creator:users!created_by(id, display_name, avatar_url, venmo_handle)
+    `)
+    .eq("id", eventId)
+    .is("deleted_at", null)
+    .single();
+
+  if (!event) return null;
+
+  // RSVP counts (member + guest combined)
+  const [{ data: rsvps }, { data: guestRsvps }] = await Promise.all([
+    admin.from("rsvps").select("status").eq("event_id", eventId),
+    admin.from("guest_rsvps").select("status").eq("event_id", eventId),
+  ]);
+
+  const rsvp_counts = { yes: 0, no: 0, maybe: 0 };
+  rsvps?.forEach((r) => {
+    if (r.status === "yes") rsvp_counts.yes++;
+    else if (r.status === "no") rsvp_counts.no++;
+    else if (r.status === "maybe") rsvp_counts.maybe++;
+  });
+  guestRsvps?.forEach((r) => {
+    if (r.status === "yes") rsvp_counts.yes++;
+    else if (r.status === "no") rsvp_counts.no++;
+    else if (r.status === "maybe") rsvp_counts.maybe++;
+  });
+
+  return {
+    ...(event as unknown as EventRow),
+    rsvp_counts,
+    user_rsvp: null,
+    date_options: [],
+  };
+}
+
 export async function getEventWithDetails(eventId: string, userId?: string): Promise<EventRow | null> {
   const supabase = await createClient();
   const admin = createAdminClient();

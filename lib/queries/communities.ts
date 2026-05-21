@@ -118,6 +118,21 @@ export async function getParentCommunity(): Promise<Community | null> {
   return data;
 }
 
+/**
+ * Fetch a community by slug using the admin client — bypasses RLS.
+ * Used for guest/public pages where the viewer is not authenticated.
+ */
+export async function getCommunityBySlugPublic(slug: string): Promise<Community | null> {
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("communities")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+  return data;
+}
+
 export async function slugExists(slug: string): Promise<boolean> {
   const supabase = await createClient();
   const { count } = await supabase

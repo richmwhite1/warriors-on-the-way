@@ -13,10 +13,10 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { getCommunityBySlug } from "@/lib/queries/communities";
+import { getCommunityBySlug, getCommunityBySlugPublic } from "@/lib/queries/communities";
 import { getMembership, getActiveMemberCount, listActiveMembers } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
-import { getEventWithDetails, listEventAttendees, listGuestAttendees } from "@/lib/queries/events";
+import { getEventWithDetails, getEventForGuest, listEventAttendees, listGuestAttendees } from "@/lib/queries/events";
 import { getEventTasks, getEventExpenses } from "@/lib/queries/event-modules";
 import { AttendeeList } from "@/components/events/attendee-list";
 import { cancelEvent } from "@/lib/actions/events";
@@ -29,7 +29,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props) {
   const { slug, eventId } = await params;
-  const event = await getEventWithDetails(eventId);
+  const event = await getEventForGuest(eventId);
   if (!event) return {};
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const url = `${siteUrl}/community/${slug}/events/${eventId}`;
@@ -85,7 +85,11 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
   const { from: inviterName, note: personalNote } = await searchParams;
 
   const user = await requireUserProfile().catch(() => null);
-  const community = await getCommunityBySlug(slug);
+
+  // Use admin client for community lookup — RLS blocks anon users on private communities
+  const community = user
+    ? await getCommunityBySlug(slug)
+    : await getCommunityBySlugPublic(slug);
   if (!community) notFound();
 
   const membership = user ? await getMembership(community.id, user.id) : null;
@@ -93,8 +97,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
 
   // ── Guest / non-member path — THE INVITATION EXPERIENCE ──────────────────
   if (!isMember) {
+    // Use admin-client queries that bypass RLS for unauthenticated visitors
     const [event, guestAttendees] = await Promise.all([
-      getEventWithDetails(eventId),
+      getEventForGuest(eventId),
       listGuestAttendees(eventId),
     ]);
     if (!event) notFound();
@@ -140,33 +145,48 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
       : null;
 
     return (
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
         {/* ── Hero image ──────────────────────────────────────────────── */}
         <div className="relative">
           {event.image_url ? (
-            <div className="relative h-[48vh] min-h-[300px] max-h-[460px] w-full overflow-hidden">
+            <div className="relative h-[52vh] min-h-[320px] max-h-[500px] w-full overflow-hidden">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={event.image_url}
                 alt={event.title}
                 className="absolute inset-0 w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-black/10" />
 
               {/* Countdown badge — floats on hero */}
               {countdownLabel && (
-                <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
                   {countdownLabel}
                 </div>
               )}
+
+              {/* Community name on hero */}
+              <div className="absolute top-4 left-4">
+                <span className="text-xs font-semibold text-white/80 bg-black/30 backdrop-blur-sm rounded-full px-3 py-1.5 tracking-wide uppercase">
+                  {community.name}
+                </span>
+              </div>
             </div>
           ) : (
-            <div className="relative h-40 w-full bg-gradient-to-br from-primary/20 via-primary/5 to-transparent">
+            <div className="relative h-52 w-full bg-gradient-to-br from-primary/25 via-primary/10 to-transparent overflow-hidden">
+              {/* Decorative shapes for visual interest when no image */}
+              <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/10 blur-2xl" />
+              <div className="absolute bottom-0 left-1/4 w-32 h-32 rounded-full bg-primary/5 blur-xl" />
               {countdownLabel && (
-                <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-full shadow-lg">
+                <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs font-bold px-3.5 py-1.5 rounded-full shadow-lg">
                   {countdownLabel}
                 </div>
               )}
+              <div className="absolute top-4 left-4">
+                <span className="text-xs font-semibold text-foreground/60 bg-background/60 backdrop-blur-sm rounded-full px-3 py-1.5 tracking-wide uppercase">
+                  {community.name}
+                </span>
+              </div>
             </div>
           )}
         </div>
@@ -175,12 +195,17 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
         <InvitationReveal>
           <div className={cn(
             "relative mx-auto max-w-lg px-5 pb-32",
-            event.image_url ? "-mt-28" : "pt-2"
+            event.image_url ? "-mt-32" : "pt-2"
           )}>
 
+            {/* "You're Invited" label */}
+            <p className="text-xs font-bold tracking-widest uppercase text-primary/70 mb-3">
+              You&rsquo;re Invited
+            </p>
+
             {/* Invited-by pill */}
-            <div className="mb-4 inline-flex items-center gap-2 bg-white/90 backdrop-blur-md border border-border/50 rounded-full px-4 py-2 shadow-sm">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold uppercase">
+            <div className="mb-4 inline-flex items-center gap-2 bg-card/90 backdrop-blur-md border border-border/50 rounded-full px-4 py-2 shadow-sm">
+              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold uppercase">
                 {hostDisplay.charAt(0)}
               </div>
               <span className="text-xs font-medium text-muted-foreground">
@@ -211,104 +236,106 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
             )}
 
             {/* ── Date card + details — visual calendar page block ───── */}
-            <div className="mt-6 flex gap-4">
-              {/* Calendar page */}
-              {dateObj && (
-                <div className="shrink-0 w-16 h-[72px] rounded-xl border bg-card shadow-sm overflow-hidden text-center">
-                  <div className="bg-primary text-primary-foreground text-[10px] font-bold tracking-widest py-0.5">
-                    {monthShort}
-                  </div>
-                  <div className="flex flex-col items-center justify-center py-1">
-                    <span className="text-2xl font-bold leading-none">{dayNum}</span>
-                    <span className="text-[10px] text-muted-foreground mt-0.5">{weekday}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Time + location stacked */}
-              <div className="flex-1 space-y-2.5 min-w-0">
-                {event.starts_at && (
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                      </svg>
+            <div className="mt-6 rounded-2xl border bg-card/80 backdrop-blur-sm shadow-sm p-4">
+              <div className="flex gap-4">
+                {/* Calendar page */}
+                {dateObj && (
+                  <div className="shrink-0 w-16 h-[72px] rounded-xl border bg-background shadow-sm overflow-hidden text-center">
+                    <div className="bg-primary text-primary-foreground text-[10px] font-bold tracking-widest py-0.5">
+                      {monthShort}
                     </div>
-                    <div>
-                      <p className="text-sm font-medium leading-tight">
-                        {new Date(event.starts_at).toLocaleTimeString("en-US", {
-                          hour: "numeric",
-                          minute: "2-digit",
-                        })}
-                        {event.ends_at &&
-                          ` — ${new Date(event.ends_at).toLocaleTimeString("en-US", {
+                    <div className="flex flex-col items-center justify-center py-1">
+                      <span className="text-2xl font-bold leading-none">{dayNum}</span>
+                      <span className="text-[10px] text-muted-foreground mt-0.5">{weekday}</span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Time + location stacked */}
+                <div className="flex-1 space-y-2.5 min-w-0">
+                  {event.starts_at && (
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium leading-tight">
+                          {new Date(event.starts_at).toLocaleTimeString("en-US", {
                             hour: "numeric",
                             minute: "2-digit",
-                          })}`}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{event.timezone.replace(/_/g, " ")}</p>
+                          })}
+                          {event.ends_at &&
+                            ` — ${new Date(event.ends_at).toLocaleTimeString("en-US", {
+                              hour: "numeric",
+                              minute: "2-digit",
+                            })}`}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{event.timezone.replace(/_/g, " ")}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {event.location && (
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                      </svg>
+                  {event.location && (
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                          <circle cx="12" cy="10" r="3" />
+                        </svg>
+                      </div>
+                      {mapsUrl ? (
+                        <a
+                          href={mapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-medium leading-tight text-foreground hover:text-primary transition-colors underline-offset-2 hover:underline truncate"
+                        >
+                          {event.location}
+                        </a>
+                      ) : (
+                        <p className="text-sm font-medium leading-tight truncate">{event.location}</p>
+                      )}
                     </div>
-                    {mapsUrl ? (
+                  )}
+
+                  {/* Virtual link */}
+                  {event.virtual_url && (
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg>
+                      </div>
                       <a
-                        href={mapsUrl}
+                        href={event.virtual_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm font-medium leading-tight text-foreground hover:text-primary transition-colors underline-offset-2 hover:underline truncate"
+                        className="text-sm font-medium text-primary hover:underline"
                       >
-                        {event.location}
+                        Join virtually
                       </a>
-                    ) : (
-                      <p className="text-sm font-medium leading-tight truncate">{event.location}</p>
-                    )}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Registration fee */}
+              {event.registration_fee != null && event.registration_fee > 0 && (
+                <div className="mt-3 pt-3 border-t border-border/40 flex items-center gap-2.5">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="12" y1="1" x2="12" y2="23" />
+                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                    </svg>
                   </div>
-                )}
-              </div>
+                  <p className="text-sm font-medium">${event.registration_fee.toFixed(2)} registration fee</p>
+                </div>
+              )}
             </div>
-
-            {/* Virtual link */}
-            {event.virtual_url && (
-              <div className="mt-3 flex items-center gap-2.5 ml-[80px]">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                  </svg>
-                </div>
-                <a
-                  href={event.virtual_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm font-medium text-primary hover:underline"
-                >
-                  Join virtually
-                </a>
-              </div>
-            )}
-
-            {/* Registration fee */}
-            {event.registration_fee != null && event.registration_fee > 0 && (
-              <div className="mt-3 flex items-center gap-2.5 ml-[80px]">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <line x1="12" y1="1" x2="12" y2="23" />
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                  </svg>
-                </div>
-                <p className="text-sm font-medium">${event.registration_fee.toFixed(2)} registration fee</p>
-              </div>
-            )}
 
             {/* Description */}
             {event.description && (
@@ -319,19 +346,19 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
 
             {/* Social proof — who's going */}
             {event.status === "confirmed" && totalGoing > 0 && (
-              <div className="mt-6 rounded-2xl bg-green-50 border border-green-100 p-4">
+              <div className="mt-6 rounded-2xl bg-green-50 dark:bg-green-950/30 border border-green-100 dark:border-green-900/40 p-4">
                 <div className="flex items-center gap-3">
                   <div className="flex -space-x-2">
                     {goingNames.slice(0, 5).map((name, i) => (
                       <div
                         key={i}
-                        className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-green-50 bg-green-100 text-xs font-bold text-green-700 uppercase"
+                        className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-green-50 dark:border-green-950 bg-green-100 dark:bg-green-900/50 text-xs font-bold text-green-700 dark:text-green-400 uppercase"
                       >
                         {name.charAt(0)}
                       </div>
                     ))}
                   </div>
-                  <p className="text-sm font-medium text-green-800">
+                  <p className="text-sm font-medium text-green-800 dark:text-green-300">
                     {totalGoing === 1
                       ? `${goingNames[0]} is going`
                       : totalGoing === 2
@@ -366,7 +393,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {/* Utility bar — add to calendar */}
+            {/* Utility bar — add to calendar + directions */}
             {event.starts_at && event.status === "confirmed" && (
               <div className="mt-5 flex items-center gap-3">
                 <a

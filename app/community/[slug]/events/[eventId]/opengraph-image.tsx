@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { getEventWithDetails } from "@/lib/queries/events";
+import { getEventForGuest } from "@/lib/queries/events";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -11,7 +11,7 @@ export default async function Image({
   params: Promise<{ slug: string; eventId: string }>;
 }) {
   const { eventId } = await params;
-  const event = await getEventWithDetails(eventId).catch(() => null);
+  const event = await getEventForGuest(eventId).catch(() => null);
 
   // Try to fetch the event image as a data URI so Satori can render it
   let bgSrc: string | null = null;
