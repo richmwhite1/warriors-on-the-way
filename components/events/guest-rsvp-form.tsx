@@ -10,6 +10,7 @@ import { ShareButton } from "@/components/events/share-button";
 import { toast } from "sonner";
 
 type Status = "yes" | "maybe" | "no";
+type StatusOrNull = Status | null;
 
 type Saved = { status: Status; name: string };
 
@@ -66,7 +67,7 @@ function ConfettiBurst() {
 export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, goingNames = [], maybeNames = [] }: Props) {
   const storageKey = `guest_rsvp_${eventId}`;
   const [saved, setSaved] = useState<Saved | null>(null);
-  const [status, setStatus] = useState<Status>("yes");
+  const [status, setStatus] = useState<StatusOrNull>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isPending, startTransition] = useTransition();
@@ -80,7 +81,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
         const parsed: Saved = JSON.parse(raw);
         setSaved(parsed);
         setDone(true);
-        setStatus(parsed.status);
+        setStatus(parsed.status); // restore so "Change my RSVP" re-shows their prior pick
         setName(parsed.name);
       }
     } catch {
@@ -95,7 +96,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !status) return;
 
     startTransition(async () => {
       try {
@@ -134,6 +135,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
 
   function handleChange() {
     setDone(false);
+    setStatus(null);
   }
 
   // ── Post-RSVP confirmation — celebration + share CTA ──────────────────────
@@ -295,7 +297,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, go
         </div>
       </div>
 
-      <Button type="submit" disabled={isPending || !name.trim()} size="lg" className="w-full">
+      <Button type="submit" disabled={isPending || !name.trim() || !status} size="lg" className="w-full">
         {isPending ? "Saving..." : "Confirm RSVP"}
       </Button>
     </form>
