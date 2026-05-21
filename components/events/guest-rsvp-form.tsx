@@ -18,15 +18,17 @@ type Props = {
   eventTitle: string;
   communitySlug: string;
   shareUrl: string;
+  goingNames?: string[];
+  maybeNames?: string[];
 };
 
-const STATUS_OPTIONS: { value: Status; label: string; icon: string }[] = [
-  { value: "yes",   label: "I'm going!",    icon: "✓" },
-  { value: "maybe", label: "Maybe",          icon: "?" },
-  { value: "no",    label: "Can't make it",  icon: "✗" },
+const STATUS_OPTIONS: { value: Status; label: string; icon: string; color: string }[] = [
+  { value: "yes",   label: "I'm going!",    icon: "✓", color: "bg-green-600 text-white border-green-600" },
+  { value: "maybe", label: "Maybe",          icon: "?", color: "bg-amber-500 text-white border-amber-500" },
+  { value: "no",    label: "Can't make it",  icon: "✗", color: "bg-muted text-muted-foreground border-border" },
 ];
 
-export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: Props) {
+export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl, goingNames = [], maybeNames = [] }: Props) {
   const storageKey = `guest_rsvp_${eventId}`;
   const [saved, setSaved] = useState<Saved | null>(null);
   const [status, setStatus] = useState<Status>("yes");
@@ -35,7 +37,6 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
   const [isPending, startTransition] = useTransition();
   const [done, setDone] = useState(false);
 
-  // Restore from localStorage on mount
   useEffect(() => {
     try {
       const raw = localStorage.getItem(storageKey);
@@ -63,13 +64,11 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
         setSaved(s);
         setDone(true);
 
-        // Auto-create account via magic link if email was provided
         if (email.trim()) {
           try {
             await signInWithMagicLink(email.trim(), `/community/${communitySlug}/events/${eventId}`);
             toast.success("RSVP confirmed! Check your email for a link to access your account.");
           } catch {
-            // RSVP succeeded, magic link failed — still show success
             toast.success(
               status === "yes" ? "You're in! See you there." :
               status === "maybe" ? "Got it — hope you can make it!" :
@@ -93,21 +92,70 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
     setDone(false);
   }
 
+  // ── Post-RSVP confirmation with social proof ──────────────────────────────
   if (done && saved) {
     const opted = STATUS_OPTIONS.find((o) => o.value === saved.status)!;
+
+    // Build social proof string
+    const allGoing = saved.status === "yes"
+      ? [saved.name, ...goingNames.filter((n) => n !== saved.name)]
+      : goingNames;
+
     return (
       <div className="rounded-2xl border bg-card p-5 space-y-4">
+        {/* Confirmation header */}
         <div className="flex items-center gap-3">
-          <div className="size-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
+          <div className={`size-10 rounded-full flex items-center justify-center text-lg font-bold shrink-0 ${
+            saved.status === "yes" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
+            saved.status === "maybe" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400" :
+            "bg-muted text-muted-foreground"
+          }`}>
             {opted.icon}
           </div>
           <div>
-            <p className="font-medium">{opted.label}</p>
+            <p className="font-semibold text-lg">
+              {saved.status === "yes" ? "You're going!" :
+               saved.status === "maybe" ? "Marked as maybe" :
+               "Can't make it"}
+            </p>
             <p className="text-sm text-muted-foreground">
               {saved.status === "yes" ? `See you there, ${saved.name}!` : `Thanks, ${saved.name}.`}
             </p>
           </div>
         </div>
+
+        {/* Social proof — who else is going */}
+        {saved.status === "yes" && allGoing.length > 1 && (
+          <div className="rounded-xl bg-muted/50 px-4 py-3">
+            <div className="flex items-center gap-2">
+              <div className="flex -space-x-1.5">
+                {allGoing.slice(0, 4).map((n, i) => (
+                  <div
+                    key={i}
+                    className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-card bg-primary/15 text-[9px] font-bold text-primary uppercase"
+                  >
+                    {n.charAt(0)}
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {allGoing.length === 2
+                  ? `You and ${allGoing[1]} are going`
+                  : `You, ${allGoing[1]}, and ${allGoing.length - 2} ${allGoing.length - 2 === 1 ? "other" : "others"} are going`}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {saved.status === "maybe" && maybeNames.length > 0 && (
+          <p className="text-sm text-muted-foreground">
+            {maybeNames.filter((n) => n !== saved.name).length > 0
+              ? `${maybeNames.filter((n) => n !== saved.name).slice(0, 2).join(" and ")} ${maybeNames.filter((n) => n !== saved.name).length === 1 ? "is" : "are"} also considering it`
+              : null}
+          </p>
+        )}
+
+        {/* Actions */}
         <div className="flex items-center gap-3 flex-wrap">
           <ShareButton
             title={`Join me at ${eventTitle}`}
@@ -128,11 +176,12 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
     );
   }
 
+  // ── RSVP form ─────────────────────────────────────────────────────────────
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border bg-card p-5 space-y-4">
-      <p className="font-medium">Will you be there?</p>
+    <form onSubmit={handleSubmit} className="rounded-2xl border bg-card p-5 space-y-5">
+      <p className="text-lg font-semibold">Will you be there?</p>
 
-      {/* Status selection */}
+      {/* Status selection — large, tappable pills */}
       <div className="flex gap-2 flex-wrap">
         {STATUS_OPTIONS.map((opt) => (
           <button
@@ -140,13 +189,13 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
             type="button"
             onClick={() => setStatus(opt.value)}
             className={[
-              "flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium border transition-colors",
+              "flex items-center gap-1.5 rounded-full px-5 py-2.5 text-sm font-medium border transition-all",
               status === opt.value
-                ? "bg-primary text-primary-foreground border-primary"
+                ? opt.color
                 : "border-border text-muted-foreground hover:border-foreground hover:text-foreground",
             ].join(" ")}
           >
-            <span>{opt.icon}</span>
+            <span className="text-base">{opt.icon}</span>
             {opt.label}
           </button>
         ))}
@@ -163,6 +212,7 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
             placeholder="First name is fine"
             required
             maxLength={80}
+            className="h-11"
           />
         </div>
         <div className="space-y-1.5">
@@ -177,12 +227,13 @@ export function GuestRsvpForm({ eventId, eventTitle, communitySlug, shareUrl }: 
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             maxLength={200}
+            className="h-11"
           />
         </div>
       </div>
 
-      <Button type="submit" disabled={isPending || !name.trim()} className="w-full sm:w-auto">
-        {isPending ? "Saving…" : "Confirm RSVP"}
+      <Button type="submit" disabled={isPending || !name.trim()} size="lg" className="w-full">
+        {isPending ? "Saving..." : "Confirm RSVP"}
       </Button>
     </form>
   );

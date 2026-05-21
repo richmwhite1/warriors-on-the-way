@@ -39,7 +39,7 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
     startTransition(async () => {
       try {
         const { eventId, communitySlug: slug } = await createEvent(fd);
-        router.push(`/community/${slug}/events/${eventId}`);
+        router.push(`/community/${slug}/events/${eventId}/invite`);
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Failed to create event");
       }
