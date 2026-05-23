@@ -1,6 +1,7 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,8 +27,10 @@ const TIMEZONES = [
   "Australia/Sydney",
 ];
 
-export function ProfileForm({ user }: { user: UserProfile }) {
+export function ProfileForm({ user, redirectAfterSave }: { user: UserProfile; redirectAfterSave?: string }) {
   const [isPending, startTransition] = useTransition();
+  const [phoneValue, setPhoneValue] = useState(user.phone ?? "");
+  const router = useRouter();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,6 +39,9 @@ export function ProfileForm({ user }: { user: UserProfile }) {
       try {
         await updateProfile(formData);
         toast.success("Profile updated");
+        if (redirectAfterSave) {
+          router.push(redirectAfterSave);
+        }
       } catch (err) {
         toast.error(err instanceof Error ? err.message : "Update failed");
       }
@@ -86,6 +92,38 @@ export function ProfileForm({ user }: { user: UserProfile }) {
       </div>
 
       <div className="space-y-1.5">
+        <Label htmlFor="phone">Phone number</Label>
+        <Input
+          id="phone"
+          name="phone"
+          type="tel"
+          inputMode="tel"
+          value={phoneValue}
+          onChange={(e) => setPhoneValue(e.target.value)}
+          maxLength={20}
+          placeholder="(555) 123-4567"
+        />
+        <p className="text-xs text-muted-foreground">
+          For SMS event reminders. US numbers only for now.
+        </p>
+      </div>
+
+      {phoneValue.trim() && (
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="notify_sms"
+            name="notify_sms"
+            defaultChecked={user.notify_sms}
+            className="h-4 w-4 rounded border-border"
+          />
+          <Label htmlFor="notify_sms" className="text-sm font-normal cursor-pointer">
+            Send me SMS reminders before events
+          </Label>
+        </div>
+      )}
+
+      <div className="space-y-1.5">
         <Label htmlFor="venmo_handle">Venmo username</Label>
         <div className="relative">
           <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">@</span>
@@ -104,7 +142,7 @@ export function ProfileForm({ user }: { user: UserProfile }) {
       </div>
 
       <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
-        {isPending ? "Saving…" : "Save profile"}
+        {isPending ? "Saving…" : redirectAfterSave ? "Save & continue" : "Save profile"}
       </Button>
     </form>
   );

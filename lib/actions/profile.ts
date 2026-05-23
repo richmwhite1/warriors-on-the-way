@@ -12,12 +12,22 @@ export async function updateProfile(formData: FormData) {
   const bio = (formData.get("bio") as string)?.trim() || null;
   const timezone = (formData.get("timezone") as string) || "UTC";
   const venmo_handle = (formData.get("venmo_handle") as string)?.trim().replace(/^@/, "") || null;
+  const notify_sms = formData.get("notify_sms") === "on";
+
+  // Normalize phone to E.164
+  const rawPhone = (formData.get("phone") as string)?.trim() || null;
+  let phone: string | null = null;
+  if (rawPhone) {
+    const { normalizePhone } = await import("@/lib/phone");
+    phone = normalizePhone(rawPhone);
+    if (!phone) throw new Error("Invalid phone number. Please use a US number like (555) 123-4567.");
+  }
 
   if (!display_name) throw new Error("Display name is required");
 
   const { error } = await supabase
     .from("users")
-    .update({ display_name, bio, timezone, venmo_handle })
+    .update({ display_name, bio, timezone, venmo_handle, phone, notify_sms })
     .eq("id", user.id);
 
   if (error) throw new Error(error.message);

@@ -156,7 +156,9 @@ export async function submitGuestRsvp(
   name: string,
   email: string | null,
   status: "yes" | "maybe" | "no",
-  communitySlug: string
+  communitySlug: string,
+  phone?: string | null,
+  notifySms?: boolean,
 ) {
   const admin = createAdminClient();
 
@@ -172,10 +174,19 @@ export async function submitGuestRsvp(
   const community = (event.communities as unknown as { allow_guest_rsvp: boolean | null });
   if (community.allow_guest_rsvp === false) throw new Error("Guest RSVPs are not allowed for this event");
 
+  // Normalize phone to E.164 if provided
+  let normalizedPhone: string | null = null;
+  if (phone?.trim()) {
+    const { normalizePhone } = await import("@/lib/phone");
+    normalizedPhone = normalizePhone(phone.trim());
+  }
+
   const { error } = await admin.from("guest_rsvps").insert({
     event_id: eventId,
     name: name.trim(),
     email: email?.trim() || null,
+    phone: normalizedPhone,
+    notify_sms: normalizedPhone ? (notifySms ?? true) : false,
     status,
   });
 

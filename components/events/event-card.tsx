@@ -14,10 +14,11 @@ const STATUS_COLORS = {
 export function EventCard({ event, communitySlug }: Props) {
   const counts = event.rsvp_counts;
   const startsAt = event.starts_at ? new Date(event.starts_at) : null;
+  const isPast = startsAt ? startsAt < new Date() : false;
 
   return (
     <Link href={`/community/${communitySlug}/events/${event.id}`} className="block group">
-      <div className="rounded-2xl border bg-card p-4 transition-all group-hover:shadow-md active:scale-[0.99] flex gap-3">
+      <div className={`rounded-2xl border bg-card p-4 transition-all group-hover:shadow-md active:scale-[0.99] flex gap-3${isPast ? " opacity-75" : ""}`}>
         {/* Date chip */}
         {startsAt && (
           <div
@@ -59,7 +60,7 @@ export function EventCard({ event, communitySlug }: Props) {
             <div className="flex gap-3 text-xs pt-0.5">
               {counts.yes > 0 && (
                 <span className="text-green-600 font-semibold">
-                  {counts.yes} going
+                  {counts.yes} {isPast ? "went" : "going"}
                 </span>
               )}
               {counts.maybe > 0 && (

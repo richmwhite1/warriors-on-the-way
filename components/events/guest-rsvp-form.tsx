@@ -69,6 +69,8 @@ export function GuestRsvpForm({
   const [status, setStatus] = useState<Status | null>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [notifySms, setNotifySms] = useState(true);
   const [saved, setSaved] = useState<Saved | null>(null);
   const [done, setDone] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -99,7 +101,7 @@ export function GuestRsvpForm({
 
     startTransition(async () => {
       try {
-        await submitGuestRsvp(eventId, name.trim(), email.trim() || null, resolvedStatus, communitySlug);
+        await submitGuestRsvp(eventId, name.trim(), email.trim() || null, resolvedStatus, communitySlug, phone.trim() || null, phone.trim() ? notifySms : false);
         const s: Saved = { status: resolvedStatus, name: name.trim() };
         localStorage.setItem(storageKey, JSON.stringify(s));
         setSaved(s);
@@ -264,6 +266,42 @@ export function GuestRsvpForm({
           maxLength={80}
           className="h-12 text-base"
         />
+      </div>
+
+      {/* Phone — optional, for SMS reminders */}
+      <div className="space-y-1.5">
+        <Label htmlFor="guest-phone" className="flex items-center gap-1.5">
+          Phone
+          <span className="text-xs font-medium text-muted-foreground bg-muted px-1.5 py-0.5 rounded">optional</span>
+        </Label>
+        <Input
+          id="guest-phone"
+          type="tel"
+          inputMode="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          placeholder="(555) 123-4567"
+          maxLength={20}
+          className="h-12 text-base"
+        />
+        {phone.trim() && (
+          <label className="flex items-center gap-2 mt-1.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={notifySms}
+              onChange={(e) => setNotifySms(e.target.checked)}
+              className="h-4 w-4 rounded border-border"
+            />
+            <span className="text-xs text-muted-foreground">
+              Send me a text reminder before the event
+            </span>
+          </label>
+        )}
+        {!phone.trim() && (
+          <p className="text-xs text-muted-foreground">
+            Get a text reminder before the event.
+          </p>
+        )}
       </div>
 
       {/* Email — clearly optional */}

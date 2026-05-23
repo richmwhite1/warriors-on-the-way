@@ -382,6 +382,12 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 {communityEvents.map((event) => (
                   <EventCard key={event.id} event={event} communitySlug={slug} />
                 ))}
+                <Link
+                  href={`/community/${slug}/events`}
+                  className="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+                >
+                  View all events →
+                </Link>
                 {feedPosts.length > 0 && <Separator />}
               </div>
             )}

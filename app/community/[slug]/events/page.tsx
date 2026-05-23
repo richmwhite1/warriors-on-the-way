@@ -27,7 +27,11 @@ export default async function EventsPage({ params }: Props) {
   // Guests can view upcoming events but can't post or manage
   if (!user) {
     const events = await listCommunityEvents(community.id);
-    const upcoming = events.filter((e) => e.status !== "cancelled" && (!e.starts_at || new Date(e.starts_at) >= new Date()));
+    const guestNow = new Date();
+    const upcoming = events.filter((e) => e.status !== "cancelled" && (!e.starts_at || new Date(e.starts_at) >= guestNow));
+    const past = events
+      .filter((e) => e.status !== "cancelled" && e.starts_at && new Date(e.starts_at) < guestNow)
+      .reverse();
     return (
       <>
         <AppNav />
@@ -35,12 +39,23 @@ export default async function EventsPage({ params }: Props) {
           <div>
             <h1 className="text-2xl font-heading font-semibold">{community.name} · Events</h1>
           </div>
-          {upcoming.length === 0 ? (
-            <p className="text-muted-foreground">No upcoming events.</p>
+          {upcoming.length === 0 && past.length === 0 ? (
+            <p className="text-muted-foreground">No events yet.</p>
           ) : (
-            <section className="space-y-3">
-              {upcoming.map((e) => <EventCard key={e.id} event={e} communitySlug={slug} />)}
-            </section>
+            <>
+              {upcoming.length > 0 && (
+                <section className="space-y-3">
+                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Upcoming</h2>
+                  {upcoming.map((e) => <EventCard key={e.id} event={e} communitySlug={slug} />)}
+                </section>
+              )}
+              {past.length > 0 && (
+                <section className="space-y-3">
+                  <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wide">Past</h2>
+                  {past.map((e) => <EventCard key={e.id} event={e} communitySlug={slug} />)}
+                </section>
+              )}
+            </>
           )}
           <div className="rounded-2xl border bg-card p-5 space-y-2">
             <p className="font-medium text-sm">Want to RSVP or see more?</p>
@@ -60,8 +75,11 @@ export default async function EventsPage({ params }: Props) {
   const canCreate = isAdmin || community.members_can_create_events;
 
   const events = await listCommunityEvents(community.id);
-  const upcoming = events.filter((e) => e.status !== "cancelled" && (!e.starts_at || new Date(e.starts_at) >= new Date()));
-  const past = events.filter((e) => e.status !== "cancelled" && e.starts_at && new Date(e.starts_at) < new Date());
+  const now = new Date();
+  const upcoming = events.filter((e) => e.status !== "cancelled" && (!e.starts_at || new Date(e.starts_at) >= now));
+  const past = events
+    .filter((e) => e.status !== "cancelled" && e.starts_at && new Date(e.starts_at) < now)
+    .reverse(); // newest-first for past events
   const cancelled = events.filter((e) => e.status === "cancelled");
 
   return (

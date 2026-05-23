@@ -112,7 +112,6 @@ export async function listCommunityEvents(communityId: string): Promise<EventRow
       rsvps(status)
     `)
     .eq("community_id", communityId)
-    .gt("starts_at", new Date().toISOString())
     .is("deleted_at", null)
     .order("starts_at", { ascending: true, nullsFirst: false });
 

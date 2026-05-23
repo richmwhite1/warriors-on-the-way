@@ -3,7 +3,7 @@
 import { Suspense, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { signInWithGoogle, signInWithMagicLink } from "@/lib/actions/auth";
+import { signInWithGoogle, signInWithMagicLink, signInWithPhone, verifyPhoneOtp } from "@/lib/actions/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,11 @@ function SignInForm() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [isPending, startTransition] = useTransition();
+
+  // Phone OTP state
+  const [phone, setPhone] = useState("");
+  const [phoneSent, setPhoneSent] = useState(false);
+  const [otp, setOtp] = useState("");
 
   function handleMagicLink(e: React.FormEvent) {
     e.preventDefault();
@@ -39,6 +44,39 @@ function SignInForm() {
       } catch (err) {
         if (isRedirectError(err)) throw err;
         toast.error("Google sign-in failed. Please try again.");
+      }
+    });
+  }
+
+  function handlePhoneSend(e: React.FormEvent) {
+    e.preventDefault();
+    startTransition(async () => {
+      try {
+        // Normalize: strip non-digits, add +1 if needed
+        let digits = phone.replace(/\D/g, "");
+        if (digits.length === 10) digits = "1" + digits;
+        if (!digits.startsWith("1") || digits.length !== 11) {
+          toast.error("Please enter a valid US phone number.");
+          return;
+        }
+        await signInWithPhone(`+${digits}`);
+        setPhoneSent(true);
+      } catch {
+        toast.error("Couldn't send the code. Please try again.");
+      }
+    });
+  }
+
+  function handlePhoneVerify(e: React.FormEvent) {
+    e.preventDefault();
+    startTransition(async () => {
+      try {
+        let digits = phone.replace(/\D/g, "");
+        if (digits.length === 10) digits = "1" + digits;
+        await verifyPhoneOtp(`+${digits}`, otp, next);
+      } catch (err) {
+        if (isRedirectError(err)) throw err;
+        toast.error("Invalid code. Please try again.");
       }
     });
   }
@@ -75,6 +113,63 @@ function SignInForm() {
         <Separator className="flex-1" />
       </div>
 
+      {/* Phone OTP */}
+      {!phoneSent ? (
+        <form onSubmit={handlePhoneSend} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="phone">Phone number</Label>
+            <Input
+              id="phone"
+              type="tel"
+              inputMode="tel"
+              placeholder="(555) 123-4567"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+              autoComplete="tel"
+              disabled={isPending}
+            />
+          </div>
+          <Button type="submit" className="w-full" disabled={isPending || !phone.replace(/\D/g, "")}>
+            {isPending ? "Sending…" : "Send sign-in code"}
+          </Button>
+        </form>
+      ) : (
+        <form onSubmit={handlePhoneVerify} className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Enter the 6-digit code sent to <span className="font-medium text-foreground">{phone}</span>
+          </p>
+          <Input
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            placeholder="000000"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+            autoFocus
+            disabled={isPending}
+            className="text-center text-lg tracking-[0.3em]"
+          />
+          <Button type="submit" className="w-full" disabled={isPending || otp.length < 6}>
+            {isPending ? "Verifying…" : "Verify code"}
+          </Button>
+          <button
+            type="button"
+            className="text-xs text-muted-foreground underline-offset-2 hover:underline w-full text-center"
+            onClick={() => { setPhoneSent(false); setOtp(""); }}
+          >
+            Use a different number
+          </button>
+        </form>
+      )}
+
+      <div className="flex items-center gap-3">
+        <Separator className="flex-1" />
+        <span className="text-xs text-muted-foreground">or use email</span>
+        <Separator className="flex-1" />
+      </div>
+
       <form onSubmit={handleMagicLink} className="space-y-3">
         <div className="space-y-1.5">
           <Label htmlFor="email">Email address</Label>
@@ -89,7 +184,7 @@ function SignInForm() {
             disabled={isPending}
           />
         </div>
-        <Button type="submit" className="w-full" disabled={isPending || !email}>
+        <Button type="submit" className="w-full" disabled={isPending || !email} variant="outline">
           {isPending ? "Sending…" : "Send sign-in link"}
         </Button>
       </form>

@@ -12,6 +12,20 @@ export async function GET(request: Request) {
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
+      // Check if this is a brand-new user with a placeholder name
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from("users")
+          .select("display_name")
+          .eq("id", user.id)
+          .single();
+
+        if (profile && /^(User \d{4}|New User)$/.test(profile.display_name)) {
+          const welcomeNext = next !== "/home" ? `&next=${encodeURIComponent(next)}` : "";
+          return NextResponse.redirect(`${origin}/profile?welcome=true${welcomeNext}`);
+        }
+      }
       return NextResponse.redirect(`${origin}${next}`);
     }
   }
