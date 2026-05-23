@@ -5,6 +5,7 @@ import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { PushSubscriptionToggle } from "@/components/profile/push-subscription-toggle";
 import { LinkAccounts } from "@/components/profile/link-accounts";
 import { requireUserProfile, getAuthUser } from "@/lib/queries/users";
+import { signOut } from "@/lib/actions/auth";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { OrnamentalDivider } from "@/components/ui/OrnamentalDivider";
 
@@ -94,6 +95,28 @@ export default async function ProfilePage({
         <OrnamentalDivider />
 
         <PushSubscriptionToggle />
+
+        <OrnamentalDivider />
+
+        <form action={signOut}>
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              fontFamily: "var(--font-brand)",
+              fontSize: 15,
+              fontWeight: 700,
+              color: "#7c7589",
+              background: "none",
+              border: "1px solid #e8e2da",
+              borderRadius: "0.75rem",
+              padding: "0.75rem",
+              cursor: "pointer",
+            }}
+          >
+            Sign out
+          </button>
+        </form>
 
       </main>
     </>

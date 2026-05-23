@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { signOut } from "@/lib/actions/auth";
 import { requireUserProfile } from "@/lib/queries/users";
 import { getUnreadNotificationCount } from "@/lib/queries/notifications";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -125,23 +124,6 @@ export async function AppNav() {
                   </AvatarFallback>
                 </Avatar>
               </Link>
-
-              <form action={signOut}>
-                <button
-                  type="submit"
-                  style={{
-                    fontFamily: "var(--font-body)",
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: "#7c7589",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                  }}
-                >
-                  Sign out
-                </button>
-              </form>
             </div>
           )}
         </div>

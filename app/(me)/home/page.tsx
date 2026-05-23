@@ -118,7 +118,7 @@ export default async function HomePage() {
                       textDecoration: "none",
                       transition: "box-shadow 0.15s, transform 0.15s",
                     }}
-                    className="hover:shadow-md active:scale-[0.99]"
+                    className="hover:shadow-md active:scale-[0.97]"
                   >
                     {/* Date chip */}
                     {startsAt && (
@@ -163,8 +163,9 @@ export default async function HomePage() {
                         lineHeight: 1.3,
                         marginBottom: "0.2rem",
                         overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
+                        display: "-webkit-box",
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: "vertical",
                       }}>
                         {event.title}
                       </p>
@@ -300,6 +301,8 @@ export default async function HomePage() {
                 gap: "0.75rem",
                 overflowX: "auto",
                 paddingBottom: "0.5rem",
+                maskImage: "linear-gradient(to right, black 85%, transparent)",
+                WebkitMaskImage: "linear-gradient(to right, black 85%, transparent)",
               }}
               className="no-scrollbar"
             >

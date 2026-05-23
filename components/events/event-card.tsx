@@ -18,7 +18,7 @@ export function EventCard({ event, communitySlug }: Props) {
 
   return (
     <Link href={`/community/${communitySlug}/events/${event.id}`} className="block group">
-      <div className={`rounded-2xl border bg-card p-4 transition-all group-hover:shadow-md active:scale-[0.99] flex gap-3${isPast ? " opacity-75" : ""}`}>
+      <div className={`rounded-2xl border bg-card p-4 transition-all group-hover:shadow-md active:scale-[0.97] flex gap-3${isPast ? " opacity-75" : ""}`}>
         {/* Date chip */}
         {startsAt && (
           <div

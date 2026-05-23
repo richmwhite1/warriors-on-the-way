@@ -81,7 +81,7 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              gap: 2,
+              gap: 4,
               textDecoration: "none",
               color: item.active ? "#e07040" : "#7c7589",
               transition: "color 0.15s",
@@ -117,7 +117,7 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
             <span
               style={{
                 fontFamily: "var(--font-body)",
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: item.active ? 600 : 500,
               }}
             >
