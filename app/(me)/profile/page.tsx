@@ -29,7 +29,7 @@ export default async function ProfilePage({
     <>
       <AppNav />
       <div style={{ height: 60 }} />
-      <main style={{ maxWidth: 560, margin: "0 auto", padding: "2rem 1rem 6rem" }}>
+      <main className="animate-page-enter" style={{ maxWidth: 560, margin: "0 auto", padding: "2rem 1rem 6rem" }}>
 
         {isWelcome && (
           <div

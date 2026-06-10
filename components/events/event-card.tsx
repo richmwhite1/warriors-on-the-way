@@ -18,7 +18,7 @@ export function EventCard({ event, communitySlug }: Props) {
 
   return (
     <Link href={`/community/${communitySlug}/events/${event.id}`} className="block group">
-      <div className={`rounded-2xl border bg-card p-4 transition-all group-hover:shadow-md active:scale-[0.97] flex gap-3${isPast ? " opacity-75" : ""}`}>
+      <div className={`rounded-2xl border bg-card p-4 transition-all group-hover:shadow-md press-scale flex gap-3${isPast ? " opacity-75" : ""}`}>
         {/* Date chip */}
         {startsAt && (
           <div
@@ -52,7 +52,16 @@ export function EventCard({ event, communitySlug }: Props) {
 
           {event.location && (
             <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span>📍</span> {event.location}
+              <span>📍</span>
+              <a
+                href={event.location_url || `https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-primary hover:underline underline-offset-2 transition-colors truncate"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {event.location}
+              </a>
             </p>
           )}
 

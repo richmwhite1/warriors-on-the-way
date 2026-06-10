@@ -64,7 +64,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col w-full overflow-x-clip">
         {children}
-        <Toaster richColors position="bottom-center" />
+        <Toaster richColors position="bottom-center" duration={2500} offset="5rem" />
         <PwaRegister />
       </body>
     </html>

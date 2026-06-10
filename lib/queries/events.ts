@@ -26,6 +26,7 @@ export type EventRow = {
   title: string;
   description: string | null;
   location: string | null;
+  location_url: string | null;
   virtual_url: string | null;
   image_url: string | null;
   starts_at: string | null;
@@ -85,7 +86,7 @@ export async function getNextParentEvent(): Promise<(EventRow & { community_slug
   const { data } = await admin
     .from("events")
     .select(`
-      id, community_id, created_by, title, description, location, virtual_url, image_url,
+      id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
@@ -106,7 +107,7 @@ export async function listCommunityEvents(communityId: string): Promise<EventRow
   const { data } = await supabase
     .from("events")
     .select(`
-      id, community_id, created_by, title, description, location, virtual_url, image_url,
+      id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle),
       rsvps(status)
@@ -147,7 +148,7 @@ export async function listUpcomingEventsForUser(
   const { data } = await supabase
     .from("events")
     .select(`
-      id, community_id, created_by, title, description, location, virtual_url, image_url,
+      id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle),
       community:communities!community_id(slug, name),
@@ -188,7 +189,7 @@ export async function getEventForGuest(eventId: string): Promise<EventRow | null
   const { data: event } = await admin
     .from("events")
     .select(`
-      id, community_id, created_by, title, description, location, virtual_url, image_url,
+      id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
@@ -231,7 +232,7 @@ export async function getEventWithDetails(eventId: string, userId?: string): Pro
   const { data: event } = await supabase
     .from("events")
     .select(`
-      id, community_id, created_by, title, description, location, virtual_url, image_url,
+      id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
       starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)

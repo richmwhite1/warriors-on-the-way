@@ -51,6 +51,7 @@ export default async function EditEventPage({ params }: Props) {
             title: event.title,
             description: event.description ?? "",
             location: event.location ?? "",
+            location_url: (event as unknown as { location_url?: string | null }).location_url ?? "",
             virtual_url: event.virtual_url ?? "",
             starts_at: event.starts_at ? toDatetimeLocal(event.starts_at) : "",
             ends_at: event.ends_at ? toDatetimeLocal(event.ends_at) : "",
