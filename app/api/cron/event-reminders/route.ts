@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEventReminder } from "@/lib/integrations/email";
 import { sendEventReminderSms } from "@/lib/integrations/twilio";
+import { smsEnabled } from "@/lib/phone";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -142,8 +143,9 @@ export async function GET(request: Request) {
     const seenPhones = new Set<string>();
 
     for (const r of recipients) {
-      // SMS
-      if (r.phone && r.notify_sms) {
+      // SMS — skipped entirely (no idempotency rows) when Twilio isn't
+      // configured, so enabling it later doesn't see reminders as already sent
+      if (smsEnabled() && r.phone && r.notify_sms) {
         const phoneAlreadyHandled = seenPhones.has(r.phone);
         seenPhones.add(r.phone);
 

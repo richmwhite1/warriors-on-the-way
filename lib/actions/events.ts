@@ -220,6 +220,9 @@ export async function smsEventAttendees(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
+  const { smsEnabled } = await import("@/lib/phone");
+  if (!smsEnabled()) throw new Error("SMS is not configured");
+
   const trimmed = message.trim();
   if (!trimmed) throw new Error("Message is required");
   if (trimmed.length > 320) throw new Error("Message is too long (320 characters max)");

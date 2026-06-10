@@ -19,6 +19,8 @@ type Props = {
   shareUrl: string;
   goingNames?: string[];
   maybeNames?: string[];
+  /** Server-determined: only show phone/SMS fields when Twilio is configured */
+  smsEnabled?: boolean;
 };
 
 const STATUS_OPTIONS: { value: Status; label: string; emoji: string; selectedCls: string }[] = [
@@ -62,7 +64,7 @@ function ConfettiBurst() {
 
 export function GuestRsvpForm({
   eventId, eventTitle, communitySlug, shareUrl,
-  goingNames = [], maybeNames = [],
+  goingNames = [], maybeNames = [], smsEnabled = false,
 }: Props) {
   const storageKey = `guest_rsvp_${eventId}`;
 
@@ -275,7 +277,9 @@ export function GuestRsvpForm({
         />
       </div>
 
-      {/* Phone — optional, for SMS reminders */}
+      {/* Phone — optional, for SMS reminders. Hidden when Twilio isn't
+          configured: never promise texts that won't be sent. */}
+      {smsEnabled && (
       <div className="space-y-1.5">
         <Label htmlFor="guest-phone" className="flex items-center gap-1.5">
           Phone
@@ -311,6 +315,7 @@ export function GuestRsvpForm({
           </p>
         )}
       </div>
+      )}
 
       {/* Email — clearly optional */}
       <div className="space-y-1.5">

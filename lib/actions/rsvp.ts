@@ -176,9 +176,9 @@ export async function submitGuestRsvp(
   if (community.allow_guest_rsvp === false) throw new Error("Guest RSVPs are not allowed for this event");
 
   // Normalize phone to E.164 if provided
+  const { normalizePhone, smsEnabled } = await import("@/lib/phone");
   let normalizedPhone: string | null = null;
-  if (phone?.trim()) {
-    const { normalizePhone } = await import("@/lib/phone");
+  if (smsEnabled() && phone?.trim()) {
     normalizedPhone = normalizePhone(phone.trim());
   }
 

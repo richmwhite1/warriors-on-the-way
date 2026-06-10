@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
+import { smsEnabled } from "@/lib/phone";
 import { getCommunityBySlug, getCommunityBySlugPublic } from "@/lib/queries/communities";
 import { getMembership, getActiveMemberCount, listActiveMembers } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
@@ -399,6 +400,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
                   shareUrl={shareUrl}
                   goingNames={goingNames}
                   maybeNames={maybeNames}
+                  smsEnabled={smsEnabled()}
                 />
               </div>
             )}
@@ -590,7 +592,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
               >
                 Edit event
               </Link>
-              {event.status === "confirmed" && (
+              {event.status === "confirmed" && smsEnabled() && (
                 <SmsBlast eventId={eventId} communitySlug={slug} />
               )}
               <form action={async () => {

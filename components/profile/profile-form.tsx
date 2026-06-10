@@ -27,7 +27,7 @@ const TIMEZONES = [
   "Australia/Sydney",
 ];
 
-export function ProfileForm({ user, redirectAfterSave }: { user: UserProfile; redirectAfterSave?: string }) {
+export function ProfileForm({ user, redirectAfterSave, smsEnabled = false }: { user: UserProfile; redirectAfterSave?: string; smsEnabled?: boolean }) {
   const [isPending, startTransition] = useTransition();
   const [phoneValue, setPhoneValue] = useState(user.phone ?? "");
   const router = useRouter();
@@ -91,6 +91,10 @@ export function ProfileForm({ user, redirectAfterSave }: { user: UserProfile; re
         </select>
       </div>
 
+      {/* Phone/SMS — hidden when Twilio isn't configured: never promise
+          texts that won't be sent. The server action also skips these fields
+          so existing data is preserved. */}
+      {smsEnabled && (
       <div className="space-y-1.5">
         <Label htmlFor="phone">Phone number</Label>
         <Input
@@ -107,8 +111,9 @@ export function ProfileForm({ user, redirectAfterSave }: { user: UserProfile; re
           For SMS event reminders. US numbers only for now.
         </p>
       </div>
+      )}
 
-      {phoneValue.trim() && (
+      {smsEnabled && phoneValue.trim() && (
         <div className="flex items-start gap-3">
           <input
             type="checkbox"

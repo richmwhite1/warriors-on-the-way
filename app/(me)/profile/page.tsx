@@ -6,6 +6,7 @@ import { PushSubscriptionToggle } from "@/components/profile/push-subscription-t
 import { LinkAccounts } from "@/components/profile/link-accounts";
 import { requireUserProfile, getAuthUser } from "@/lib/queries/users";
 import { signOut } from "@/lib/actions/auth";
+import { smsEnabled } from "@/lib/phone";
 import { SectionLabel } from "@/components/ui/SectionLabel";
 import { OrnamentalDivider } from "@/components/ui/OrnamentalDivider";
 
@@ -86,7 +87,7 @@ export default async function ProfilePage({
 
         <OrnamentalDivider />
 
-        <ProfileForm user={user} redirectAfterSave={isWelcome ? (nextUrl || "/home") : undefined} />
+        <ProfileForm user={user} redirectAfterSave={isWelcome ? (nextUrl || "/home") : undefined} smsEnabled={smsEnabled()} />
 
         <OrnamentalDivider />
 
