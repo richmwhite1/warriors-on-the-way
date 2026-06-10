@@ -82,6 +82,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
     : {};
 
   const isParentAdmin = isAdmin && community.is_parent;
+  const canCreate = isAdmin || community.members_can_create_events;
+
+  const evNow = new Date();
+  const upcomingEvs = (communityEvents as typeof communityEvents).filter((e) => e.status !== "cancelled" && (!e.starts_at || new Date(e.starts_at) >= evNow));
 
   const joinStatus = (memberStatus === "none" ? "none" : memberStatus) as
     "none" | "active" | "waitlisted" | "pending_approval" | "banned";
@@ -212,7 +216,17 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   Members
                 </Link>
               )}
-{isAdmin && (
+              {isMember && (
+                <Link href={`/community/${slug}/events`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Events
+                </Link>
+              )}
+              {canCreate && (
+                <Link href={`/community/${slug}/events/new`} className={cn(buttonVariants({ size: "sm" }), "rounded-full")}>
+                  + New event
+                </Link>
+              )}
+              {isAdmin && (
                 <Link href={`/community/${slug}/settings`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Settings
                 </Link>
@@ -225,7 +239,25 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 inviteToken={inviteToken}
               />
           </div>
-          {community.description && (
+
+          {/* Post composer — right at the top, Facebook-style */}
+          {isMember && !isViewer && (
+            <PostComposer
+              communityId={community.id}
+              communitySlug={slug}
+              isParentAdmin={isParentAdmin}
+              userAvatar={user?.avatar_url}
+              userName={user?.display_name}
+            />
+          )}
+          {isMember && isViewer && (
+            <div style={{ border: "1px dashed rgba(255,255,255,0.1)", padding: "0.75rem 1rem", textAlign: "center" }}>
+              <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "0.9rem" }}>You have view-only access to this community.</p>
+            </div>
+          )}
+
+          {/* Non-members see the pitch up top; members get it tucked into About below the feed */}
+          {!isMember && community.description && (
             <p
               style={{
                 fontFamily: "var(--font-body)",
@@ -239,7 +271,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           )}
 
           {/* Mission statement — collapsible */}
-          {community.mission && (
+          {!isMember && community.mission && (
             <details className="rounded-xl border overflow-hidden">
               <summary
                 style={{
@@ -260,7 +292,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           )}
 
           {/* Parent community: show rules collapsed */}
-          {community.is_parent && community.rules_md && (
+          {!isMember && community.is_parent && community.rules_md && (
             <details className="rounded-xl border overflow-hidden">
               <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 600, color: "#1a1a2e", cursor: "pointer" }}>
                 Community Standards
@@ -272,7 +304,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           )}
 
           {/* Child community: show parent rules collapsed */}
-          {!community.is_parent && parentCommunity?.rules_md && (
+          {!isMember && !community.is_parent && parentCommunity?.rules_md && (
             <details style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
               <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#7c7589", cursor: "pointer" }}>
                 Community Standards ↓
@@ -284,33 +316,30 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             </details>
           )}
 
-          {/* Latest video from Seán — only on the parent (Warriors on the Way) community */}
-          {community.is_parent && latestVideoId && (
-            <div style={{ marginTop: "1rem" }}>
-              <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#e07040", marginBottom: "0.75rem" }}>Latest from Seán</p>
-              <div className="aspect-video overflow-hidden" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
-                <iframe
-                  src={`https://www.youtube.com/embed/${latestVideoId}`}
-                  title="Latest video from Seán Ó'Laoire"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="w-full h-full"
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         <div style={{ height: 1, background: "rgba(255,255,255,0.1)", margin: "1rem 0" }} />
 
         {isMember ? (
           <div className="space-y-4">
-            {/* Gatherings first — the point is bodies in the room */}
-            {communityEvents.length > 0 && (
+            {/* ── Upcoming Events ─────────────────────────────────────────────── */}
+            {(upcomingEvs.length > 0 || canCreate) && (
               <div className="space-y-3">
-                {communityEvents.map((event) => (
-                  <EventCard key={event.id} event={event} communitySlug={slug} />
-                ))}
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Upcoming Events</p>
+                  {canCreate && (
+                    <Link href={`/community/${slug}/events/new`} className={cn(buttonVariants({ size: "sm" }), "rounded-full")}>
+                      + New event
+                    </Link>
+                  )}
+                </div>
+                {upcomingEvs.length > 0 ? (
+                  upcomingEvs.slice(0, 3).map((event) => (
+                    <EventCard key={event.id} event={event} communitySlug={slug} />
+                  ))
+                ) : (
+                  <p className="text-sm text-muted-foreground">No upcoming events yet.</p>
+                )}
                 <Link
                   href={`/community/${slug}/events`}
                   className="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
@@ -321,22 +350,6 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {!isViewer && (
-              <PostComposer
-                communityId={community.id}
-                communitySlug={slug}
-                isParentAdmin={isParentAdmin}
-                userAvatar={user?.avatar_url}
-                userName={user?.display_name}
-              />
-            )}
-            {isViewer && (
-              <div style={{ border: "1px dashed rgba(255,255,255,0.1)", padding: "0.75rem 1rem", textAlign: "center" }}>
-                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "0.9rem" }}>You have view-only access to this community.</p>
-              </div>
-            )}
-
-            {/* Pinned post — always visible above filter */}
             {pinnedPost && (
               <PostCard
                 post={pinnedPost}
@@ -350,12 +363,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               />
             )}
 
-            {/* Filter bar */}
             <Suspense>
               <FeedFilterBar />
             </Suspense>
 
-            {/* Parent push posts */}
             {parentPushPosts.length > 0 && (
               <div className="space-y-3">
                 {parentPushPosts.map((post) => (
@@ -374,7 +385,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {isEmpty ? (
+            {allPosts.length === 0 ? (
               <div style={{ border: "1px dashed rgba(255,255,255,0.1)", padding: "3rem 2rem", textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589" }}>
                   {postTypeFilter
@@ -395,6 +406,60 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   userCommunities={userCommunities}
                 />
               ))
+            )}
+
+            {/* ── Latest from Seán (parent community only) ────────────────────── */}
+            {community.is_parent && latestVideoId && (
+              <div className="space-y-3">
+                <Separator />
+                <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#e07040" }}>Latest from Seán</p>
+                <div className="aspect-video overflow-hidden rounded-xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
+                  <iframe
+                    src={`https://www.youtube.com/embed/${latestVideoId}`}
+                    title="Latest video from Seán Ó'Laoire"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="w-full h-full"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* ── About (collapsed, bottom of feed) ───────────────────────────── */}
+            {(community.description || community.mission || community.rules_md || parentCommunity?.rules_md) && (
+              <details className="rounded-xl border overflow-hidden">
+                <summary
+                  style={{
+                    padding: "0.75rem 1rem",
+                    fontFamily: "var(--font-brand)",
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#1a1a2e",
+                    cursor: "pointer",
+                  }}
+                >
+                  About this community
+                </summary>
+                <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #e8e2da", background: "#f5f0eb" }} className="space-y-3">
+                  {community.description && (
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", lineHeight: 1.6, color: "#4a4458" }}>{community.description}</p>
+                  )}
+                  {community.mission && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1a1a2e", marginBottom: "0.25rem" }}>Mission</p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4458" }}>{community.mission}</p>
+                    </div>
+                  )}
+                  {(community.is_parent ? community.rules_md : parentCommunity?.rules_md) && (
+                    <div>
+                      <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1a1a2e", marginBottom: "0.25rem" }}>Community Standards</p>
+                      <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4458" }}>
+                        {community.is_parent ? community.rules_md : parentCommunity?.rules_md}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </details>
             )}
           </div>
         ) : memberStatus === "waitlisted" ? (
