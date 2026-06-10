@@ -5,7 +5,7 @@ import { CommunitySettingsForm } from "@/components/community/community-settings
 import { InviteLink } from "@/components/community/invite-link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { getCommunityBySlug } from "@/lib/queries/communities";
+import { getCommunityBySlug, getCommunityAdminSecrets } from "@/lib/queries/communities";
 import { getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listCommunityResources } from "@/lib/queries/resources";
@@ -32,6 +32,9 @@ export default async function CommunitySettingsPage({ params }: Props) {
   const isAdmin = membership?.role === "admin" || membership?.role === "organizer";
   if (!isAdmin) redirect(`/community/${slug}`);
 
+  // invite_token / telegram_chat_id are API-hidden columns; safe to fetch here
+  // because the admin check above already passed
+  const secrets = await getCommunityAdminSecrets(community.id);
   const resources = await listCommunityResources(community.id);
 
   return (
@@ -67,11 +70,11 @@ export default async function CommunitySettingsPage({ params }: Props) {
         <InviteLink
           communityId={community.id}
           communitySlug={slug}
-          currentToken={(community as unknown as { invite_token?: string | null }).invite_token ?? null}
+          currentToken={secrets.invite_token}
           siteUrl={process.env.NEXT_PUBLIC_SITE_URL ?? ""}
         />
 
-        <CommunitySettingsForm community={community} />
+        <CommunitySettingsForm community={{ ...community, telegram_chat_id: secrets.telegram_chat_id }} />
 
         {community.is_parent && (
           <div id="resources" className="pt-4">

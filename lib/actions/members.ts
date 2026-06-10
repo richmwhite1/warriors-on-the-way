@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getActiveMemberCount, getMembership } from "@/lib/queries/members";
 import { createNotification, notifyCommunityAdmins } from "@/lib/actions/notifications";
 
@@ -10,6 +11,11 @@ export async function joinCommunity(communityId: string, communitySlug: string, 
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
+  // Membership writes use the service role: RLS no longer allows users to
+  // insert their own rows (it permitted choosing role/status — a privilege
+  // escalation). Role and status are decided here, server-side, only.
+  const admin = createAdminClient();
+
   // Check existing membership
   const existing = await getMembership(communityId, user.id);
   if (existing) {
@@ -17,8 +23,8 @@ export async function joinCommunity(communityId: string, communitySlug: string, 
     if (existing.status === "banned") throw new Error("You cannot join this community");
   }
 
-  // Fetch community to check private/cap
-  const { data: community } = await supabase
+  // Fetch community to check private/cap (invite_token is API-hidden — admin read)
+  const { data: community } = await admin
     .from("communities")
     .select("is_private, member_cap, is_parent, invite_token")
     .eq("id", communityId)
@@ -45,14 +51,16 @@ export async function joinCommunity(communityId: string, communitySlug: string, 
   }
 
   if (existing) {
-    await supabase
+    const { error } = await admin
       .from("community_members")
       .update({ status })
       .eq("id", existing.id);
+    if (error) throw new Error(error.message);
   } else {
-    await supabase
+    const { error } = await admin
       .from("community_members")
-      .insert({ community_id: communityId, user_id: user.id, status });
+      .insert({ community_id: communityId, user_id: user.id, role: "member", status });
+    if (error) throw new Error(error.message);
   }
 
   // Notify admins
@@ -70,14 +78,14 @@ export async function joinCommunity(communityId: string, communitySlug: string, 
 
   // Auto-join the WoW parent community if this is a sub-community
   if (!community.is_parent && status === "active") {
-    const { data: parent } = await supabase
+    const { data: parent } = await admin
       .from("communities")
       .select("id, slug")
       .eq("is_parent", true)
       .single();
 
     if (parent && parent.id !== communityId) {
-      const { data: existingParentMembership } = await supabase
+      const { data: existingParentMembership } = await admin
         .from("community_members")
         .select("id, status")
         .eq("community_id", parent.id)
@@ -85,9 +93,9 @@ export async function joinCommunity(communityId: string, communitySlug: string, 
         .maybeSingle();
 
       if (!existingParentMembership) {
-        await supabase
+        await admin
           .from("community_members")
-          .insert({ community_id: parent.id, user_id: user.id, status: "active" });
+          .insert({ community_id: parent.id, user_id: user.id, role: "member", status: "active" });
         revalidatePath(`/community/${parent.slug}`);
       }
     }
@@ -185,8 +193,10 @@ export async function removeMember(membershipId: string, communitySlug: string) 
 }
 
 async function promoteFromWaitlist(communityId: string) {
-  const supabase = await createClient();
-  const { data: next } = await supabase
+  // Service role: the caller is often the member who just left, who has no
+  // RLS permission to update someone else's membership row.
+  const admin = createAdminClient();
+  const { data: next } = await admin
     .from("community_members")
     .select("id")
     .eq("community_id", communityId)
@@ -196,7 +206,7 @@ async function promoteFromWaitlist(communityId: string) {
     .single();
 
   if (next) {
-    const { data: promoted } = await supabase
+    const { data: promoted } = await admin
       .from("community_members")
       .update({ status: "active" })
       .eq("id", next.id)

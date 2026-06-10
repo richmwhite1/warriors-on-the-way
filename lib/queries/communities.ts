@@ -29,14 +29,24 @@ export type Community = {
   longitude?: number | null;
 };
 
+// Every column except invite_token / telegram_chat_id, which are revoked from
+// the anon/authenticated API roles — select("*") would fail with a permission
+// error. Read those via getCommunityAdminSecrets() after verifying the caller.
+const COMMUNITY_SELECT = `
+  id, slug, name, description, banner_url, is_parent, is_private,
+  members_can_create_events, member_cap, created_by, created_at, updated_at,
+  allow_guest_rsvp, location, telegram_invite_link, telegram_push_types,
+  mission, rules_md, latitude, longitude, public_member_count
+`;
+
 export async function getCommunityBySlug(slug: string): Promise<Community | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("communities")
-    .select("*")
+    .select(COMMUNITY_SELECT)
     .eq("slug", slug)
     .single();
-  return data;
+  return data as Community | null;
 }
 
 export async function getCommunityWithMemberCount(slug: string) {
@@ -44,7 +54,7 @@ export async function getCommunityWithMemberCount(slug: string) {
   const { data } = await supabase
     .from("communities")
     .select(`
-      *,
+      ${COMMUNITY_SELECT},
       member_count:community_members(count)
     `)
     .eq("slug", slug)
@@ -112,10 +122,31 @@ export async function getParentCommunity(): Promise<Community | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from("communities")
-    .select("*")
+    .select(COMMUNITY_SELECT)
     .eq("is_parent", true)
     .single();
-  return data;
+  return data as Community | null;
+}
+
+/**
+ * Admin-only secrets (invite token, Telegram chat id) — these columns are not
+ * readable through the user-facing API roles. Callers MUST verify the user is
+ * an admin/organizer of the community before calling this.
+ */
+export async function getCommunityAdminSecrets(
+  communityId: string
+): Promise<{ invite_token: string | null; telegram_chat_id: string | null }> {
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const admin = createAdminClient();
+  const { data } = await admin
+    .from("communities")
+    .select("invite_token, telegram_chat_id")
+    .eq("id", communityId)
+    .single();
+  return {
+    invite_token: (data as { invite_token?: string | null } | null)?.invite_token ?? null,
+    telegram_chat_id: (data as { telegram_chat_id?: string | null } | null)?.telegram_chat_id ?? null,
+  };
 }
 
 /**
@@ -127,10 +158,10 @@ export async function getCommunityBySlugPublic(slug: string): Promise<Community 
   const admin = createAdminClient();
   const { data } = await admin
     .from("communities")
-    .select("*")
+    .select(COMMUNITY_SELECT)
     .eq("slug", slug)
     .single();
-  return data;
+  return data as Community | null;
 }
 
 export async function slugExists(slug: string): Promise<boolean> {

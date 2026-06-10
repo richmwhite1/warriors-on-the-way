@@ -159,6 +159,7 @@ export async function submitGuestRsvp(
   communitySlug: string,
   phone?: string | null,
   notifySms?: boolean,
+  clientToken?: string | null,
 ) {
   const admin = createAdminClient();
 
@@ -181,21 +182,34 @@ export async function submitGuestRsvp(
     normalizedPhone = normalizePhone(phone.trim());
   }
 
-  const { error } = await admin.from("guest_rsvps").insert({
-    event_id: eventId,
-    name: name.trim(),
-    email: email?.trim() || null,
-    phone: normalizedPhone,
-    notify_sms: normalizedPhone ? (notifySms ?? true) : false,
-    status,
-  });
+  const smsOptIn = !!normalizedPhone && (notifySms ?? false);
+
+  // Upsert on (event_id, client_token) so "Change my RSVP" updates the row
+  // instead of inserting a duplicate (which inflated counts and doubled SMS)
+  const token = clientToken && /^[0-9a-f-]{36}$/i.test(clientToken)
+    ? clientToken
+    : crypto.randomUUID();
+
+  const { error } = await admin.from("guest_rsvps").upsert(
+    {
+      event_id: eventId,
+      client_token: token,
+      name: name.trim(),
+      email: email?.trim() || null,
+      phone: normalizedPhone,
+      notify_sms: smsOptIn,
+      sms_consent_at: smsOptIn ? new Date().toISOString() : null,
+      status,
+    },
+    { onConflict: "event_id,client_token" }
+  );
 
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
 
   // Confirmation text — guests have no app or account, so this SMS is their
   // ticket: the details to save and the link back to the event.
-  if (status === "yes" && normalizedPhone && (notifySms ?? true)) {
+  if (status === "yes" && smsOptIn && normalizedPhone) {
     try {
       const { sendSms } = await import("@/lib/integrations/twilio");
       const tz = event.timezone || "UTC";

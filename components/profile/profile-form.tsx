@@ -109,16 +109,17 @@ export function ProfileForm({ user, redirectAfterSave }: { user: UserProfile; re
       </div>
 
       {phoneValue.trim() && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <input
             type="checkbox"
             id="notify_sms"
             name="notify_sms"
             defaultChecked={user.notify_sms}
-            className="h-4 w-4 rounded border-border"
+            className="h-4 w-4 mt-0.5 rounded border-border"
           />
-          <Label htmlFor="notify_sms" className="text-sm font-normal cursor-pointer">
-            Send me SMS reminders before events
+          <Label htmlFor="notify_sms" className="text-sm font-normal cursor-pointer leading-snug">
+            Text me event reminders. Msg &amp; data rates may apply. Reply STOP
+            anytime to opt out.
           </Label>
         </div>
       )}

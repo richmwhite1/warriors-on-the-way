@@ -136,9 +136,17 @@ export async function GET(request: Request) {
     }
 
     // ── Send reminders with idempotency ──────────────────────────────────
+    // One SMS per phone number per event: the same person can appear as both
+    // a member RSVP and a guest RSVP (or as multiple guest rows). Idempotency
+    // rows are still written per recipient so dedupe is stable across runs.
+    const seenPhones = new Set<string>();
+
     for (const r of recipients) {
       // SMS
       if (r.phone && r.notify_sms) {
+        const phoneAlreadyHandled = seenPhones.has(r.phone);
+        seenPhones.add(r.phone);
+
         const { data: inserted } = await admin
           .from("event_reminders_sent")
           .insert({
@@ -151,7 +159,7 @@ export async function GET(request: Request) {
           .select("id")
           .single();
 
-        if (inserted) {
+        if (inserted && !phoneAlreadyHandled) {
           try {
             await sendEventReminderSms({
               to: r.phone,

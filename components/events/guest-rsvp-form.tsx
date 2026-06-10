@@ -10,7 +10,7 @@ import { ShareButton } from "@/components/events/share-button";
 import { toast } from "sonner";
 
 type Status = "yes" | "maybe" | "no";
-type Saved = { status: Status; name: string };
+type Saved = { status: Status; name: string; token?: string };
 
 type Props = {
   eventId: string;
@@ -70,7 +70,8 @@ export function GuestRsvpForm({
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [notifySms, setNotifySms] = useState(true);
+  const [notifySms, setNotifySms] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
   const [saved, setSaved] = useState<Saved | null>(null);
   const [done, setDone] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
@@ -84,9 +85,15 @@ export function GuestRsvpForm({
         setSaved(parsed);
         setStatus(parsed.status);
         setName(parsed.name);
+        setToken(parsed.token ?? crypto.randomUUID());
         setDone(true);
+      } else {
+        // Stable per-browser token so changing the RSVP updates the same row
+        setToken(crypto.randomUUID());
       }
-    } catch { /* ignore */ }
+    } catch {
+      setToken(crypto.randomUUID());
+    }
   }, [storageKey]);
 
   const triggerConfetti = useCallback(() => {
@@ -101,8 +108,8 @@ export function GuestRsvpForm({
 
     startTransition(async () => {
       try {
-        await submitGuestRsvp(eventId, name.trim(), email.trim() || null, resolvedStatus, communitySlug, phone.trim() || null, phone.trim() ? notifySms : false);
-        const s: Saved = { status: resolvedStatus, name: name.trim() };
+        await submitGuestRsvp(eventId, name.trim(), email.trim() || null, resolvedStatus, communitySlug, phone.trim() || null, phone.trim() ? notifySms : false, token);
+        const s: Saved = { status: resolvedStatus, name: name.trim(), token: token ?? undefined };
         localStorage.setItem(storageKey, JSON.stringify(s));
         setSaved(s);
         setDone(true);
@@ -285,15 +292,16 @@ export function GuestRsvpForm({
           className="h-12 text-base"
         />
         {phone.trim() && (
-          <label className="flex items-center gap-2 mt-1.5 cursor-pointer">
+          <label className="flex items-start gap-2 mt-1.5 cursor-pointer">
             <input
               type="checkbox"
               checked={notifySms}
               onChange={(e) => setNotifySms(e.target.checked)}
-              className="h-4 w-4 rounded border-border"
+              className="h-4 w-4 mt-0.5 rounded border-border"
             />
             <span className="text-xs text-muted-foreground">
-              Send me a text reminder before the event
+              Text me event reminders. Msg &amp; data rates may apply. Reply STOP
+              anytime to opt out.
             </span>
           </label>
         )}

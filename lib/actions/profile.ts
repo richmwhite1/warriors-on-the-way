@@ -25,9 +25,21 @@ export async function updateProfile(formData: FormData) {
 
   if (!display_name) throw new Error("Display name is required");
 
+  const smsOptIn = notify_sms && !!phone;
+  const update: Record<string, unknown> = {
+    display_name, bio, timezone, venmo_handle, phone,
+    notify_sms: smsOptIn,
+  };
+  // TCPA recordkeeping: timestamp each affirmative opt-in. Opt-outs keep the
+  // historical consent record; notify_sms governs whether we actually send.
+  if (smsOptIn) {
+    update.sms_consent_at = new Date().toISOString();
+    update.sms_consent_source = "profile_form";
+  }
+
   const { error } = await supabase
     .from("users")
-    .update({ display_name, bio, timezone, venmo_handle, phone, notify_sms })
+    .update(update)
     .eq("id", user.id);
 
   if (error) throw new Error(error.message);

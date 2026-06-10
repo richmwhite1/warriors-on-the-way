@@ -172,7 +172,22 @@ export async function setupTelegramWebhook(communityId: string) {
  */
 export async function checkTelegramConnected(communityId: string): Promise<string | null> {
   const supabase = await createClient();
-  const { data } = await supabase
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { data: membership } = await supabase
+    .from("community_members")
+    .select("role")
+    .eq("community_id", communityId)
+    .eq("user_id", user.id)
+    .single();
+  if (!membership || !["admin", "organizer"].includes(membership.role as string)) {
+    throw new Error("Not authorized");
+  }
+
+  // telegram_chat_id is API-hidden — read via service role after the role check
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const { data } = await createAdminClient()
     .from("communities")
     .select("telegram_chat_id")
     .eq("id", communityId)
@@ -201,7 +216,9 @@ export async function connectTelegramChannel(communityId: string, communitySlug:
   }
 
   // 1. Check if the webhook already auto-connected the group (production path)
-  const { data: community } = await supabase
+  // telegram_chat_id is API-hidden — read via service role (role check above)
+  const { createAdminClient } = await import("@/lib/supabase/admin");
+  const { data: community } = await createAdminClient()
     .from("communities")
     .select("telegram_chat_id")
     .eq("id", communityId)
