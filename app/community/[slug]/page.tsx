@@ -1,23 +1,3 @@
-// Sean's YouTube channel ID — set this once you have the channel URL
-// Find it at: youtube.com/@channelname → view source → look for "channelId"
-const SEAN_YOUTUBE_CHANNEL_ID = "UCSEABr_YYaS6MLSAXE6Tuzw";
-
-async function getLatestYouTubeVideoId(channelId: string): Promise<string | null> {
-  if (!channelId) return null;
-  try {
-    const res = await fetch(
-      `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
-      { next: { revalidate: 3600 } } // re-fetch at most once per hour
-    );
-    if (!res.ok) return null;
-    const xml = await res.text();
-    const match = xml.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
-    return match?.[1] ?? null;
-  } catch {
-    return null;
-  }
-}
-
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -37,6 +17,7 @@ import { requireUserProfile } from "@/lib/queries/users";
 import { listCommunityPosts, listParentPushPosts } from "@/lib/queries/posts";
 import { listCommunityEvents } from "@/lib/queries/events";
 import { listCommentsByPostIds } from "@/lib/queries/comments";
+import { fetchLatestChannelVideo } from "@/lib/integrations/youtube";
 import { TelegramJoinBanner } from "@/components/telegram-join-banner";
 
 type Props = {
@@ -59,11 +40,12 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const community = await getCommunityBySlug(slug);
   if (!community) notFound();
 
-  const [membership, memberCount, latestVideoId] = await Promise.all([
+  const [membership, memberCount, latestVideo] = await Promise.all([
     user ? getMembership(community.id, user.id) : Promise.resolve(null),
     getActiveMemberCount(community.id),
-    community.is_parent ? getLatestYouTubeVideoId(SEAN_YOUTUBE_CHANNEL_ID) : Promise.resolve(null),
+    community.is_parent ? fetchLatestChannelVideo() : Promise.resolve(null),
   ]);
+  const latestVideoId = latestVideo?.videoId ?? null;
 
   const memberStatus = membership?.status ?? "none";
   const isAdmin = membership?.role === "admin" || membership?.role === "organizer";
@@ -221,7 +203,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
         </div>
       )}
 
-      <main className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <main className="max-w-2xl mx-auto px-4 py-8 space-y-6 animate-page-enter">
         <div className="space-y-3">
           {/* Action buttons */}
           <div className="flex items-center gap-2 flex-wrap">
@@ -323,6 +305,22 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
         {isMember ? (
           <div className="space-y-4">
+            {/* Gatherings first — the point is bodies in the room */}
+            {communityEvents.length > 0 && (
+              <div className="space-y-3">
+                {communityEvents.map((event) => (
+                  <EventCard key={event.id} event={event} communitySlug={slug} />
+                ))}
+                <Link
+                  href={`/community/${slug}/events`}
+                  className="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+                >
+                  View all events →
+                </Link>
+                <Separator />
+              </div>
+            )}
+
             {!isViewer && (
               <PostComposer
                 communityId={community.id}
@@ -376,22 +374,6 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               </div>
             )}
 
-            {/* Events from events table */}
-            {communityEvents.length > 0 && (
-              <div className="space-y-3">
-                {communityEvents.map((event) => (
-                  <EventCard key={event.id} event={event} communitySlug={slug} />
-                ))}
-                <Link
-                  href={`/community/${slug}/events`}
-                  className="block text-center text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-                >
-                  View all events →
-                </Link>
-                {feedPosts.length > 0 && <Separator />}
-              </div>
-            )}
-
             {isEmpty ? (
               <div style={{ border: "1px dashed rgba(255,255,255,0.1)", padding: "3rem 2rem", textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589" }}>
@@ -418,7 +400,13 @@ export default async function CommunityPage({ params, searchParams }: Props) {
         ) : memberStatus === "waitlisted" ? (
           <div style={{ border: "1px solid rgba(255,255,255,0.1)", padding: "3rem 2rem", textAlign: "center" }}>
             <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#f5f0eb", marginBottom: "0.5rem" }}>You&apos;re on the waitlist</p>
-            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "1rem" }}>We&apos;ll let you know when a spot opens up.</p>
+            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "1rem", marginBottom: "1rem" }}>We&apos;ll let you know when a spot opens up.</p>
+            <Link
+              href="/community"
+              style={{ fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 700, color: "#e07040", textDecoration: "none" }}
+            >
+              Find another group near you →
+            </Link>
           </div>
         ) : memberStatus === "pending_approval" ? (
           <div style={{ border: "1px solid rgba(255,255,255,0.1)", padding: "3rem 2rem", textAlign: "center" }}>

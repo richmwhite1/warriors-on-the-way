@@ -39,3 +39,32 @@ export async function fetchYouTubeOEmbed(url: string): Promise<YouTubeOEmbed | n
 export function YouTubeThumbnailUrl(videoId: string) {
   return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 }
+
+// Seán's YouTube channel — the live source for "latest from Seán" surfaces
+export const SEAN_YOUTUBE_CHANNEL_ID = "UCSEABr_YYaS6MLSAXE6Tuzw";
+
+export type LatestVideo = { videoId: string; title: string; published: string | null };
+
+export async function fetchLatestChannelVideo(
+  channelId: string = SEAN_YOUTUBE_CHANNEL_ID
+): Promise<LatestVideo | null> {
+  if (!channelId) return null;
+  try {
+    const res = await fetch(
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`,
+      { next: { revalidate: 3600 } } // re-fetch at most once per hour
+    );
+    if (!res.ok) return null;
+    const xml = await res.text();
+    // First <entry> is the most recent upload
+    const entry = xml.match(/<entry>([\s\S]*?)<\/entry>/)?.[1];
+    if (!entry) return null;
+    const videoId = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/)?.[1];
+    if (!videoId) return null;
+    const title = entry.match(/<title>([^<]*)<\/title>/)?.[1] ?? "Latest transmission";
+    const published = entry.match(/<published>([^<]+)<\/published>/)?.[1] ?? null;
+    return { videoId, title, published };
+  } catch {
+    return null;
+  }
+}

@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEventNotification } from "@/lib/integrations/telegram";
+import { sendEventAnnouncements } from "@/lib/integrations/email";
 import { notifyCommunityMembers } from "@/lib/actions/notifications";
 
 export async function createEvent(formData: FormData): Promise<{ eventId: string; communitySlug: string }> {
@@ -19,6 +20,7 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
+  const location_url = (formData.get("location_url") as string)?.trim() || null;
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
   const image_url = (formData.get("image_url") as string)?.trim() || null;
   const timezone = (formData.get("timezone") as string) || "UTC";
@@ -46,7 +48,7 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
   const { data: event, error } = await supabase
     .from("events")
     .insert({
-      community_id, created_by: user.id, title, description, location, virtual_url,
+      community_id, created_by: user.id, title, description, location, location_url, virtual_url,
       image_url, timezone, starts_at, ends_at, status, vote_threshold,
       registration_fee: registration_fee > 0 ? registration_fee : null,
       tasks_enabled,
@@ -109,6 +111,56 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
       community_name: communityData.name,
     }, user.id);
   }
+
+  // ── Email announcement to community members ──────────────────────────────
+  // In-app notifications only reach people who open the app; email is the
+  // announcement channel that actually tells members a gathering exists.
+  if (communityData) {
+    try {
+      const { data: members } = await admin
+        .from("community_members")
+        .select("user_id, users!inner(display_name, notify_email)")
+        .eq("community_id", community_id)
+        .eq("status", "active")
+        .neq("user_id", user.id);
+
+      const optedIn = (members ?? []).filter((m) => {
+        const u = m.users as unknown as { notify_email: boolean };
+        return u.notify_email !== false;
+      });
+
+      const authUsers = await Promise.all(
+        optedIn.map((m) => admin.auth.admin.getUserById(m.user_id).catch(() => null))
+      );
+
+      const recipients = optedIn.flatMap((m, i) => {
+        const email = authUsers[i]?.data?.user?.email;
+        if (!email) return [];
+        const u = m.users as unknown as { display_name: string };
+        return [{ email, name: u.display_name }];
+      });
+
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+      const dateLine = starts_at
+        ? new Date(starts_at).toLocaleDateString("en-US", {
+            weekday: "long", month: "long", day: "numeric",
+            hour: "numeric", minute: "2-digit", timeZone: timezone,
+          })
+        : "Date being decided — cast your vote";
+
+      await sendEventAnnouncements({
+        recipients,
+        communityName: communityData.name,
+        eventTitle: title,
+        description,
+        dateLine,
+        location,
+        eventUrl: `${siteUrl}/community/${communityData.slug}/events/${event.id}`,
+      });
+    } catch {
+      // best-effort — never block event creation on email delivery
+    }
+  }
   // ────────────────────────────────────────────────────────────────────────
 
   // Use slug from form first (always available), fall back to DB lookup
@@ -124,6 +176,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
+  const location_url = (formData.get("location_url") as string)?.trim() || null;
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
   const image_url = (formData.get("image_url") as string)?.trim() || null;
   const dateStr = formData.get("starts_at") as string;
@@ -136,7 +189,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
 
   const { data: event, error } = await supabase
     .from("events")
-    .update({ title, description, location, virtual_url, image_url, starts_at, ends_at, timezone, registration_fee })
+    .update({ title, description, location, location_url, virtual_url, image_url, starts_at, ends_at, timezone, registration_fee })
     .eq("id", eventId)
     .select("community_id")
     .single();
@@ -154,6 +207,76 @@ export async function cancelEvent(eventId: string, communitySlug: string) {
   await supabase.from("events").update({ status: "cancelled" }).eq("id", eventId);
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
   revalidatePath(`/community/${communitySlug}/events`);
+}
+
+// Host-initiated SMS to everyone who said yes — for day-of changes (venue
+// moved, late start) where email and in-app notifications are too slow.
+export async function smsEventAttendees(
+  eventId: string,
+  communitySlug: string,
+  message: string
+): Promise<{ sent: number }> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const trimmed = message.trim();
+  if (!trimmed) throw new Error("Message is required");
+  if (trimmed.length > 320) throw new Error("Message is too long (320 characters max)");
+
+  const admin = createAdminClient();
+  const { data: event } = await admin
+    .from("events")
+    .select("community_id, created_by, title")
+    .eq("id", eventId)
+    .single();
+  if (!event) throw new Error("Event not found");
+
+  if (event.created_by !== user.id) {
+    const { data: membership } = await admin
+      .from("community_members")
+      .select("role")
+      .eq("community_id", event.community_id)
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .single();
+    if (!membership || !["admin", "organizer"].includes(membership.role)) {
+      throw new Error("Not authorized");
+    }
+  }
+
+  const [{ data: memberRsvps }, { data: guestRsvps }] = await Promise.all([
+    admin
+      .from("rsvps")
+      .select("users!inner(phone, notify_sms)")
+      .eq("event_id", eventId)
+      .eq("status", "yes"),
+    admin
+      .from("guest_rsvps")
+      .select("phone, notify_sms")
+      .eq("event_id", eventId)
+      .eq("status", "yes"),
+  ]);
+
+  const phones = new Set<string>();
+  for (const r of memberRsvps ?? []) {
+    const u = r.users as unknown as { phone: string | null; notify_sms: boolean };
+    if (u.phone && u.notify_sms) phones.add(u.phone);
+  }
+  for (const g of guestRsvps ?? []) {
+    if (g.phone && g.notify_sms) phones.add(g.phone);
+  }
+
+  if (phones.size === 0) return { sent: 0 };
+
+  const { sendSms } = await import("@/lib/integrations/twilio");
+  const body = `${event.title}: ${trimmed}`;
+  const results = await Promise.allSettled(
+    [...phones].map((phone) => sendSms(phone, body))
+  );
+
+  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+  return { sent: results.filter((r) => r.status === "fulfilled").length };
 }
 
 export async function lockEventToDate(eventId: string, optionId: string, communitySlug: string) {

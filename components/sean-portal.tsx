@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Play, Pause, ChevronRight, Clock } from "lucide-react";
+import { Play, ChevronRight } from "lucide-react";
+import type { LatestVideo } from "@/lib/integrations/youtube";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type Chronicle = {
@@ -12,19 +13,8 @@ type Chronicle = {
   readTime: string;
 };
 
-// ── Mock data — replace with real CMS/DB data ──────────────────────────────
-// For the video, set youtubeId to a real YouTube video ID, or set videoSrc to
-// a direct MP4/WebM URL. If both are null, the placeholder renders.
-const TRANSMISSION = {
-  title: "The Mirror and the Veil",
-  subtitle: "On the nature of projection and the return to source",
-  period: "April 2026",
-  duration: "42 min",
-  youtubeId: null as string | null,    // e.g. "dQw4w9WgXcQ"
-  videoSrc: null as string | null,     // e.g. "/videos/mirror-veil.mp4"
-};
-
-// Next session date — update to real date/time
+// Next live session — set to a real date/time to surface The Threshold
+// section with its countdown. When the date passes, the section hides itself.
 const NEXT_SESSION = new Date("2026-05-01T19:00:00");
 
 const CHRONICLES: Chronicle[] = [
@@ -104,9 +94,13 @@ function useCountdown(target: Date) {
 const GOLD = "#D4AF37";
 
 // ── Component ──────────────────────────────────────────────────────────────
-export function SeanPortal() {
-  const [videoPlaying, setVideoPlaying] = useState(false);
+export function SeanPortal({ latestVideo }: { latestVideo?: LatestVideo | null }) {
   const { days, hours, minutes, seconds } = useCountdown(NEXT_SESSION);
+  const sessionUpcoming = NEXT_SESSION.getTime() > Date.now();
+
+  const publishedLabel = latestVideo?.published
+    ? new Date(latestVideo.published).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : null;
 
   return (
     <div
@@ -219,45 +213,32 @@ export function SeanPortal() {
             border: `1px solid ${GOLD}14`,
           }}
         >
-          {TRANSMISSION.youtubeId ? (
-            /* ── YouTube embed ── */
-            <div className="aspect-video">
-              <iframe
-                src={`https://www.youtube-nocookie.com/embed/${TRANSMISSION.youtubeId}?rel=0&modestbranding=1`}
-                title={TRANSMISSION.title}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            </div>
-          ) : TRANSMISSION.videoSrc ? (
-            /* ── Direct video ── */
-            <div className="aspect-video relative group">
-              <video
-                src={TRANSMISSION.videoSrc}
-                className="w-full h-full object-cover"
-                onClick={(e) => {
-                  const v = e.currentTarget;
-                  if (v.paused) { v.play(); setVideoPlaying(true); }
-                  else { v.pause(); setVideoPlaying(false); }
-                }}
-              />
-              {!videoPlaying && (
-                <button
-                  className="absolute inset-0 flex items-center justify-center"
-                  onClick={() => {}}
+          {latestVideo ? (
+            /* ── Latest upload from Seán's channel ── */
+            <>
+              <div className="aspect-video">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${latestVideo.videoId}?rel=0&modestbranding=1`}
+                  title={latestVideo.title}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+              <div className="px-5 py-4 flex items-baseline justify-between gap-3 flex-wrap">
+                <p
+                  className="font-semibold text-base"
+                  style={{ fontFamily: "var(--font-display, var(--font-heading))" }}
                 >
-                  <div
-                    className="size-16 rounded-full border flex items-center justify-center"
-                    style={{ borderColor: `${GOLD}60`, background: `${GOLD}14` }}
-                  >
-                    <Play size={22} fill={GOLD} style={{ color: GOLD, marginLeft: 3 }} />
-                  </div>
-                </button>
-              )}
-            </div>
+                  {latestVideo.title}
+                </p>
+                {publishedLabel && (
+                  <span className="text-xs text-stone-600">{publishedLabel}</span>
+                )}
+              </div>
+            </>
           ) : (
-            /* ── Placeholder ── */
+            /* ── Quiet placeholder when the channel can't be reached ── */
             <div className="aspect-video flex flex-col items-center justify-center gap-5 relative">
               {/* Film-grain texture */}
               <div
@@ -269,9 +250,8 @@ export function SeanPortal() {
                 }}
               />
 
-              {/* Placeholder play button */}
               <div
-                className="size-20 rounded-full border-2 flex items-center justify-center transition-transform hover:scale-105 cursor-pointer"
+                className="size-20 rounded-full border-2 flex items-center justify-center"
                 style={{ borderColor: `${GOLD}50`, background: `${GOLD}10` }}
               >
                 <Play size={28} fill={GOLD} style={{ color: GOLD, marginLeft: 4 }} />
@@ -282,23 +262,20 @@ export function SeanPortal() {
                   className="font-semibold text-xl"
                   style={{ fontFamily: "var(--font-display, var(--font-heading))" }}
                 >
-                  {TRANSMISSION.title}
+                  The next transmission is on its way
                 </p>
-                <p className="text-sm text-stone-500">{TRANSMISSION.subtitle}</p>
-                <div className="flex items-center justify-center gap-3 pt-1">
-                  <span className="text-xs text-stone-600">{TRANSMISSION.period}</span>
-                  <span className="text-stone-700">·</span>
-                  <Clock size={10} className="text-stone-600" />
-                  <span className="text-xs text-stone-600">{TRANSMISSION.duration}</span>
-                </div>
+                <p className="text-sm text-stone-500">
+                  Find Seán&apos;s full archive at{" "}
+                  <a
+                    href="https://spiritsinspacesuits.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-stone-300 transition-colors"
+                  >
+                    spiritsinspacesuits.com
+                  </a>
+                </p>
               </div>
-
-              {/* Replace-video notice */}
-              <p className="absolute bottom-3 right-4 text-[10px] text-stone-700 tracking-wide">
-                Set <code className="text-stone-600">youtubeId</code> or{" "}
-                <code className="text-stone-600">videoSrc</code> in{" "}
-                <code className="text-stone-600">components/sean-portal.tsx</code>
-              </p>
             </div>
           )}
         </div>
@@ -350,6 +327,7 @@ export function SeanPortal() {
       </section>
 
       {/* ══════════════════════════════════════════════════════ THRESHOLD ══ */}
+      {sessionUpcoming && (
       <section className="max-w-5xl mx-auto px-6 py-10 pb-28 space-y-5">
         <SectionLabel>The Threshold</SectionLabel>
 
@@ -403,7 +381,9 @@ export function SeanPortal() {
                   className="inline-block w-1.5 h-1.5 rounded-full"
                   style={{ background: GOLD }}
                 />
-                May 1, 2026 &nbsp;·&nbsp; 7:00 PM
+                {NEXT_SESSION.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+                &nbsp;·&nbsp;
+                {NEXT_SESSION.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
               </div>
             </div>
 
@@ -451,6 +431,7 @@ export function SeanPortal() {
           </div>
         </div>
       </section>
+      )}
     </div>
   );
 }

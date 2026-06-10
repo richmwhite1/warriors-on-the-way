@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { cn } from "@/lib/utils";
 import { upsertRsvp } from "@/lib/actions/rsvp";
 import { toast } from "sonner";
 
@@ -11,9 +13,11 @@ type Props = {
   current: { status: string; guests: number } | null;
   registrationFee?: number | null;
   creatorVenmo?: string | null;
+  mapsUrl?: string | null;
+  hasDate?: boolean;
 };
 
-export function RsvpButtons({ eventId, communitySlug, current, registrationFee, creatorVenmo }: Props) {
+export function RsvpButtons({ eventId, communitySlug, current, registrationFee, creatorVenmo, mapsUrl, hasDate }: Props) {
   const [guests, setGuests] = useState(current?.guests ?? 0);
   const [showFeeGate, setShowFeeGate] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -51,11 +55,10 @@ export function RsvpButtons({ eventId, communitySlug, current, registrationFee, 
         {(["yes", "maybe", "no"] as const).map((status) => (
           <Button
             key={status}
-            size="sm"
             variant={s === status ? "default" : "outline"}
             disabled={isPending}
             onClick={() => handleRsvp(status)}
-            className="capitalize"
+            className="capitalize flex-1 sm:flex-none min-h-11"
           >
             {status === "yes" ? "✓ Going" : status === "maybe" ? "? Maybe" : "✗ Can't go"}
           </Button>
@@ -76,6 +79,25 @@ export function RsvpButtons({ eventId, communitySlug, current, registrationFee, 
             onBlur={() => handleRsvp("yes")}
             className="w-16 rounded-lg border bg-background px-2 py-1 text-sm text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           />
+        </div>
+      )}
+
+      {/* The moment after "yes" — capture the calendar + directions while intent is hot */}
+      {s === "yes" && (hasDate || mapsUrl) && (
+        <div className="rounded-xl border bg-green-50 dark:bg-green-950/30 border-green-100 dark:border-green-900/40 p-3 flex items-center gap-2 flex-wrap">
+          <p className="text-sm font-medium text-green-800 dark:text-green-300 mr-auto">
+            You&apos;re going!
+          </p>
+          {hasDate && (
+            <a href={`/api/events/${eventId}/calendar`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+              Add to calendar
+            </a>
+          )}
+          {mapsUrl && (
+            <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+              Directions
+            </a>
+          )}
         </div>
       )}
 

@@ -44,7 +44,7 @@ export default async function HomePage() {
     <>
       <AppNav />
 
-      <main style={{ maxWidth: 680, margin: "0 auto", padding: "0 1rem 6rem" }}>
+      <main className="animate-page-enter" style={{ maxWidth: 680, margin: "0 auto", padding: "0 1rem 6rem" }}>
 
         {/* ── Welcome Block ─────────────────────────────────────────────────── */}
         <div style={{ padding: "1.5rem 0 0" }}>
@@ -79,7 +79,11 @@ export default async function HomePage() {
             <SectionLabel>Upcoming Events</SectionLabel>
             {myCommunities.length > 0 && (
               <Link
-                href={`/community/${myCommunities[0].community.slug}/events/new`}
+                href={
+                  myCommunities.length === 1
+                    ? `/community/${myCommunities[0].community.slug}/events/new`
+                    : "/community"
+                }
                 style={{
                   fontFamily: "var(--font-brand)",
                   fontSize: 13,
@@ -118,7 +122,7 @@ export default async function HomePage() {
                       textDecoration: "none",
                       transition: "box-shadow 0.15s, transform 0.15s",
                     }}
-                    className="hover:shadow-md active:scale-[0.97]"
+                    className="hover:shadow-md press-scale"
                   >
                     {/* Date chip */}
                     {startsAt && (
@@ -209,16 +213,19 @@ export default async function HomePage() {
                 textAlign: "center",
               }}
             >
-              <p style={{ fontSize: 28, marginBottom: "0.5rem" }}>&#127881;</p>
               <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: "0.95rem", color: "#1a1a2e", marginBottom: "0.25rem" }}>
-                No upcoming events
+                Nothing on the calendar yet
               </p>
               <p style={{ fontFamily: "var(--font-body)", color: "#7c7589", fontSize: 14, marginBottom: "1rem" }}>
-                Create one and get your people together!
+                The room is waiting. Call your people together.
               </p>
               {myCommunities.length > 0 && (
                 <Link
-                  href={`/community/${myCommunities[0].community.slug}/events/new`}
+                  href={
+                    myCommunities.length === 1
+                      ? `/community/${myCommunities[0].community.slug}/events/new`
+                      : "/community"
+                  }
                   style={{
                     fontFamily: "var(--font-brand)",
                     fontSize: 14,

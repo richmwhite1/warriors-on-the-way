@@ -6,24 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { PlacesAutocomplete } from "@/components/ui/places-autocomplete";
 import { createEvent } from "@/lib/actions/events";
+import { TIMEZONES, getDefaultTimezone } from "@/lib/timezones";
 import { toast } from "sonner";
-
-const TIMEZONES = [
-  "UTC", "America/New_York", "America/Chicago", "America/Denver",
-  "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu",
-  "Europe/London", "Europe/Paris", "Europe/Berlin",
-  "Asia/Dubai", "Asia/Kolkata", "Asia/Tokyo", "Australia/Sydney",
-];
-
-function getDefaultTimezone(): string {
-  try {
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    return TIMEZONES.includes(tz) ? tz : "America/Los_Angeles";
-  } catch {
-    return "America/Los_Angeles";
-  }
-}
 
 type Props = { communityId: string; communitySlug: string };
 
@@ -83,7 +69,7 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="location">Location</Label>
-          <Input id="location" name="location" placeholder="Muir Woods Visitor Center" />
+          <PlacesAutocomplete id="location" name="location" placeholder="Search for a place…" />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="virtual_url">Virtual link</Label>

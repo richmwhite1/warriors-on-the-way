@@ -6,15 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { PlacesAutocomplete } from "@/components/ui/places-autocomplete";
 import { updateEvent } from "@/lib/actions/events";
+import { TIMEZONES } from "@/lib/timezones";
 import { toast } from "sonner";
-
-const TIMEZONES = [
-  "UTC", "America/New_York", "America/Chicago", "America/Denver",
-  "America/Los_Angeles", "America/Anchorage", "Pacific/Honolulu",
-  "Europe/London", "Europe/Paris", "Europe/Berlin",
-  "Asia/Dubai", "Asia/Kolkata", "Asia/Tokyo", "Australia/Sydney",
-];
 
 type Props = {
   eventId: string;
@@ -23,6 +18,7 @@ type Props = {
     title: string;
     description: string;
     location: string;
+    location_url: string;
     virtual_url: string;
     starts_at: string;
     ends_at: string;
@@ -89,11 +85,12 @@ export function EditEventForm({ eventId, communitySlug, initialValues }: Props) 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="location">Location</Label>
-          <Input
+          <PlacesAutocomplete
             id="location"
             name="location"
             defaultValue={initialValues.location}
-            placeholder="Muir Woods Visitor Center"
+            defaultUrl={initialValues.location_url}
+            placeholder="Search for a place…"
           />
         </div>
         <div className="space-y-1.5">

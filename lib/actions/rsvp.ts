@@ -165,7 +165,7 @@ export async function submitGuestRsvp(
   // Verify the event exists and the community allows guest RSVPs
   const { data: event } = await admin
     .from("events")
-    .select("id, community_id, communities!inner(allow_guest_rsvp)")
+    .select("id, community_id, title, starts_at, timezone, location, communities!inner(allow_guest_rsvp)")
     .eq("id", eventId)
     .single();
 
@@ -192,6 +192,29 @@ export async function submitGuestRsvp(
 
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
+
+  // Confirmation text — guests have no app or account, so this SMS is their
+  // ticket: the details to save and the link back to the event.
+  if (status === "yes" && normalizedPhone && (notifySms ?? true)) {
+    try {
+      const { sendSms } = await import("@/lib/integrations/twilio");
+      const tz = event.timezone || "UTC";
+      const when = event.starts_at
+        ? `${new Date(event.starts_at).toLocaleDateString("en-US", {
+            weekday: "short", month: "short", day: "numeric", timeZone: tz,
+          })} at ${new Date(event.starts_at).toLocaleTimeString("en-US", {
+            hour: "numeric", minute: "2-digit", timeZone: tz,
+          })}`
+        : null;
+      const parts = [`You're in, ${name.trim()}! ${event.title}`];
+      if (when) parts.push(when);
+      if (event.location) parts.push(event.location);
+      const eventUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/community/${communitySlug}/events/${eventId}`;
+      await sendSms(normalizedPhone, `${parts.join(" — ")}. Details: ${eventUrl}`);
+    } catch {
+      // best-effort — never fail the RSVP over a confirmation text
+    }
+  }
 }
 
 export async function setRsvpPaymentStatus(

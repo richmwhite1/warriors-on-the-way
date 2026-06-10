@@ -53,6 +53,19 @@ export async function AppNav() {
         {/* Right side */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <Link
+            href="/sean"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 14,
+              fontWeight: 500,
+              color: "#7c7589",
+              textDecoration: "none",
+            }}
+          >
+            Seán
+          </Link>
+
+          <Link
             href="/consciousness-map"
             className="hidden sm:block"
             style={{
@@ -78,23 +91,6 @@ export async function AppNav() {
             }}
           >
             Resources
-          </Link>
-
-          <Link
-            href="/community/new"
-            className="hidden sm:flex items-center gap-1.5"
-            style={{
-              fontFamily: "var(--font-brand)",
-              fontSize: 13,
-              fontWeight: 700,
-              color: "#ffffff",
-              background: "#e07040",
-              padding: "0.45rem 1rem",
-              textDecoration: "none",
-              borderRadius: "9999px",
-            }}
-          >
-            + New Group
           </Link>
 
           {user && (

@@ -6,6 +6,7 @@ import { GuestRsvpForm } from "@/components/events/guest-rsvp-form";
 import { InviteModal } from "@/components/events/invite-modal";
 import { InvitationReveal } from "@/components/events/invitation-reveal";
 import { StickyRsvpBar } from "@/components/events/sticky-rsvp-bar";
+import { SmsBlast } from "@/components/events/sms-blast";
 import { VotingPanel } from "@/components/events/voting-panel";
 import { EventTasksPanel } from "@/components/events/event-tasks-panel";
 import { EventExpensesPanel } from "@/components/events/event-expenses-panel";
@@ -139,10 +140,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
     const dayNum = dateObj?.getDate();
     const weekday = dateObj?.toLocaleDateString("en-US", { weekday: "long" });
 
-    // Google Maps link for tappable location
-    const mapsUrl = event.location
-      ? `https://maps.google.com/?q=${encodeURIComponent(event.location)}`
-      : null;
+    // Google Maps link for tappable location — prefer stored URL from Places API
+    const mapsUrl = event.location_url
+      || (event.location ? `https://maps.google.com/?q=${encodeURIComponent(event.location)}` : null);
 
     return (
       <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
@@ -492,10 +492,13 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
 
   const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/community/${slug}/events/${eventId}`;
 
+  const memberMapsUrl = event.location_url
+    || (event.location ? `https://maps.google.com/?q=${encodeURIComponent(event.location)}` : null);
+
   return (
     <>
       <AppNav />
-      <main className="max-w-2xl mx-auto px-4 pt-20 pb-8 space-y-6">
+      <main className="max-w-2xl mx-auto px-4 pt-20 pb-24 space-y-6">
         <MemberEventHeader
           event={event}
           slug={slug}
@@ -510,7 +513,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
           </div>
         )}
 
-        <EventMeta event={event} />
+        <EventMeta event={event} mapsUrl={memberMapsUrl} />
 
         {event.description && (
           <p className="text-base text-muted-foreground leading-relaxed whitespace-pre-wrap">
@@ -548,7 +551,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
         )}
 
         {event.status === "confirmed" && !isCancelled && (
-          <div className="space-y-2">
+          <div className="space-y-2" id="rsvp-section">
             <p className="text-base font-medium">Your RSVP</p>
             <RsvpButtons
               eventId={event.id}
@@ -556,6 +559,8 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
               current={event.user_rsvp ?? null}
               registrationFee={event.registration_fee}
               creatorVenmo={event.creator.venmo_handle}
+              mapsUrl={memberMapsUrl}
+              hasDate={!!event.starts_at}
             />
           </div>
         )}
@@ -585,6 +590,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
               >
                 Edit event
               </Link>
+              {event.status === "confirmed" && (
+                <SmsBlast eventId={eventId} communitySlug={slug} />
+              )}
               <form action={async () => {
                 "use server";
                 await cancelEvent(eventId, slug);
@@ -667,6 +675,11 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
           </>
         )}
       </main>
+
+      {/* Sticky RSVP bar for members too — parity with the guest experience */}
+      {event.status === "confirmed" && !isCancelled && !event.user_rsvp && (
+        <StickyRsvpBar eventTitle={event.title} targetId="rsvp-section" />
+      )}
     </>
   );
 }
@@ -718,6 +731,7 @@ function MemberEventHeader({
 
 function EventMeta({
   event,
+  mapsUrl,
 }: {
   event: {
     starts_at: string | null;
@@ -727,6 +741,7 @@ function EventMeta({
     virtual_url: string | null;
     registration_fee?: number | null;
   };
+  mapsUrl?: string | null;
 }) {
   return (
     <div className="space-y-2">
@@ -755,9 +770,20 @@ function EventMeta({
         </div>
       )}
       {event.location && (
-        <p className="text-sm text-muted-foreground flex items-center gap-1.5">
-          <span>📍</span> {event.location}
-        </p>
+        mapsUrl ? (
+          <a
+            href={mapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-muted-foreground flex items-center gap-1.5 hover:text-primary transition-colors underline-offset-2 hover:underline"
+          >
+            <span>📍</span> {event.location}
+          </a>
+        ) : (
+          <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+            <span>📍</span> {event.location}
+          </p>
+        )
       )}
       {event.virtual_url && (
         <a

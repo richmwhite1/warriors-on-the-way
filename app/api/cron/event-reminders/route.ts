@@ -50,11 +50,13 @@ export async function GET(request: Request) {
     const startsAt = new Date(event.starts_at!);
     const hoursUntil = (startsAt.getTime() - now.getTime()) / (1000 * 60 * 60);
 
-    // Determine which reminder type applies for this hourly window
+    // Daily-bucket windows: the cron runs once a day (Hobby plan), so each
+    // window must span a full day or events fall through the cracks.
+    // The event_reminders_sent table dedupes if a run ever overlaps.
     let reminderType: "day_before" | "day_of" | null = null;
-    if (hoursUntil >= 24 && hoursUntil < 25) {
+    if (hoursUntil >= 24 && hoursUntil < 48) {
       reminderType = "day_before";
-    } else if (hoursUntil >= 2 && hoursUntil < 3) {
+    } else if (hoursUntil >= 0 && hoursUntil < 24) {
       reminderType = "day_of";
     }
 
@@ -90,25 +92,26 @@ export async function GET(request: Request) {
       .in("status", ["yes", "maybe"]);
 
     if (rsvps) {
-      for (const r of rsvps) {
+      const authUsers = await Promise.all(
+        rsvps.map((r) => admin.auth.admin.getUserById(r.user_id).catch(() => null))
+      );
+      rsvps.forEach((r, i) => {
         const u = r.users as unknown as {
           display_name: string;
           phone: string | null;
           notify_email: boolean;
           notify_sms: boolean;
         };
-        // Get email from auth.users via admin
-        const { data: authUser } = await admin.auth.admin.getUserById(r.user_id);
         recipients.push({
           name: u.display_name,
-          email: authUser?.user?.email ?? null,
+          email: authUsers[i]?.data?.user?.email ?? null,
           phone: u.phone,
           notify_email: u.notify_email,
           notify_sms: u.notify_sms,
           user_id: r.user_id,
           guest_rsvp_id: null,
         });
-      }
+      });
     }
 
     // 2. Guest RSVPs
@@ -190,6 +193,7 @@ export async function GET(request: Request) {
               eventTime,
               location: event.location,
               eventUrl,
+              whenLabel: dateLabel,
             });
             emailSent++;
           } catch {

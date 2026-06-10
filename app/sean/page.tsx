@@ -1,4 +1,5 @@
 import { SeanPortal } from "@/components/sean-portal";
+import { fetchLatestChannelVideo } from "@/lib/integrations/youtube";
 import Link from "next/link";
 
 export const metadata = {
@@ -7,7 +8,9 @@ export const metadata = {
     "Transmissions, chronicles, and live conversations with Warriors on the Way Spiritual Director Seán Ó'Laoire.",
 };
 
-export default function SeanPage() {
+export default async function SeanPage() {
+  const latestVideo = await fetchLatestChannelVideo();
+
   return (
     <>
       {/* Minimal back nav — keeps the cinematic dark aesthetic intact */}
@@ -28,7 +31,7 @@ export default function SeanPage() {
           Map of Consciousness →
         </Link>
       </div>
-      <SeanPortal />
+      <SeanPortal latestVideo={latestVideo} />
     </>
   );
 }
