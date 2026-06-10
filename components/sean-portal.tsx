@@ -183,6 +183,17 @@ export function SeanPortal({ latestVideo }: { latestVideo?: LatestVideo | null }
               philosophical foundation and the Lightworkers Manifesto for Warriors on the Way.
             </p>
 
+            <a
+              href="https://www.spiritsinspacesuits.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-widest transition-colors hover:opacity-80"
+              style={{ color: GOLD }}
+            >
+              spiritsinspacesuits.com
+              <ChevronRight size={10} />
+            </a>
+
             {/* Divider accent */}
             <div className="flex items-center gap-3 justify-center lg:justify-start">
               <div
