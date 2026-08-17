@@ -56,6 +56,7 @@ export async function createTopicPost(formData: FormData) {
 
   revalidatePath(`/topics/${topic_slug}`);
   revalidatePath("/home");
+  revalidatePath("/deck");
 }
 
 export async function followTopic(topicId: string, topicSlug: string) {

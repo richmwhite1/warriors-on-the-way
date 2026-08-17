@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { DeckCard } from "@/components/deck/deck-card";
 import { DeckStack } from "@/components/deck/deck-stack";
+import { DeckComposer } from "@/components/deck/deck-composer";
 import { MetaCard, type DeckMeta } from "@/components/deck/meta-card";
 import { DeckLoadMore } from "@/components/deck/deck-load-more";
 import type { TopicPost, PostComment } from "@/lib/queries/topics";
@@ -12,7 +13,7 @@ type View = "feed" | "stack";
 // Client body of the deck: switches between the scrolling Feed (full interaction,
 // mixed content) and the swipeable Stack (Axis 2). Fed plain data by the server page.
 export function DeckBody({
-  posts, comments, topMeta, communityMeta, objectiveName, topicSlug, currentUserId,
+  posts, comments, topMeta, communityMeta, objectiveName, topicId, topicSlug, currentUserId,
   lastCursor, initialHasMore, empty,
 }: {
   posts: TopicPost[];
@@ -20,6 +21,7 @@ export function DeckBody({
   topMeta: DeckMeta[];
   communityMeta: DeckMeta[];
   objectiveName: string;
+  topicId: string;
   topicSlug: string;
   currentUserId: string;
   lastCursor: string;
@@ -30,13 +32,14 @@ export function DeckBody({
 
   if (empty) {
     return (
-      <section style={{ padding: "1rem" }}>
-        <div style={{ textAlign: "center", padding: "4rem 1rem" }}>
+      <section style={{ padding: "1rem", display: "flex", flexDirection: "column", gap: 16 }}>
+        <DeckComposer topicId={topicId} topicSlug={topicSlug} objectiveName={objectiveName} />
+        <div style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
           <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: "1rem", color: "var(--foreground)", margin: 0 }}>
-            You&rsquo;re all caught up
+            Nothing in {objectiveName} yet
           </p>
           <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--muted-foreground)", marginTop: 6 }}>
-            Nothing in {objectiveName} yet — be the first to share something.
+            Be the first to share something — paste a link or start a discussion above.
           </p>
         </div>
       </section>
@@ -78,6 +81,8 @@ export function DeckBody({
         <DeckStack posts={posts} topicSlug={topicSlug} />
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <DeckComposer topicId={topicId} topicSlug={topicSlug} objectiveName={objectiveName} />
+
           {topMeta.map((m) => (
             <MetaCard key={`${m.kind}-${m.href}`} item={m} />
           ))}

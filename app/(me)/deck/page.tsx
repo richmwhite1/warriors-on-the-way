@@ -1,19 +1,21 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { requireUserProfile } from "@/lib/queries/users";
 import {
   getTopics,
   listTopicPosts,
   getCommentsForPosts,
   getListedCommunitiesForTopic,
+  getFollowedTopicIds,
 } from "@/lib/queries/topics";
-import { getUnreadNotificationCount } from "@/lib/queries/notifications";
 import { listOpenAsksForTopic } from "@/lib/queries/asks";
 import { listUpcomingEventsForTopic } from "@/lib/queries/events";
+import { AppNav } from "@/components/app-nav";
 import { ObjectivePills } from "@/components/deck/objective-pills";
 import { DeckShell } from "@/components/deck/deck-shell";
 import { DeckBody } from "@/components/deck/deck-body";
+import { FollowButton } from "@/components/deck/follow-button";
 import { type DeckMeta } from "@/components/deck/meta-card";
-import { NotificationBell } from "@/components/notification-bell";
 
 type Props = { searchParams: Promise<{ mode?: string }> };
 
@@ -29,14 +31,18 @@ export default async function DeckPage({ searchParams }: Props) {
   if (!user) redirect("/sign-in");
 
   const { mode } = await searchParams;
-  const topics = await getTopics();
+  const [topics, followedIds] = await Promise.all([getTopics(), getFollowedTopicIds(user.id)]);
   if (topics.length === 0) redirect("/topics");
 
-  const active = topics.find((t) => t.slug === mode) ?? topics[0];
+  // Land on the requested objective, else the first one the user follows, else the first overall.
+  const active =
+    topics.find((t) => t.slug === mode) ??
+    topics.find((t) => followedIds.includes(t.id)) ??
+    topics[0];
+  const isFollowingActive = followedIds.includes(active.id);
 
-  const [posts, unreadCount, events, asks, communities] = await Promise.all([
+  const [posts, events, asks, communities] = await Promise.all([
     listTopicPosts(active.id, INITIAL),
-    getUnreadNotificationCount(user.id),
     listUpcomingEventsForTopic(active.id, 3),
     listOpenAsksForTopic(active.id, 3),
     getListedCommunitiesForTopic(active.id),
@@ -75,16 +81,11 @@ export default async function DeckPage({ searchParams }: Props) {
   const lastCursor = posts.length > 0 ? posts[posts.length - 1].created_at : "";
 
   return (
-    <main className="animate-page-enter" style={{ maxWidth: 480, margin: "0 auto", paddingBottom: "5rem" }}>
-      {/* ── Slim header ─────────────────────────────────────────────────────── */}
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "1.25rem 1rem 0.75rem",
-        }}
-      >
+    <>
+      <AppNav />
+
+      <main className="animate-page-enter" style={{ maxWidth: 480, margin: "0 auto", paddingBottom: "5rem" }}>
+        {/* ── Title ────────────────────────────────────────────────────────── */}
         <h1
           style={{
             fontFamily: "var(--font-brand)",
@@ -93,50 +94,53 @@ export default async function DeckPage({ searchParams }: Props) {
             letterSpacing: "-0.02em",
             color: "var(--foreground)",
             margin: 0,
+            padding: "1rem 1rem 0.75rem",
           }}
         >
           Discover
         </h1>
-        <NotificationBell initialCount={unreadCount} userId={user.id} />
-      </header>
 
-      {/* ── Objective toggle pills ──────────────────────────────────────────── */}
-      <ObjectivePills
-        topics={topics.map((t) => ({ slug: t.slug, name: t.name, icon: t.icon }))}
-        activeSlug={active.slug}
-      />
-
-      {/* ── Per-objective subtitle ──────────────────────────────────────────── */}
-      {subtitle && (
-        <p
-          style={{
-            fontFamily: "var(--font-body)",
-            fontSize: 14,
-            color: "var(--muted-foreground)",
-            lineHeight: 1.5,
-            padding: "0.5rem 1rem 0",
-            margin: 0,
-          }}
-        >
-          {subtitle}
-        </p>
-      )}
-
-      {/* ── Feed / Stack for the active objective (swipe left/right to change) ── */}
-      <DeckShell slugs={topics.map((t) => t.slug)} activeSlug={active.slug}>
-        <DeckBody
-          posts={posts}
-          comments={comments}
-          topMeta={topMeta}
-          communityMeta={communityMeta}
-          objectiveName={active.name}
-          topicSlug={active.slug}
-          currentUserId={user.id}
-          lastCursor={lastCursor}
-          initialHasMore={posts.length === INITIAL}
-          empty={empty}
+        {/* ── Objective toggle pills ─────────────────────────────────────────── */}
+        <ObjectivePills
+          topics={topics.map((t) => ({ slug: t.slug, name: t.name, icon: t.icon }))}
+          activeSlug={active.slug}
         />
-      </DeckShell>
-    </main>
+
+        {/* ── Objective subtitle + follow + full-objective link ──────────────── */}
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 10, padding: "0.5rem 1rem 0" }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {subtitle && (
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--muted-foreground)", lineHeight: 1.5, margin: 0 }}>
+                {subtitle}
+              </p>
+            )}
+            <Link
+              href={`/topics/${active.slug}`}
+              style={{ display: "inline-block", marginTop: 6, fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 700, color: "var(--primary)", textDecoration: "none" }}
+            >
+              About {active.name} →
+            </Link>
+          </div>
+          <FollowButton topicId={active.id} topicSlug={active.slug} initialFollowing={isFollowingActive} />
+        </div>
+
+        {/* ── Feed / Stack for the active objective (swipe left/right to change) ── */}
+        <DeckShell slugs={topics.map((t) => t.slug)} activeSlug={active.slug}>
+          <DeckBody
+            posts={posts}
+            comments={comments}
+            topMeta={topMeta}
+            communityMeta={communityMeta}
+            objectiveName={active.name}
+            topicId={active.id}
+            topicSlug={active.slug}
+            currentUserId={user.id}
+            lastCursor={lastCursor}
+            initialHasMore={posts.length === INITIAL}
+            empty={empty}
+          />
+        </DeckShell>
+      </main>
+    </>
   );
 }
