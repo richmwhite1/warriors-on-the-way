@@ -5,6 +5,8 @@ import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { PushSubscriptionToggle } from "@/components/profile/push-subscription-toggle";
 import { LinkAccounts } from "@/components/profile/link-accounts";
 import { requireUserProfile, getAuthUser } from "@/lib/queries/users";
+import { getFulfilledAsksForUser } from "@/lib/queries/asks";
+import { FulfilledAsks } from "@/components/asks/fulfilled-asks";
 import { signOut } from "@/lib/actions/auth";
 import { smsEnabled } from "@/lib/phone";
 import { SectionLabel } from "@/components/ui/SectionLabel";
@@ -22,6 +24,7 @@ export default async function ProfilePage({
 
   const authUser = await getAuthUser();
   const identities = (authUser?.identities ?? []).map((i) => ({ provider: i.provider }));
+  const fulfilledAsks = await getFulfilledAsksForUser(user.id);
   const params = await searchParams;
   const isWelcome = params.welcome === "true";
   const nextUrl = params.next;
@@ -84,6 +87,8 @@ export default async function ProfilePage({
           displayName={user.display_name}
           avatarUrl={user.avatar_url}
         />
+
+        <FulfilledAsks asks={fulfilledAsks} name={user.display_name} />
 
         <OrnamentalDivider />
 

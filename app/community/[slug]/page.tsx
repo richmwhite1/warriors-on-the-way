@@ -221,6 +221,11 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   Events
                 </Link>
               )}
+              {isMember && (
+                <Link href={`/community/${slug}/asks`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Ask &amp; Offer
+                </Link>
+              )}
               {canCreate && (
                 <Link href={`/community/${slug}/events/new`} className={cn(buttonVariants({ size: "sm" }), "rounded-full")}>
                   + New event

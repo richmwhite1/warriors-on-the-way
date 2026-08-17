@@ -47,12 +47,18 @@ export async function createCommunity(formData: FormData) {
 
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
+  // Required one-sentence declaration — what stewards point at when a group drifts.
+  const purpose = (formData.get("purpose") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
   const is_private = formData.get("is_private") === "true";
   const members_can_create_events = formData.get("members_can_create_events") === "true";
   const custom_slug = (formData.get("slug") as string)?.trim();
+  // ≥1 topic tag is how a community surfaces on the nine topic pages.
+  const topicIds = (formData.getAll("topic_ids") as string[]).filter(Boolean);
 
   if (!name) throw new Error("Community name is required");
+  if (!purpose) throw new Error("A one-sentence purpose is required");
+  if (topicIds.length === 0) throw new Error("Pick at least one topic this community serves");
 
   const baseSlug = custom_slug ? toSlug(custom_slug) : toSlug(name);
   if (!baseSlug) throw new Error("Could not generate a valid slug from that name");
@@ -61,11 +67,13 @@ export async function createCommunity(formData: FormData) {
 
   const coords = location ? await geocodeLocation(location) : null;
 
-  // Insert community + membership in a transaction via RPC
+  // New communities start 'forming' (schema default): invite-link only, hidden from
+  // browse until they reach five active members (enforced by trigger).
   const { data: community, error: communityError } = await supabase
     .from("communities")
     .insert({
-      slug, name, description, location, is_private, members_can_create_events, created_by: user.id,
+      slug, name, description, purpose, location, is_private, members_can_create_events,
+      created_by: user.id,
       ...(coords ?? {}),
     })
     .select("id, slug")
@@ -73,11 +81,18 @@ export async function createCommunity(formData: FormData) {
 
   if (communityError) throw new Error(communityError.message);
 
+  // Creator becomes the owner (organizer role).
   const { error: memberError } = await supabase
     .from("community_members")
     .insert({ community_id: community.id, user_id: user.id, role: "organizer", status: "active" });
 
   if (memberError) throw new Error(memberError.message);
+
+  // Tag the community to its topics (RLS allows this now that the creator is an active organizer).
+  const { error: topicError } = await supabase
+    .from("community_topics")
+    .insert(topicIds.map((topic_id) => ({ community_id: community.id, topic_id })));
+  if (topicError) throw new Error(topicError.message);
 
   redirect(`/community/${community.slug}`);
 }

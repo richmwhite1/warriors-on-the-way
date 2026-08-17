@@ -17,6 +17,7 @@ type Props = {
   initialValues: {
     title: string;
     description: string;
+    general_location: string;
     location: string;
     location_url: string;
     virtual_url: string;
@@ -82,16 +83,22 @@ export function EditEventForm({ eventId, communitySlug, initialValues }: Props) 
         />
       </div>
 
+      <div className="space-y-1.5">
+        <Label htmlFor="general_location">General location</Label>
+        <Input id="general_location" name="general_location" defaultValue={initialValues.general_location} maxLength={120} placeholder="e.g. Sugar House, Salt Lake City" />
+        <p className="text-xs text-muted-foreground">Visible to everyone — an area, not the address.</p>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="location">Location</Label>
+          <Label htmlFor="location">Exact address</Label>
           <PlacesAutocomplete
             id="location"
             name="location"
             defaultValue={initialValues.location}
             defaultUrl={initialValues.location_url}
-            placeholder="Search for a place…"
+            placeholder="Search for the exact place…"
           />
+          <p className="text-xs text-muted-foreground">Only revealed to people once they RSVP.</p>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="virtual_url">Virtual link</Label>

@@ -8,14 +8,31 @@ export async function updateProfile(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const display_name = (formData.get("display_name") as string)?.trim();
+  // Real names: first name + last initial minimum. display_name is derived (a DB
+  // trigger also keeps it in sync as "First L.").
+  const first_name = (formData.get("first_name") as string)?.trim();
+  const last_initial = (formData.get("last_initial") as string)?.trim().slice(0, 1).toUpperCase() || null;
+  const birthdate = (formData.get("birthdate") as string)?.trim() || null;
   const bio = (formData.get("bio") as string)?.trim() || null;
   const timezone = (formData.get("timezone") as string) || "UTC";
   const venmo_handle = (formData.get("venmo_handle") as string)?.trim().replace(/^@/, "") || null;
 
-  if (!display_name) throw new Error("Display name is required");
+  if (!first_name) throw new Error("Your first name is required");
+  if (!last_initial) throw new Error("Your last initial is required");
 
-  const update: Record<string, unknown> = { display_name, bio, timezone, venmo_handle };
+  // 18+ only (also enforced by a DB trigger). Validate here for a friendly message.
+  if (birthdate) {
+    const dob = new Date(birthdate);
+    const eighteen = new Date();
+    eighteen.setFullYear(eighteen.getFullYear() - 18);
+    if (dob > eighteen) throw new Error("You must be 18 or older to use this platform.");
+  }
+
+  const display_name = `${first_name}${last_initial ? ` ${last_initial}.` : ""}`;
+  const update: Record<string, unknown> = {
+    first_name, last_initial, display_name, bio, timezone, venmo_handle,
+  };
+  if (birthdate) update.birthdate = birthdate;
 
   // Phone/SMS fields are only in the form when Twilio is configured — when it
   // isn't, leave the columns untouched so a later enable keeps existing data.

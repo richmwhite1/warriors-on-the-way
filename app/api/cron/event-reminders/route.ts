@@ -26,6 +26,13 @@ export async function GET(request: Request) {
   const now = new Date();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
+  // Daily community maintenance (piggybacked here — Hobby plan allows daily crons only):
+  // release names of communities that never reached five members within thirty days.
+  await admin.rpc("sweep_dormant_communities").then(
+    () => {},
+    () => {} // best-effort; never block reminders
+  );
+
   // Look at events in the next 48 hours
   const horizon = new Date(now.getTime() + 48 * 60 * 60 * 1000);
 

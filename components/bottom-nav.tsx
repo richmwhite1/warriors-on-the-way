@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+// unreadDMs is retained (ignored) so existing section layouts compile unchanged;
+// direct messages were removed in phase one.
 type Props = { unreadDMs?: number };
 
 function vibrate() {
@@ -11,7 +13,7 @@ function vibrate() {
   }
 }
 
-export function BottomNav({ unreadDMs = 0 }: Props) {
+export function BottomNav(_props: Props = {}) {
   const pathname = usePathname();
 
   const items = [
@@ -32,7 +34,23 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
       ),
     },
     {
-      label: "Groups",
+      label: "Topics",
+      href: "/topics",
+      active: pathname.startsWith("/topics"),
+      badge: 0,
+      icon: (active: boolean) => (
+        <svg className="w-6 h-6" fill={active ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 0 : 1.5}>
+          {active ? (
+            <path d="M3 3.75A.75.75 0 013.75 3h6a.75.75 0 01.75.75v6a.75.75 0 01-.75.75h-6A.75.75 0 013 9.75v-6zM3 14.25a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v6a.75.75 0 01-.75.75h-6a.75.75 0 01-.75-.75v-6zM13.5 3.75a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v6a.75.75 0 01-.75.75h-6a.75.75 0 01-.75-.75v-6zM13.5 14.25a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v6a.75.75 0 01-.75.75h-6a.75.75 0 01-.75-.75v-6z" />
+          ) : (
+            <path strokeLinecap="round" strokeLinejoin="round"
+              d="M3.75 6A2.25 2.25 0 016 3.75h1.5A2.25 2.25 0 019.75 6v1.5A2.25 2.25 0 017.5 9.75H6A2.25 2.25 0 013.75 7.5V6zm10.5 0A2.25 2.25 0 0116.5 3.75H18A2.25 2.25 0 0120.25 6v1.5A2.25 2.25 0 0118 9.75h-1.5A2.25 2.25 0 0114.25 7.5V6zM3.75 16.5A2.25 2.25 0 016 14.25h1.5A2.25 2.25 0 019.75 16.5V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-1.5zm10.5 0a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-1.5A2.25 2.25 0 0114.25 18v-1.5z" />
+          )}
+        </svg>
+      ),
+    },
+    {
+      label: "My Communities",
       href: "/community",
       active: pathname.startsWith("/community"),
       badge: 0,
@@ -43,22 +61,6 @@ export function BottomNav({ unreadDMs = 0 }: Props) {
           ) : (
             <path strokeLinecap="round" strokeLinejoin="round"
               d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          )}
-        </svg>
-      ),
-    },
-    {
-      label: "Messages",
-      href: "/messages",
-      active: pathname.startsWith("/messages"),
-      badge: unreadDMs,
-      icon: (active: boolean) => (
-        <svg className="w-6 h-6" fill={active ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 0 : 1.5}>
-          {active ? (
-            <path d="M4.913 2.658c2.075-.27 4.19-.408 6.337-.408 2.147 0 4.262.139 6.337.408 1.922.25 3.291 1.861 3.405 3.727a4.403 4.403 0 00-1.032-.211 50.89 50.89 0 00-8.42 0c-2.358.196-4.04 2.19-4.04 4.434v4.286a4.47 4.47 0 002.433 3.984L7.28 21.53A.75.75 0 016 21v-4.03a48.527 48.527 0 01-1.087-.128C2.905 16.58 1.5 14.833 1.5 12.862V6.638c0-1.97 1.405-3.718 3.413-3.979z" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round"
-              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
           )}
         </svg>
       ),

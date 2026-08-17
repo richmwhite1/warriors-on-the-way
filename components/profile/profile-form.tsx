@@ -50,16 +50,46 @@ export function ProfileForm({ user, redirectAfterSave, smsEnabled = false }: { u
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="flex gap-3">
+        <div className="space-y-1.5 flex-1">
+          <Label htmlFor="first_name">First name</Label>
+          <Input
+            id="first_name"
+            name="first_name"
+            defaultValue={user.first_name ?? user.display_name.split(" ")[0] ?? ""}
+            required
+            maxLength={40}
+            placeholder="Jane"
+          />
+        </div>
+        <div className="space-y-1.5" style={{ width: 90 }}>
+          <Label htmlFor="last_initial">Last initial</Label>
+          <Input
+            id="last_initial"
+            name="last_initial"
+            defaultValue={user.last_initial ?? ""}
+            required
+            maxLength={1}
+            placeholder="D"
+          />
+        </div>
+      </div>
+      <p className="text-xs text-muted-foreground -mt-3">
+        Real names only. You&apos;ll appear as &quot;First L.&quot; to others.
+      </p>
+
       <div className="space-y-1.5">
-        <Label htmlFor="display_name">Display name</Label>
+        <Label htmlFor="birthdate">Date of birth</Label>
         <Input
-          id="display_name"
-          name="display_name"
-          defaultValue={user.display_name}
+          id="birthdate"
+          name="birthdate"
+          type="date"
+          defaultValue={user.birthdate ?? ""}
           required
-          maxLength={60}
-          placeholder="Your name"
         />
+        <p className="text-xs text-muted-foreground">
+          You must be 18 or older. This is a spiritual community with in-person events and real addresses.
+        </p>
       </div>
 
       <div className="space-y-1.5">

@@ -10,18 +10,23 @@ import { getActiveMemberCount } from "@/lib/queries/members";
 import { listPersonalFeed, getLatestParentPost } from "@/lib/queries/posts";
 import { listUpcomingEventsForUser } from "@/lib/queries/events";
 import { listCommentsByPostIds } from "@/lib/queries/comments";
+import { listOpenAsksForUser } from "@/lib/queries/asks";
+import { listFollowedTopicPosts } from "@/lib/queries/topics";
+import { EmbedRender } from "@/components/topics/embed-render";
 import { TelegramJoinBanner } from "@/components/telegram-join-banner";
 
 export default async function HomePage() {
   const user = await requireUserProfile().catch(() => null);
   if (!user) redirect("/sign-in");
 
-  const [myCommunities, feedPosts, latestTransmission, upcomingEvents, parentCommunity] = await Promise.all([
+  const [myCommunities, feedPosts, latestTransmission, upcomingEvents, parentCommunity, openAsks, topicPosts] = await Promise.all([
     listUserCommunities(user.id),
     listPersonalFeed(user.id),
     getLatestParentPost(),
     listUpcomingEventsForUser(user.id),
     getParentCommunity(),
+    listOpenAsksForUser(user.id),
+    listFollowedTopicPosts(user.id),
   ]);
 
   const myMemberCounts = await Promise.all(
@@ -370,6 +375,37 @@ export default async function HomePage() {
           )}
         </section>
 
+        {/* ── Open asks you could answer ───────────────────────────────────── */}
+        {openAsks.length > 0 && (
+          <section style={{ marginBottom: "1.5rem" }}>
+            <SectionLabel>Someone could use your help</SectionLabel>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+              {openAsks.map((a) => (
+                <Link
+                  key={a.id}
+                  href={a.community ? `/community/${a.community.slug}/asks` : "#"}
+                  style={{
+                    display: "block", background: "#ffffff", border: "1px solid #e8e2da",
+                    borderRadius: "0.9rem", padding: "0.8rem 1rem", textDecoration: "none",
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
+                    <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "#1a1a2e", fontSize: "0.95rem" }}>
+                      {a.title}
+                    </span>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "#e07040", background: "#fff5f0", padding: "2px 8px", borderRadius: 999, whiteSpace: "nowrap", height: "fit-content" }}>
+                      {a.kind === "ask" ? "needs help" : "offering"}
+                    </span>
+                  </div>
+                  <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", marginTop: 3 }}>
+                    {a.community?.name}{a.topic ? ` · ${a.topic.name}` : ""}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         {/* ── Latest Update ────────────────────────────────────────────────── */}
         {latestTransmission && (
           <section style={{ marginBottom: "1.5rem" }}>
@@ -466,6 +502,31 @@ export default async function HomePage() {
                       isMember={true}
                       userCommunities={userCommunities}
                     />
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* ── From topics you follow ───────────────────────────────────────── */}
+        {topicPosts.length > 0 && (
+          <section style={{ marginBottom: "1.5rem" }}>
+            <SectionLabel>From topics you follow</SectionLabel>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              {topicPosts.map((p) => {
+                const topic = (p as { topic?: { name: string; slug: string } }).topic;
+                return (
+                  <div key={p.id} style={{ background: "#fff", border: "1px solid #e8e2da", borderRadius: "1rem", padding: "0.9rem 1rem" }}>
+                    {topic && (
+                      <Link href={`/topics/${topic.slug}`} style={{ fontFamily: "var(--font-body)", fontSize: 12, fontWeight: 600, color: "#e07040", textDecoration: "none" }}>
+                        {topic.name}
+                      </Link>
+                    )}
+                    <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#2a2a30", lineHeight: 1.5, margin: "4px 0 0", whiteSpace: "pre-wrap" }}>
+                      {p.body?.slice(0, 240)}{(p.body?.length ?? 0) > 240 ? "…" : ""}
+                    </p>
+                    <EmbedRender preview={p.link_preview} />
                   </div>
                 );
               })}

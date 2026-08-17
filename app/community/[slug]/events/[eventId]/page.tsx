@@ -18,7 +18,7 @@ import { smsEnabled } from "@/lib/phone";
 import { getCommunityBySlug, getCommunityBySlugPublic } from "@/lib/queries/communities";
 import { getMembership, getActiveMemberCount, listActiveMembers } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
-import { getEventWithDetails, getEventForGuest, listEventAttendees, listGuestAttendees } from "@/lib/queries/events";
+import { getEventWithDetails, getEventForGuest, listEventAttendees, listGuestAttendees, getEventExactAddress } from "@/lib/queries/events";
 import { getEventTasks, getEventExpenses } from "@/lib/queries/event-modules";
 import { AttendeeList } from "@/components/events/attendee-list";
 import { cancelEvent } from "@/lib/actions/events";
@@ -494,8 +494,11 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
 
   const shareUrl = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/community/${slug}/events/${eventId}`;
 
+  // Exact address is revealed only once the member has RSVP'd (gate enforced in the RPC).
+  const exactAddress = await getEventExactAddress(eventId);
+
   const memberMapsUrl = event.location_url
-    || (event.location ? `https://maps.google.com/?q=${encodeURIComponent(event.location)}` : null);
+    || (exactAddress ? `https://maps.google.com/?q=${encodeURIComponent(exactAddress)}` : null);
 
   return (
     <>
@@ -565,6 +568,27 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
               hasDate={!!event.starts_at}
             />
           </div>
+        )}
+
+        {/* Exact address — only shown once RSVP'd (the RPC returns null otherwise). */}
+        {event.status === "confirmed" && (
+          exactAddress ? (
+            <div className="rounded-xl border p-4" style={{ background: "#f5f7f5" }}>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Exact address</p>
+              <p className="text-sm font-medium">{exactAddress}</p>
+              {memberMapsUrl && (
+                <a href={memberMapsUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline mt-1 inline-block">
+                  Open in Maps
+                </a>
+              )}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-dashed p-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                RSVP to see the exact address.
+              </p>
+            </div>
+          )
         )}
 
         {event.starts_at && event.status === "confirmed" && (

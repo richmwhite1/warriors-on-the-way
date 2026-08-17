@@ -133,15 +133,6 @@ function MemberRow({
           {member.role}
         </Badge>
 
-        {!isSelf && (
-          <Link
-            href={`/messages/${member.user.id}`}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1"
-          >
-            Message
-          </Link>
-        )}
-
         {canManage && (
           <div className="flex gap-1">
             {member.role === "member" && (

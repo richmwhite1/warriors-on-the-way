@@ -1,8 +1,16 @@
 // Embed URL detection and normalization.
 // Add new platforms by adding a case here — nothing else changes.
 
+export type EmbedProvider =
+  | "youtube"
+  | "spotify"
+  | "vimeo"
+  | "soundcloud"
+  | "podcast";
+
 export type EmbedMeta = {
   type: "video" | "music";
+  provider: EmbedProvider;
   embedUrl: string;
   thumbnailUrl: string | null;
 };
@@ -25,6 +33,7 @@ export function getEmbedMeta(rawUrl: string): EmbedMeta | null {
       if (!videoId) return null;
       return {
         type: "video",
+        provider: "youtube",
         embedUrl: `https://www.youtube-nocookie.com/embed/${videoId}`,
         thumbnailUrl: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
       };
@@ -37,6 +46,7 @@ export function getEmbedMeta(rawUrl: string): EmbedMeta | null {
         const [spotifyType, spotifyId] = parts;
         return {
           type: "music",
+          provider: "spotify",
           embedUrl: `https://open.spotify.com/embed/${spotifyType}/${spotifyId}?utm_source=generator`,
           thumbnailUrl: null,
         };
@@ -54,7 +64,7 @@ export function getEmbedMeta(rawUrl: string): EmbedMeta | null {
       const embedUrl = hash
         ? `https://player.vimeo.com/video/${videoId}?h=${hash}`
         : `https://player.vimeo.com/video/${videoId}`;
-      return { type: "video", embedUrl, thumbnailUrl: null };
+      return { type: "video", provider: "vimeo", embedUrl, thumbnailUrl: null };
     }
 
     // SoundCloud — tracks, sets, user profiles
@@ -62,6 +72,7 @@ export function getEmbedMeta(rawUrl: string): EmbedMeta | null {
       const canonical = `https://soundcloud.com${u.pathname}`;
       return {
         type: "music",
+        provider: "soundcloud",
         embedUrl: `https://w.soundcloud.com/player/?url=${encodeURIComponent(canonical)}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`,
         thumbnailUrl: null,
       };
@@ -71,6 +82,7 @@ export function getEmbedMeta(rawUrl: string): EmbedMeta | null {
     if (host === "podcasts.apple.com") {
       return {
         type: "music",
+        provider: "podcast",
         embedUrl: `https://embed.podcasts.apple.com${u.pathname}${u.search}`,
         thumbnailUrl: null,
       };

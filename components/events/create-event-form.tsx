@@ -66,10 +66,16 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
         />
       </div>
 
+      <div className="space-y-1.5">
+        <Label htmlFor="general_location">General location</Label>
+        <Input id="general_location" name="general_location" maxLength={120} placeholder="e.g. Sugar House, Salt Lake City" />
+        <p className="text-xs text-muted-foreground">Visible to everyone — a neighborhood or area, not the address.</p>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <Label htmlFor="location">Location</Label>
-          <PlacesAutocomplete id="location" name="location" placeholder="Search for a place…" />
+          <Label htmlFor="location">Exact address</Label>
+          <PlacesAutocomplete id="location" name="location" placeholder="Search for the exact place…" />
+          <p className="text-xs text-muted-foreground">Only revealed to people once they RSVP.</p>
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="virtual_url">Virtual link</Label>

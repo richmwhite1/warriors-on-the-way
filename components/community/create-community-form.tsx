@@ -7,7 +7,15 @@ import { Label } from "@/components/ui/label";
 import { createCommunity } from "@/lib/actions/communities";
 import { toast } from "sonner";
 
-export function CreateCommunityForm() {
+type TopicOpt = { id: string; name: string; slug: string };
+
+export function CreateCommunityForm({
+  topics = [],
+  preselectTopicId,
+}: {
+  topics?: TopicOpt[];
+  preselectTopicId?: string;
+}) {
   const [isPending, startTransition] = useTransition();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -31,18 +39,48 @@ export function CreateCommunityForm() {
           name="name"
           required
           maxLength={80}
-          placeholder="e.g. Bay Area Seekers"
+          placeholder="e.g. Salt Lake Christ Consciousness"
         />
+        <p className="text-xs text-muted-foreground">Place plus theme reads best — a name people recognize.</p>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="purpose">Purpose <span className="text-muted-foreground font-normal text-xs">(one sentence, required)</span></Label>
+        <Input
+          id="purpose"
+          name="purpose"
+          required
+          maxLength={140}
+          placeholder="What this community is for, in a sentence."
+        />
+      </div>
+
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium">Topics this community serves <span className="text-muted-foreground font-normal text-xs">(pick at least one)</span></legend>
+        <div className="flex flex-wrap gap-2">
+          {topics.map((t) => (
+            <label key={t.id} className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 cursor-pointer text-sm">
+              <input
+                type="checkbox"
+                name="topic_ids"
+                value={t.id}
+                defaultChecked={t.id === preselectTopicId}
+                className="rounded"
+              />
+              {t.name}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
+      <div className="space-y-1.5">
+        <Label htmlFor="description">Description <span className="text-muted-foreground font-normal text-xs">(optional)</span></Label>
         <textarea
           id="description"
           name="description"
           rows={3}
           maxLength={400}
-          placeholder="What is this community about?"
+          placeholder="More about this community…"
           className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
         />
       </div>
@@ -101,6 +139,13 @@ export function CreateCommunityForm() {
           </span>
         </label>
       </fieldset>
+
+      <p className="text-xs text-muted-foreground rounded-lg bg-muted/50 border p-3">
+        Your community stays invite-only until it reaches <strong>five members</strong> — share your
+        invite link to recruit the first four. It becomes browsable at five. If it hasn&apos;t reached
+        five within thirty days, the name is released.{" "}
+        <a href="/why-150" className="underline hover:text-foreground">Why 150?</a>
+      </p>
 
       <Button type="submit" disabled={isPending} className="w-full">
         {isPending ? "Creating…" : "Create community"}

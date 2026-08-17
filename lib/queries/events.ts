@@ -1,6 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+// Returns the exact address only if the caller is entitled to it (creator, steward,
+// or has RSVP'd yes/maybe). The gate lives in the SECURITY DEFINER RPC; direct
+// column reads are revoked, so this is the only way to obtain it.
+export async function getEventExactAddress(eventId: string): Promise<string | null> {
+  const supabase = await createClient();
+  const { data } = await supabase.rpc("event_exact_address", { p_event_id: eventId });
+  return (data as string | null) ?? null;
+}
+
 export type EventAttendee = {
   user_id: string;
   status: "yes" | "no" | "maybe";

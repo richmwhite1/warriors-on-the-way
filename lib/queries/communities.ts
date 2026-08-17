@@ -74,6 +74,9 @@ export async function listPublicCommunities() {
       post_count:posts(count)
     `)
     .eq("is_private", false)
+    // Visibility gate: only communities past the 5-member threshold are browsable.
+    // Forming (1–4) and dormant communities never appear here.
+    .or("status.eq.listed,is_parent.eq.true")
     .is("posts.deleted_at", null)
     .order("created_at", { ascending: false });
   // Normalise to member_count so CommunityCard receives a consistent prop

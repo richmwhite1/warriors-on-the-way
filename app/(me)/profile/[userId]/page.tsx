@@ -1,9 +1,6 @@
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { buttonVariants } from "@/components/ui/button-variants";
-import { cn } from "@/lib/utils";
 import { requireUserProfile, getUserProfile } from "@/lib/queries/users";
 import { UserReportForm } from "@/components/profile/user-report-form";
 import { BackButton } from "@/components/ui/back-button";
@@ -54,16 +51,6 @@ export default async function PublicProfilePage({ params }: Props) {
               </p>
             )}
           </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-3">
-          <Link
-            href={`/messages/${profile.id}`}
-            className={cn(buttonVariants(), "rounded-full")}
-          >
-            Send message
-          </Link>
         </div>
 
         {/* Report section */}

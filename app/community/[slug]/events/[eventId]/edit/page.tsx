@@ -5,7 +5,7 @@ import { EditEventForm } from "@/components/events/edit-event-form";
 import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
-import { getEventWithDetails } from "@/lib/queries/events";
+import { getEventWithDetails, getEventExactAddress } from "@/lib/queries/events";
 
 type Props = { params: Promise<{ slug: string; eventId: string }> };
 
@@ -30,6 +30,9 @@ export default async function EditEventPage({ params }: Props) {
 
   if (event.status === "cancelled") redirect(`/community/${slug}/events/${eventId}`);
 
+  // Creator/steward is entitled to the exact address via the RPC (column is revoked).
+  const exactAddress = await getEventExactAddress(eventId);
+
   return (
     <>
       <AppNav />
@@ -50,7 +53,8 @@ export default async function EditEventPage({ params }: Props) {
           initialValues={{
             title: event.title,
             description: event.description ?? "",
-            location: event.location ?? "",
+            general_location: event.location ?? "",
+            location: exactAddress ?? "",
             location_url: (event as unknown as { location_url?: string | null }).location_url ?? "",
             virtual_url: event.virtual_url ?? "",
             starts_at: event.starts_at ? toDatetimeLocal(event.starts_at) : "",

@@ -19,7 +19,10 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
   const community_slug_from_form = (formData.get("community_slug") as string) || "";
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
-  const location = (formData.get("location") as string)?.trim() || null;
+  // The exact address is stored in exact_address (column-revoked; revealed only via
+  // the event_exact_address RPC after RSVP). general_location is shown to everyone.
+  const exact_address = (formData.get("location") as string)?.trim() || null;
+  const general_location = (formData.get("general_location") as string)?.trim() || null;
   const location_url = (formData.get("location_url") as string)?.trim() || null;
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
   const image_url = (formData.get("image_url") as string)?.trim() || null;
@@ -48,7 +51,8 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
   const { data: event, error } = await supabase
     .from("events")
     .insert({
-      community_id, created_by: user.id, title, description, location, location_url, virtual_url,
+      community_id, created_by: user.id, title, description,
+      location: general_location, general_location, exact_address, location_url, virtual_url,
       image_url, timezone, starts_at, ends_at, status, vote_threshold,
       registration_fee: registration_fee > 0 ? registration_fee : null,
       tasks_enabled,
@@ -95,7 +99,7 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
       communitySlug: communityData.slug,
       eventId: event.id,
       title,
-      location,
+      location: general_location,
       startsAt: starts_at,
       timezone,
     }).catch(() => {
@@ -154,7 +158,7 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
         eventTitle: title,
         description,
         dateLine,
-        location,
+        location: general_location,
         eventUrl: `${siteUrl}/community/${communityData.slug}/events/${event.id}`,
       });
     } catch {
@@ -175,7 +179,8 @@ export async function updateEvent(eventId: string, formData: FormData) {
 
   const title = (formData.get("title") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
-  const location = (formData.get("location") as string)?.trim() || null;
+  const exact_address = (formData.get("location") as string)?.trim() || null;
+  const general_location = (formData.get("general_location") as string)?.trim() || null;
   const location_url = (formData.get("location_url") as string)?.trim() || null;
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
   const image_url = (formData.get("image_url") as string)?.trim() || null;
@@ -189,7 +194,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
 
   const { data: event, error } = await supabase
     .from("events")
-    .update({ title, description, location, location_url, virtual_url, image_url, starts_at, ends_at, timezone, registration_fee })
+    .update({ title, description, location: general_location, general_location, exact_address, location_url, virtual_url, image_url, starts_at, ends_at, timezone, registration_fee })
     .eq("id", eventId)
     .select("community_id")
     .single();

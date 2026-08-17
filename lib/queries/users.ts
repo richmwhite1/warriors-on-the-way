@@ -3,6 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 export type UserProfile = {
   id: string;
   display_name: string;
+  first_name: string | null;
+  last_initial: string | null;
+  birthdate: string | null;
   bio: string | null;
   avatar_url: string | null;
   timezone: string;
@@ -11,6 +14,9 @@ export type UserProfile = {
   notify_sms: boolean;
   created_at: string;
 };
+
+const USER_SELECT =
+  "id, display_name, first_name, last_initial, birthdate, bio, avatar_url, timezone, venmo_handle, phone, notify_sms, created_at";
 
 export async function getAuthUser() {
   const supabase = await createClient();
@@ -24,7 +30,7 @@ export async function getUserProfile(userId: string): Promise<UserProfile | null
   const supabase = await createClient();
   const { data } = await supabase
     .from("users")
-    .select("id, display_name, bio, avatar_url, timezone, venmo_handle, phone, notify_sms, created_at")
+    .select(USER_SELECT)
     .eq("id", userId)
     .single();
   return data;
@@ -39,7 +45,7 @@ export async function requireUserProfile(): Promise<UserProfile> {
 
   const { data } = await supabase
     .from("users")
-    .select("id, display_name, bio, avatar_url, timezone, venmo_handle, phone, notify_sms, created_at")
+    .select(USER_SELECT)
     .eq("id", user.id)
     .single();
 
