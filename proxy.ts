@@ -33,7 +33,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Protect authenticated routes
-  const protectedPrefixes = ["/home", "/community", "/events", "/me", "/profile"];
+  const protectedPrefixes = ["/home", "/community", "/events", "/me", "/profile", "/topics"];
   const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
 
   // Allow guests to view shared event links and their OG images
