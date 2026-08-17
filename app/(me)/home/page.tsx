@@ -83,6 +83,27 @@ export default async function HomePage() {
 
         <RemovalNoticeBanner notices={removals} />
 
+        {/* Entry to the nine mission domains — the core loop starts here. */}
+        <Link
+          href="/topics"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            marginTop: "1.25rem", padding: "1rem 1.15rem", borderRadius: 16,
+            background: "linear-gradient(135deg, #1a1610 0%, #2a2018 100%)",
+            textDecoration: "none",
+          }}
+        >
+          <div>
+            <p style={{ fontFamily: "var(--font-brand)", fontWeight: 800, fontSize: "1.05rem", color: "#fff", lineHeight: 1.2 }}>
+              Explore the nine
+            </p>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "rgba(255,255,255,0.55)", marginTop: 3 }}>
+              Nine domains to reclaim. Learn one, find your people.
+            </p>
+          </div>
+          <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "#e07040", fontSize: 20 }}>→</span>
+        </Link>
+
         {/* ── Upcoming Events (FIRST — the heartbeat) ─────────────────────── */}
         <section style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.75rem" }}>

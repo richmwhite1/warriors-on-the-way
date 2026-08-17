@@ -52,6 +52,34 @@ export async function AppNav() {
 
         {/* Right side */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          {/* Topics — primary entry to the nine mission domains (visible at all sizes) */}
+          <Link
+            href="/topics"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 14,
+              fontWeight: 600,
+              color: "#e07040",
+              textDecoration: "none",
+            }}
+          >
+            Topics
+          </Link>
+
+          <Link
+            href="/community"
+            className="hidden sm:block"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: 14,
+              fontWeight: 500,
+              color: "#7c7589",
+              textDecoration: "none",
+            }}
+          >
+            Communities
+          </Link>
+
           <Link
             href="/sean"
             style={{
@@ -77,20 +105,6 @@ export async function AppNav() {
             }}
           >
             Map
-          </Link>
-
-          <Link
-            href="/resources"
-            className="hidden sm:block"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 14,
-              fontWeight: 500,
-              color: "#7c7589",
-              textDecoration: "none",
-            }}
-          >
-            Resources
           </Link>
 
           {user && (
