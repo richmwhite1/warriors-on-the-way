@@ -60,7 +60,7 @@ export function TopicView({
         {tab === "info" && (
           <InfoFeed topic={topic} currentUserId={currentUserId} posts={posts} comments={comments} />
         )}
-        {tab === "resources" && <ResourcesShell />}
+        {tab === "resources" && <ResourcesEntry topicSlug={topic.slug} />}
         {tab === "communities" && <CommunitiesList topic={topic} communities={communities} />}
       </div>
     </div>
@@ -247,15 +247,22 @@ function PostCard({
   );
 }
 
-// ─── Resources tab: shell now, ships hidden until phase two. ─────────────────
-function ResourcesShell() {
+// ─── Resources tab: look up. Opens the filtered geographic directory. ────────
+function ResourcesEntry({ topicSlug }: { topicSlug: string }) {
   return (
-    <div style={{ textAlign: "center", padding: "3rem 1rem", color: "#7c7589", fontFamily: "var(--font-body)" }}>
-      <p style={{ fontWeight: 600, color: "#4a4a45" }}>Resources are coming.</p>
-      <p style={{ fontSize: 13.5, marginTop: 6, lineHeight: 1.5 }}>
-        A filtered directory of people and places near you — sorted by proximity, category, and vouches.
-        Not a feed. Landing in a later phase.
+    <div style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
+      <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "#1a1a2e" }}>Find people and places near you</p>
+      <p style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "#7c7589", marginTop: 6, lineHeight: 1.5, maxWidth: 360, marginInline: "auto" }}>
+        A directory sorted by proximity, category, and vouches — practitioners, farms, schools,
+        and more. Not a feed.
       </p>
+      <Link href={`/topics/${topicSlug}/resources`} style={{
+        display: "inline-block", marginTop: 14, padding: "10px 22px", borderRadius: 999,
+        background: "#e07040", color: "#fff", textDecoration: "none",
+        fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14,
+      }}>
+        Open the directory
+      </Link>
     </div>
   );
 }

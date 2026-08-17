@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { deletePost, reportPost, pinPost, updatePost, repostPost } from "@/lib/actions/posts";
 import { toggleReaction } from "@/lib/actions/reactions";
 import { createComment, deleteComment } from "@/lib/actions/comments";
+import { CrossPostPrompt } from "@/components/feed/cross-post-prompt";
 import { toast } from "sonner";
 import { cn, relativeTime } from "@/lib/utils";
 import type { Post } from "@/lib/queries/posts";
@@ -54,10 +55,13 @@ type Props = {
   isViewer?: boolean;
   isPinned?: boolean;
   userCommunities?: UserCommunity[];
+  // When provided (community feed only), the author sees a post-hoc cross-post prompt
+  // once their post gains local traction.
+  communityTopics?: { id: string; name: string }[];
 };
 
 export function PostCard({
-  post, comments, communitySlug, currentUserId, isAdmin, isMember, isPinned, userCommunities,
+  post, comments, communitySlug, currentUserId, isAdmin, isMember, isPinned, userCommunities, communityTopics,
 }: Props) {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -102,6 +106,15 @@ export function PostCard({
   const commentCount = Array.isArray(post.comment_count)
     ? (post.comment_count as unknown as { count: number }[])[0]?.count ?? 0
     : post.comment_count ?? 0;
+
+  // Rec 10: prompt the author to cross-post once a community post has local traction,
+  // and only if it isn't already shared out or dismissed. Threshold: 3 signals.
+  const totalReactions = reactionCounts.like + reactionCounts.heart + reactionCounts.fire;
+  const showCrossPostPrompt =
+    !!communityTopics && communityTopics.length > 0 &&
+    isOwn && !!post.community_id &&
+    !post.cross_posted_at && !post.cross_post_prompt_dismissed_at &&
+    (totalReactions + commentCount) >= 3;
 
   function handleDelete() {
     if (!confirm("Delete this post?")) return;
@@ -417,6 +430,10 @@ export function PostCard({
           <span className="text-sm text-muted-foreground/50">No comments yet</span>
         )}
       </div>
+
+      {showCrossPostPrompt && communityTopics && (
+        <CrossPostPrompt postId={post.id} communitySlug={communitySlug} topics={communityTopics} />
+      )}
 
       {/* Comments */}
       {showComments && comments.length > 0 && (

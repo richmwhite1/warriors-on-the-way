@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { getCommunityBySlug, getParentCommunity, listUserCommunities } from "@/lib/queries/communities";
+import { getCommunityTopics } from "@/lib/queries/topics";
 import { ConsciousnessSidebar } from "@/components/community/consciousness-sidebar";
 import { getActiveMemberCount, getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
@@ -68,6 +69,9 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const parentCommunity = (isMember && !community.is_parent)
     ? await getParentCommunity()
     : null;
+
+  // Topics this community is tagged to — powers the author cross-post prompt.
+  const communityTopics = isMember ? await getCommunityTopics(community.id) : [];
 
   // Pinned post always shows above the filter bar, regardless of active filter
   const pinnedPost = communityPosts.find((p) => p.is_pinned) ?? null;
@@ -229,6 +233,16 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               {canCreate && (
                 <Link href={`/community/${slug}/events/new`} className={cn(buttonVariants({ size: "sm" }), "rounded-full")}>
                   + New event
+                </Link>
+              )}
+              {isAdmin && (
+                <Link href={`/community/${slug}/related`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Related
+                </Link>
+              )}
+              {isAdmin && (
+                <Link href={`/community/${slug}/moderation`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Moderation
                 </Link>
               )}
               {isAdmin && (
@@ -409,6 +423,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   isAdmin={isAdmin}
                   isMember={isMember}
                   userCommunities={userCommunities}
+                  communityTopics={communityTopics}
                 />
               ))
             )}

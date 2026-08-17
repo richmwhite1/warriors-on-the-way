@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createNotification } from "@/lib/actions/notifications";
+import { touchMembership } from "@/lib/actions/activity";
 
 // Create an ask ("I need…") or offer ("I can…"). Requires community membership.
 export async function createAsk(formData: FormData) {
@@ -25,6 +26,7 @@ export async function createAsk(formData: FormData) {
     community_id, author_id: user.id, kind, title, body, topic_id,
   });
   if (error) throw new Error(error.message);
+  await touchMembership(community_id, user.id);
   revalidatePath(`/community/${slug}/asks`);
 }
 
@@ -41,11 +43,12 @@ export async function claimAsk(askId: string, slug: string) {
     .eq("status", "open"); // guard against races
   if (error) throw new Error(error.message);
 
-  // Notify the author that someone stepped up.
+  // Notify the author that someone stepped up. Answering an ask is high-weight activity.
   try {
     const admin = createAdminClient();
-    const { data: ask } = await admin.from("asks").select("author_id, title").eq("id", askId).single();
+    const { data: ask } = await admin.from("asks").select("author_id, title, community_id").eq("id", askId).single();
     const { data: claimer } = await admin.from("users").select("display_name").eq("id", user.id).single();
+    if (ask?.community_id) await touchMembership(ask.community_id, user.id);
     if (ask && ask.author_id !== user.id) {
       await createNotification(ask.author_id, "member_joined", {
         actor_name: (claimer as { display_name?: string } | null)?.display_name ?? "Someone",

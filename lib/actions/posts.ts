@@ -55,6 +55,9 @@ export async function createPost(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
+  // Posting is meaningful activity — keep the member's seat alive.
+  await import("@/lib/actions/activity").then((m) => m.touchMembership(community_id, user.id));
+
   // ── Telegram notifications ──────────────────────────────────────────────────
   // Use admin client so RLS doesn't filter out communities the user can't see
   const admin = createAdminClient();
@@ -259,6 +262,35 @@ export async function repostPost(
 
   revalidatePath(`/community/${targetCommunitySlug}`);
   revalidatePath("/home");
+}
+
+// Rec 10 — cross-post an existing community post out to its topic feed, AFTER it
+// has gained local traction. Opt-in after the fact; compose-time default stays off.
+export async function crossPostToTopic(postId: string, topicId: string, communitySlug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("posts")
+    .update({ visibility: "both", topic_id: topicId, cross_posted_at: new Date().toISOString() })
+    .eq("id", postId)
+    .eq("author_id", user.id); // only the author shares their own post outward
+  if (error) throw new Error(error.message);
+  revalidatePath(`/community/${communitySlug}`);
+  revalidatePath("/home");
+}
+
+export async function dismissCrossPostPrompt(postId: string, communitySlug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+  await supabase
+    .from("posts")
+    .update({ cross_post_prompt_dismissed_at: new Date().toISOString() })
+    .eq("id", postId)
+    .eq("author_id", user.id);
+  revalidatePath(`/community/${communitySlug}`);
 }
 
 export async function reportPost(postId: string, reason: string) {

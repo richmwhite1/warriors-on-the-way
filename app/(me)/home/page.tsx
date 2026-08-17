@@ -12,14 +12,16 @@ import { listUpcomingEventsForUser } from "@/lib/queries/events";
 import { listCommentsByPostIds } from "@/lib/queries/comments";
 import { listOpenAsksForUser } from "@/lib/queries/asks";
 import { listFollowedTopicPosts } from "@/lib/queries/topics";
+import { getUnacknowledgedRemovals } from "@/lib/queries/activity";
 import { EmbedRender } from "@/components/topics/embed-render";
+import { RemovalNoticeBanner } from "@/components/home/removal-notice";
 import { TelegramJoinBanner } from "@/components/telegram-join-banner";
 
 export default async function HomePage() {
   const user = await requireUserProfile().catch(() => null);
   if (!user) redirect("/sign-in");
 
-  const [myCommunities, feedPosts, latestTransmission, upcomingEvents, parentCommunity, openAsks, topicPosts] = await Promise.all([
+  const [myCommunities, feedPosts, latestTransmission, upcomingEvents, parentCommunity, openAsks, topicPosts, removals] = await Promise.all([
     listUserCommunities(user.id),
     listPersonalFeed(user.id),
     getLatestParentPost(),
@@ -27,6 +29,7 @@ export default async function HomePage() {
     getParentCommunity(),
     listOpenAsksForUser(user.id),
     listFollowedTopicPosts(user.id),
+    getUnacknowledgedRemovals(user.id),
   ]);
 
   const myMemberCounts = await Promise.all(
@@ -77,6 +80,8 @@ export default async function HomePage() {
             {firstName}
           </h1>
         </div>
+
+        <RemovalNoticeBanner notices={removals} />
 
         {/* ── Upcoming Events (FIRST — the heartbeat) ─────────────────────── */}
         <section style={{ marginTop: "1.5rem", marginBottom: "1.5rem" }}>

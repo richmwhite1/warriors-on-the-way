@@ -26,12 +26,14 @@ export async function GET(request: Request) {
   const now = new Date();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
-  // Daily community maintenance (piggybacked here — Hobby plan allows daily crons only):
-  // release names of communities that never reached five members within thirty days.
-  await admin.rpc("sweep_dormant_communities").then(
-    () => {},
-    () => {} // best-effort; never block reminders
-  );
+  // Daily community maintenance (piggybacked here — Hobby plan allows daily crons only).
+  // All best-effort; never block reminders.
+  // 1. Release names of communities that never reached five members within thirty days.
+  await admin.rpc("sweep_dormant_communities").then(() => {}, () => {});
+  // 2. Warn members inactive ~5 months (one-tap "still here" clears it).
+  await admin.rpc("sweep_inactivity_warnings").then(() => {}, () => {});
+  // 3. Remove members inactive 6+ months, freeing the seat (never a ban; never creators/stewards).
+  await admin.rpc("sweep_inactivity_removals").then(() => {}, () => {});
 
   // Look at events in the next 48 hours
   const horizon = new Date(now.getTime() + 48 * 60 * 60 * 1000);

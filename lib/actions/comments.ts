@@ -22,6 +22,14 @@ export async function createComment(postId: string, body: string, communitySlug:
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${communitySlug}`);
 
+  // Commenting is meaningful activity — keep the member's seat alive.
+  try {
+    const { data: p } = await supabase.from("posts").select("community_id").eq("id", postId).single();
+    if (p?.community_id) {
+      await import("@/lib/actions/activity").then((m) => m.touchMembership(p.community_id, user.id));
+    }
+  } catch { /* best-effort */ }
+
   // Notify the post author (best-effort, skip if they commented on their own post)
   try {
     const admin = createAdminClient();

@@ -23,6 +23,14 @@ export async function upsertRsvp(
   const { error } = await supabase.from("rsvps").upsert(row, { onConflict: "event_id,user_id" });
 
   if (error) throw new Error(error.message);
+
+  // Attending is the highest-weight activity signal — keep the member's seat alive.
+  if (status === "yes" || status === "maybe") {
+    const { data: ev } = await supabase.from("events").select("community_id").eq("id", eventId).single();
+    if (ev?.community_id) {
+      await import("@/lib/actions/activity").then((m) => m.touchMembership(ev.community_id, user.id));
+    }
+  }
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
 
   // Auto-rebalance any group-split expenses when a new attendee says yes

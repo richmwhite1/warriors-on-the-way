@@ -21,6 +21,8 @@ export type Post = {
     author_name: string;
   } | null;
   push_to_all: boolean;
+  cross_posted_at: string | null;
+  cross_post_prompt_dismissed_at: string | null;
   created_at: string;
   author: { id: string; display_name: string; avatar_url: string | null };
   community?: { name: string; slug: string };
@@ -30,7 +32,7 @@ export type Post = {
 
 const POST_SELECT = `
   id, community_id, author_id, post_type, title, body, embed_url, is_pinned,
-  youtube_url, youtube_oembed, push_to_all, created_at,
+  youtube_url, youtube_oembed, push_to_all, cross_posted_at, cross_post_prompt_dismissed_at, created_at,
   author:users!author_id(id, display_name, avatar_url),
   comment_count:comments(count),
   reactions(type, user_id)

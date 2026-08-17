@@ -30,7 +30,7 @@ export async function flagContent(
 }
 
 // A lone steward can HIDE (reversible) but never permanently delete. The accused
-// sees what was removed and why (hidden_reason).
+// sees what was removed and why (hidden_reason). Unhiding resolves open flags.
 export async function stewardSetHidden(
   targetType: FlagTarget,
   targetId: string,
@@ -51,6 +51,48 @@ export async function stewardSetHidden(
     })
     .eq("id", targetId);
   if (error) throw new Error(error.message);
+
+  // When restoring content, mark its open flags resolved (kept).
+  if (!hidden) {
+    await supabase.from("reports")
+      .update({ status: "dismissed", resolution_note: "Restored by steward" })
+      .eq("target_type", targetType).eq("target_id", targetId).eq("status", "open");
+  } else {
+    await supabase.from("reports")
+      .update({ status: "actioned", resolution_note: "Hidden by steward" })
+      .eq("target_type", targetType).eq("target_id", targetId).eq("status", "open");
+  }
+
   revalidatePath(`/community/${communitySlug}`);
   revalidatePath(`/community/${communitySlug}/asks`);
+  revalidatePath(`/community/${communitySlug}/moderation`);
+}
+
+// Topic reviewer variant — reversible hide of a topic-scoped post.
+export async function reviewerSetHidden(
+  postId: string,
+  topicSlug: string,
+  hidden: boolean,
+  reason?: string
+) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("posts")
+    .update({
+      hidden_at: hidden ? new Date().toISOString() : null,
+      hidden_reason: hidden ? (reason?.trim() || "Hidden by a topic reviewer") : null,
+    })
+    .eq("id", postId);
+  if (error) throw new Error(error.message);
+
+  await supabase.from("reports")
+    .update({ status: hidden ? "actioned" : "dismissed",
+              resolution_note: hidden ? "Hidden by reviewer" : "Restored by reviewer" })
+    .eq("target_type", "post").eq("target_id", postId).eq("status", "open");
+
+  revalidatePath(`/topics/${topicSlug}`);
+  revalidatePath(`/topics/${topicSlug}/review`);
 }

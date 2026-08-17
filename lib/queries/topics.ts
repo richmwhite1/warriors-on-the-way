@@ -105,6 +105,77 @@ export async function listFollowedTopicPosts(userId: string, limit = 15): Promis
   return (data as unknown as TopicPost[]) ?? [];
 }
 
+// Topics a community is tagged to (for the cross-post prompt).
+export async function getCommunityTopics(communityId: string): Promise<{ id: string; name: string }[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("community_topics")
+    .select("topic:topics!topic_id(id, name)")
+    .eq("community_id", communityId);
+  return ((data ?? []) as unknown as { topic: { id: string; name: string } }[]).map((r) => r.topic);
+}
+
+export type SiblingCommunity = {
+  id: string;
+  slug: string;
+  name: string;
+  purpose: string | null;
+  public_member_count: number;
+  member_cap: number;
+  steward_name: string | null;
+  shared_topics: string[];
+};
+
+// Rec 7 — other listed communities that share at least one of this community's topics,
+// so stewards can find kindred groups and seed new ones. Excludes the community itself.
+export async function getSiblingCommunities(
+  communityId: string,
+  topicIds: string[]
+): Promise<SiblingCommunity[]> {
+  if (topicIds.length === 0) return [];
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("community_topics")
+    .select("community_id, topic:topics!topic_id(name), community:communities!inner(id, slug, name, purpose, public_member_count, member_cap, status, created_by)")
+    .in("topic_id", topicIds);
+
+  const map = new Map<string, SiblingCommunity>();
+  for (const row of (data ?? []) as unknown as {
+    community_id: string;
+    topic: { name: string } | null;
+    community: { id: string; slug: string; name: string; purpose: string | null; public_member_count: number; member_cap: number; status: string; created_by: string } | null;
+  }[]) {
+    const c = row.community;
+    if (!c || c.id === communityId || c.status !== "listed") continue;
+    const existing = map.get(c.id);
+    if (existing) {
+      if (row.topic?.name) existing.shared_topics.push(row.topic.name);
+    } else {
+      map.set(c.id, {
+        id: c.id, slug: c.slug, name: c.name, purpose: c.purpose,
+        public_member_count: c.public_member_count, member_cap: c.member_cap,
+        steward_name: null,
+        shared_topics: row.topic?.name ? [row.topic.name] : [],
+      });
+    }
+  }
+
+  // Attach each community's creator (steward) name.
+  const ids = [...map.keys()];
+  if (ids.length > 0) {
+    const { data: creators } = await supabase
+      .from("communities")
+      .select("id, created_by, creator:users!created_by(display_name)")
+      .in("id", ids);
+    for (const row of (creators ?? []) as unknown as { id: string; creator: { display_name: string } | null }[]) {
+      const s = map.get(row.id);
+      if (s) s.steward_name = row.creator?.display_name ?? null;
+    }
+  }
+
+  return [...map.values()].sort((a, b) => b.shared_topics.length - a.shared_topics.length);
+}
+
 export async function getFollowedTopicIds(userId: string): Promise<string[]> {
   const supabase = await createClient();
   const { data } = await supabase

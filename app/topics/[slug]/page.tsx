@@ -7,9 +7,11 @@ import {
   getListedCommunitiesForTopic,
   recordAndCheckFirstVisit,
 } from "@/lib/queries/topics";
+import { getReviewerTopics } from "@/lib/queries/moderation";
 import { ObjectiveSheet } from "@/components/topics/objective-sheet";
 import { SeanBand } from "@/components/topics/sean-band";
 import { TopicView } from "@/components/topics/topic-view";
+import Link from "next/link";
 
 export default async function TopicPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -17,11 +19,13 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
   if (!topic) notFound();
 
   const firstVisit = await recordAndCheckFirstVisit(user.id, topic.id);
-  const [posts, communities] = await Promise.all([
+  const [posts, communities, reviewerTopics] = await Promise.all([
     listTopicPosts(topic.id),
     getListedCommunitiesForTopic(topic.id),
+    getReviewerTopics(user.id),
   ]);
   const comments = await getCommentsForPosts(posts.map((p) => p.id));
+  const canReview = reviewerTopics.some((t) => t.id === topic.id);
 
   return (
     <main style={{ background: "#ffffff", minHeight: "100vh" }}>
@@ -32,6 +36,14 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
           solution={topic.solution_statement}
           firstVisit={firstVisit}
         />
+
+        {canReview && (
+          <div style={{ marginTop: 12 }}>
+            <Link href={`/topics/${topic.slug}/review`} style={{ fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 700, color: "#b91c1c", textDecoration: "none" }}>
+              Review queue →
+            </Link>
+          </div>
+        )}
 
         <div style={{ marginTop: 18 }}>
           <SeanBand topicSlug={topic.slug} topicName={topic.name} />
