@@ -22,17 +22,21 @@ New migrations:
 - `20260817000007_asks.sql` — Ask & Offer board + coordination thread
 - `20260817000008_moderation_flag_dial.sql` — flag threshold auto-hide + reversible hide
 
-## 2. Apply the corpus topic-tagging migration + backfill (Seán band)
+## 2. Apply the corpus topic-tagging + backfill (Seán band)
 
 The per-topic teaching band answers only from a topic's slice of the corpus. That slicing
-does not exist until the corpus is tagged.
+does not exist until the corpus is tagged. This step touches the **external Seán corpus
+Supabase** (spiritsinspacesuits.com's project) — NOT Warriors, and NOT the spirits-vercel
+git repo. Both artifacts live in THIS repo:
 
-In the **spirits-vercel** repo:
 ```
-supabase db push                       # applies 20260817_topic_tagging.sql (sean_chunks.topics + RPC)
-node scripts/tag_topics.mjs            # AI-tags each of ~700 transcripts + 4 books into the nine
+# 1. Apply the SQL to the corpus DB (Supabase SQL editor, or psql against that project):
+db/sean-corpus/topic_tagging.sql        # adds sean_chunks.topics + match_chunks_by_topic RPC
+
+# 2. Backfill tags (env points at the CORPUS project, not Warriors):
+SUPABASE_URL=<corpus url> SUPABASE_SERVICE_KEY=<corpus key> GEMINI_API_KEY=<key> \
+  node scripts/tag_topics.mjs           # AI-tags ~700 transcripts + 4 books into the nine
 ```
-Requires in spirits-vercel `.env.local`: `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `GEMINI_API_KEY`.
 
 ## 3. Env for the Warriors Seán-band route + seeding
 
