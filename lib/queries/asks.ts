@@ -93,6 +93,19 @@ export async function getFulfilledAsksForUser(userId: string): Promise<Ask[]> {
   return (data as unknown as Ask[]) ?? [];
 }
 
+// Open asks tagged to an objective, for that objective's Deck feed.
+export async function listOpenAsksForTopic(topicId: string, limit = 10): Promise<Ask[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("asks")
+    .select(ASK_SELECT)
+    .eq("topic_id", topicId)
+    .eq("status", "open")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return (data as unknown as Ask[]) ?? [];
+}
+
 // Open asks in the user's communities they could answer (for the Home feed).
 export async function listOpenAsksForUser(userId: string, limit = 10): Promise<Ask[]> {
   const supabase = await createClient();

@@ -31,8 +31,8 @@ export default function Error({
         <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
           <circle cx="48" cy="48" r="46" stroke="#e8e2da" strokeWidth="0.5" strokeDasharray="3 5" />
           <circle cx="48" cy="48" r="34" stroke="#e8e2da" strokeWidth="0.5" />
-          <circle cx="48" cy="48" r="22" stroke="#e07040" strokeWidth="0.5" opacity="0.4" />
-          <circle cx="48" cy="48" r="4" fill="#e07040" opacity="0.5" />
+          <circle cx="48" cy="48" r="22" stroke="#6e8b6a" strokeWidth="0.5" opacity="0.4" />
+          <circle cx="48" cy="48" r="4" fill="#6e8b6a" opacity="0.5" />
         </svg>
       </div>
 
@@ -43,7 +43,7 @@ export default function Error({
           fontWeight: 600,
           letterSpacing: "0.36em",
           textTransform: "uppercase",
-          color: "#e07040",
+          color: "#6e8b6a",
           marginBottom: "1rem",
         }}
       >

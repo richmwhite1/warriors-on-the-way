@@ -188,6 +188,55 @@ export async function listUpcomingEventsForUser(
   });
 }
 
+// Upcoming events across the communities tagged to an objective, for its Deck feed.
+export async function listUpcomingEventsForTopic(
+  topicId: string,
+  limit = 4
+): Promise<(EventRow & { community_slug: string; community_name: string })[]> {
+  const supabase = await createClient();
+
+  const { data: tagged } = await supabase
+    .from("community_topics")
+    .select("community_id")
+    .eq("topic_id", topicId);
+  const communityIds = (tagged ?? []).map((t: { community_id: string }) => t.community_id);
+  if (communityIds.length === 0) return [];
+
+  const now = new Date().toISOString();
+  const { data } = await supabase
+    .from("events")
+    .select(`
+      id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      creator:users!created_by(id, display_name, avatar_url, venmo_handle),
+      community:communities!community_id(slug, name),
+      rsvps(status)
+    `)
+    .in("community_id", communityIds)
+    .in("status", ["confirmed", "voting"])
+    .gt("starts_at", now)
+    .is("deleted_at", null)
+    .order("starts_at", { ascending: true })
+    .limit(limit);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data as any[]) ?? []).map((event) => {
+    const rsvp_counts = { yes: 0, no: 0, maybe: 0 };
+    (event.rsvps ?? []).forEach((r: { status: string }) => {
+      if (r.status === "yes") rsvp_counts.yes++;
+      else if (r.status === "no") rsvp_counts.no++;
+      else if (r.status === "maybe") rsvp_counts.maybe++;
+    });
+    const { rsvps: _rsvps, community, ...rest } = event;
+    return {
+      ...rest,
+      rsvp_counts,
+      community_slug: (community as { slug: string; name: string })?.slug ?? "",
+      community_name: (community as { slug: string; name: string })?.name ?? "",
+    } as EventRow & { community_slug: string; community_name: string };
+  });
+}
+
 /**
  * Fetch event details using the admin client — bypasses RLS.
  * Used for guest/public pages where the viewer is not authenticated.

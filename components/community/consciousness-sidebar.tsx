@@ -22,7 +22,7 @@ export function ConsciousnessSidebar() {
           fontSize: 9,
           letterSpacing: "0.22em",
           textTransform: "uppercase",
-          color: "#e07040",
+          color: "#6e8b6a",
           background: "rgba(26,22,16,0.92)",
           border: "1px solid rgba(160,120,40,0.35)",
           padding: "0.45rem 0.85rem",
@@ -73,7 +73,7 @@ export function ConsciousnessSidebar() {
             fontSize: 9,
             letterSpacing: "0.35em",
             textTransform: "uppercase",
-            color: "#e07040",
+            color: "#6e8b6a",
             marginBottom: "0.5rem",
           }}
         >
@@ -148,7 +148,7 @@ export function ConsciousnessSidebar() {
             fontSize: 9,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
-            color: "#e07040",
+            color: "#6e8b6a",
             textDecoration: "none",
             borderBottom: "1px solid rgba(196,160,80,0.3)",
             paddingBottom: "0.1rem",

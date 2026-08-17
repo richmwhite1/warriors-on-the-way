@@ -146,7 +146,7 @@ export function MissionPanel() {
             fontFamily: "var(--font-brand)",
             fontSize: 13,
             fontWeight: 700,
-            color: "#e07040",
+            color: "#6e8b6a",
             textDecoration: "none",
             flexShrink: 0,
           }}
@@ -175,7 +175,7 @@ export function MissionPanel() {
                   color: "#1a1a2e",
                 }}
               >
-                <span style={{ color: "#e07040", fontSize: "0.6rem", flexShrink: 0 }}>&bull;</span>
+                <span style={{ color: "#6e8b6a", fontSize: "0.6rem", flexShrink: 0 }}>&bull;</span>
                 {point}
               </li>
             ))}
@@ -214,7 +214,7 @@ export function MissionPanel() {
                     fontFamily: "var(--font-brand)",
                     fontSize: 11,
                     fontWeight: 700,
-                    color: "#e07040",
+                    color: "#6e8b6a",
                     width: 90,
                     flexShrink: 0,
                   }}

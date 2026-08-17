@@ -127,7 +127,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 fontWeight: 600,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "#e07040",
+                color: "#6e8b6a",
                 marginBottom: "0.75rem",
               }}
             >
@@ -154,7 +154,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               }}
             >
               {memberCount} {memberCount === 1 ? "member" : "members"}
-              {isFull && <span style={{ marginLeft: "0.5rem", color: "#e07040" }}>· Full</span>}
+              {isFull && <span style={{ marginLeft: "0.5rem", color: "#6e8b6a" }}>· Full</span>}
             </p>
           </div>
         </div>
@@ -204,7 +204,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               }}
             >
               {memberCount} / {community.member_cap} {memberCount === 1 ? "member" : "members"}
-              {isFull && <span style={{ marginLeft: "0.5rem", color: "#e07040" }}>· Full</span>}
+              {isFull && <span style={{ marginLeft: "0.5rem", color: "#6e8b6a" }}>· Full</span>}
               {community.is_private && <span style={{ marginLeft: "0.5rem" }}>· Private</span>}
             </p>
           </div>
@@ -432,7 +432,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             {community.is_parent && latestVideoId && (
               <div className="space-y-3">
                 <Separator />
-                <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#e07040" }}>Latest from Seán</p>
+                <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#6e8b6a" }}>Latest from Seán</p>
                 <div className="aspect-video overflow-hidden rounded-xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
                   <iframe
                     src={`https://www.youtube.com/embed/${latestVideoId}`}
@@ -488,7 +488,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "1rem", marginBottom: "1rem" }}>We&apos;ll let you know when a spot opens up.</p>
             <Link
               href="/community"
-              style={{ fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 700, color: "#e07040", textDecoration: "none" }}
+              style={{ fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 700, color: "#6e8b6a", textDecoration: "none" }}
             >
               Find another group near you →
             </Link>
@@ -536,7 +536,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   fontSize: 9,
                   letterSpacing: "0.35em",
                   textTransform: "uppercase",
-                  color: "#e07040",
+                  color: "#6e8b6a",
                 }}
               >
                 Members Only

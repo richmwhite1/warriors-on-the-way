@@ -34,7 +34,7 @@ export function ResourceDirectory({
           People and places near you — sorted by proximity, then vouches.
         </p>
         <button onClick={() => setComposing((c) => !c)}
-          style={{ padding: "8px 16px", borderRadius: 999, border: 0, background: "#e07040", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
+          style={{ padding: "8px 16px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer", whiteSpace: "nowrap" }}>
           {composing ? "Close" : "+ Add"}
         </button>
       </div>
@@ -66,8 +66,8 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
   return (
     <button onClick={onClick} style={{
       padding: "6px 14px", borderRadius: 999, whiteSpace: "nowrap", textTransform: "capitalize",
-      border: `1px solid ${active ? "#e07040" : "#e8e2da"}`, background: active ? "#fdf0e9" : "#fff",
-      color: active ? "#e07040" : "#7c7589", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 12.5, cursor: "pointer",
+      border: `1px solid ${active ? "#6e8b6a" : "#e8e2da"}`, background: active ? "#fdf0e9" : "#fff",
+      color: active ? "#6e8b6a" : "#7c7589", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 12.5, cursor: "pointer",
     }}>{label}</button>
   );
 }
@@ -93,7 +93,7 @@ function AddForm({ topic, onDone }: { topic: { id: string; slug: string }; onDon
       <input name="address" placeholder="Location (city or address)" style={inp()} />
       <input name="url" type="url" placeholder="Website (optional)" style={inp()} />
       <button type="submit" disabled={pending}
-        style={{ width: "100%", padding: "10px 0", borderRadius: 999, border: 0, background: "#e07040", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+        style={{ width: "100%", padding: "10px 0", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
         {pending ? "Adding…" : "Add to directory"}
       </button>
     </form>
@@ -132,7 +132,7 @@ function ResourceRow({ resource, topicSlug, currentUserId }: { resource: TopicRe
           </span>
         )}
         {resource.url && (
-          <a href={resource.url} target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#e07040" }}>
+          <a href={resource.url} target="_blank" rel="noopener noreferrer" style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#6e8b6a" }}>
             Visit →
           </a>
         )}

@@ -25,7 +25,7 @@ export function EventCard({ event, communitySlug }: Props) {
         {startsAt && (
           <div
             className="shrink-0 w-12 text-center rounded-xl py-2 px-1"
-            style={{ background: "#fff5f0" }}
+            style={{ background: "#eef2ea" }}
           >
             <p className="text-[11px] font-bold text-primary uppercase leading-none">
               {startsAt.toLocaleDateString("en-US", { month: "short" })}

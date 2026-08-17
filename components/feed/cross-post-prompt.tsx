@@ -53,7 +53,7 @@ export function CrossPostPrompt({
               toast.error(e instanceof Error ? e.message : "Could not share");
             }
           })}
-          style={{ padding: "6px 14px", borderRadius: 999, border: 0, background: "#e07040", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: pending ? 0.6 : 1 }}
+          style={{ padding: "6px 14px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: pending ? 0.6 : 1 }}
         >
           Share to {topics.length === 1 ? topics[0].name : "topic"}
         </button>

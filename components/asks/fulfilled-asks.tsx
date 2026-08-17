@@ -7,7 +7,7 @@ export function FulfilledAsks({ asks, name }: { asks: Ask[]; name: string }) {
   return (
     <section style={{ margin: "1.5rem 0" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <HeartHandshake size={16} color="#e07040" />
+        <HeartHandshake size={16} color="#6e8b6a" />
         <span style={{ fontFamily: "var(--font-body)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "#7c7589" }}>
           {asks.length} {asks.length === 1 ? "person" : "people"} helped
         </span>

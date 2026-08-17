@@ -51,18 +51,18 @@ export default function Image() {
               marginBottom: "36px",
             }}
           >
-            <div style={{ width: 60, height: 1, background: "#e07040", opacity: 0.5 }} />
+            <div style={{ width: 60, height: 1, background: "#6e8b6a", opacity: 0.5 }} />
             <span
               style={{
                 fontSize: 12,
                 letterSpacing: "0.4em",
-                color: "#e07040",
+                color: "#6e8b6a",
                 textTransform: "uppercase",
               }}
             >
               Another name for lightworkers
             </span>
-            <div style={{ width: 60, height: 1, background: "#e07040", opacity: 0.5 }} />
+            <div style={{ width: 60, height: 1, background: "#6e8b6a", opacity: 0.5 }} />
           </div>
 
           {/* Wordmark */}

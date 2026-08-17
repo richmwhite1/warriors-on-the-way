@@ -31,7 +31,7 @@ export function ObjectiveSheet({
           style={{
             marginLeft: "auto", display: "inline-flex", alignItems: "center", justifyContent: "center",
             width: 36, height: 36, borderRadius: 999, border: "1px solid #e8e2da",
-            background: "#faf8f5", color: "#e07040", cursor: "pointer",
+            background: "#faf8f5", color: "#6e8b6a", cursor: "pointer",
           }}
         >
           <Info size={18} strokeWidth={1.75} />

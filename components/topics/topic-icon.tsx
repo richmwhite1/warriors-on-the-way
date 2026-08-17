@@ -15,7 +15,7 @@ const MAP: Record<string, React.ComponentType<{ size?: number; strokeWidth?: num
   sparkles: Sparkles,
 };
 
-export function TopicIcon({ icon, size = 28, color = "#e07040" }: { icon: string | null; size?: number; color?: string }) {
+export function TopicIcon({ icon, size = 28, color = "#6e8b6a" }: { icon: string | null; size?: number; color?: string }) {
   const Cmp = (icon && MAP[icon]) || Circle;
   return <Cmp size={size} strokeWidth={1.5} color={color} />;
 }

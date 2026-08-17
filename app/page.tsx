@@ -190,9 +190,9 @@ export default async function LandingPage() {
           <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" width="96" height="96">
             <circle cx="48" cy="48" r="46" stroke="#7c7589" strokeWidth="0.5" strokeDasharray="3 5"/>
             <circle cx="48" cy="48" r="34" stroke="#7c7589" strokeWidth="0.5"/>
-            <circle cx="48" cy="48" r="22" stroke="#e07040" strokeWidth="0.5" opacity="0.4"/>
-            <circle cx="48" cy="48" r="10" fill="rgba(160,120,40,0.08)" stroke="#e07040" strokeWidth="0.75" opacity="0.6"/>
-            <circle cx="48" cy="48" r="4" fill="#e07040" opacity="0.5"/>
+            <circle cx="48" cy="48" r="22" stroke="#6e8b6a" strokeWidth="0.5" opacity="0.4"/>
+            <circle cx="48" cy="48" r="10" fill="rgba(160,120,40,0.08)" stroke="#6e8b6a" strokeWidth="0.75" opacity="0.6"/>
+            <circle cx="48" cy="48" r="4" fill="#6e8b6a" opacity="0.5"/>
             <circle cx="48" cy="48" r="1.5" fill="#1a1a2e"/>
             <line x1="48" y1="2" x2="48" y2="12" stroke="#7c7589" strokeWidth="0.75" opacity="0.5"/>
             <line x1="48" y1="84" x2="48" y2="94" stroke="#7c7589" strokeWidth="0.75" opacity="0.5"/>
@@ -334,7 +334,7 @@ export default async function LandingPage() {
             <div
               style={{
                 border: "1px solid #e8e2da",
-                borderTop: "2px solid #e07040",
+                borderTop: "2px solid #6e8b6a",
                 padding: "1.5rem",
                 background: "#ffffff",
               }}
@@ -369,7 +369,7 @@ export default async function LandingPage() {
                   fontSize: 10,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
-                  color: "#e07040",
+                  color: "#6e8b6a",
                   textDecoration: "none",
                 }}
               >
@@ -380,7 +380,7 @@ export default async function LandingPage() {
             <div
               style={{
                 border: "1px solid #e8e2da",
-                borderTop: "2px solid #e07040",
+                borderTop: "2px solid #6e8b6a",
                 padding: "1.5rem",
                 background: "#ffffff",
               }}
@@ -421,7 +421,7 @@ export default async function LandingPage() {
                   fontSize: 10,
                   letterSpacing: "0.2em",
                   textTransform: "uppercase",
-                  color: "#e07040",
+                  color: "#6e8b6a",
                   textDecoration: "none",
                 }}
               >
@@ -495,7 +495,7 @@ export default async function LandingPage() {
                 fontSize: 9,
                 letterSpacing: "0.26em",
                 textTransform: "uppercase",
-                color: "#e07040",
+                color: "#6e8b6a",
                 display: "block",
                 marginBottom: "1.25rem",
                 fontWeight: 600,
@@ -585,7 +585,7 @@ export default async function LandingPage() {
               >
                 <span
                   style={{
-                    color: "#e07040",
+                    color: "#6e8b6a",
                     fontSize: "0.55rem",
                     flexShrink: 0,
                     opacity: 0.8,
@@ -643,7 +643,7 @@ export default async function LandingPage() {
                     fontSize: 9,
                     letterSpacing: "0.24em",
                     textTransform: "uppercase",
-                    color: "#e07040",
+                    color: "#6e8b6a",
                     display: "block",
                     marginBottom: "0.5rem",
                     fontWeight: 600,
@@ -768,7 +768,7 @@ export default async function LandingPage() {
             fontWeight: 600,
             letterSpacing: "0.36em",
             textTransform: "uppercase",
-            color: "#e07040",
+            color: "#6e8b6a",
             marginBottom: "2rem",
             display: "flex",
             alignItems: "center",
@@ -776,9 +776,9 @@ export default async function LandingPage() {
             gap: "1rem",
           }}
         >
-          <span style={{ display: "block", width: 40, height: 1, background: "#e07040", opacity: 0.35 }} />
+          <span style={{ display: "block", width: 40, height: 1, background: "#6e8b6a", opacity: 0.35 }} />
           The call
-          <span style={{ display: "block", width: 40, height: 1, background: "#e07040", opacity: 0.35 }} />
+          <span style={{ display: "block", width: 40, height: 1, background: "#6e8b6a", opacity: 0.35 }} />
         </div>
         <p
           style={{

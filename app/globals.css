@@ -67,7 +67,7 @@
   --popover:            #ffffff;
   --popover-foreground: #1a1a2e;
 
-  --primary:            #e07040;
+  --primary:            #6e8b6a;
   --primary-foreground: #ffffff;
 
   --secondary:            #f5f0eb;
@@ -83,16 +83,16 @@
 
   --border: #e8e2da;
   --input:  #e8e2da;
-  --ring:   #e07040;
+  --ring:   #6e8b6a;
 
   --sidebar:                       #f5f0eb;
   --sidebar-foreground:            #1a1a2e;
-  --sidebar-primary:               #e07040;
+  --sidebar-primary:               #6e8b6a;
   --sidebar-primary-foreground:    #ffffff;
   --sidebar-accent:                #e8e2da;
   --sidebar-accent-foreground:     #1a1a2e;
   --sidebar-border:                #e8e2da;
-  --sidebar-ring:                  #e07040;
+  --sidebar-ring:                  #6e8b6a;
 }
 
 /* ─── Dark mode — used by special pages (sign-in, consciousness map) ─────── */
@@ -106,7 +106,7 @@
   --popover:            #2e2820;
   --popover-foreground: #f5f0eb;
 
-  --primary:            #e8864e;
+  --primary:            #8fae86;
   --primary-foreground: #ffffff;
 
   --secondary:            #2e2820;
@@ -122,16 +122,16 @@
 
   --border: rgba(255,255,255,0.1);
   --input:  rgba(255,255,255,0.12);
-  --ring:   #e8864e;
+  --ring:   #8fae86;
 
   --sidebar:                    #2e2820;
   --sidebar-foreground:         #f5f0eb;
-  --sidebar-primary:            #e8864e;
+  --sidebar-primary:            #8fae86;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent:             #1a1610;
   --sidebar-accent-foreground:  #f5f0eb;
   --sidebar-border:             rgba(255,255,255,0.1);
-  --sidebar-ring:               #e8864e;
+  --sidebar-ring:               #8fae86;
 }
 
 /* ─── Page entrance animation ────────────────────────────────────────────── */

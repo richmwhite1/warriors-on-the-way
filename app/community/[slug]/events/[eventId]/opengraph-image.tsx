@@ -117,7 +117,7 @@ export default async function Image({
                 style={{
                   fontSize: 16,
                   letterSpacing: "0.15em",
-                  color: "#e07040",
+                  color: "#6e8b6a",
                   textTransform: "uppercase",
                   fontWeight: 700,
                 }}
@@ -190,7 +190,7 @@ export default async function Image({
                         width: 20,
                         height: 20,
                         borderRadius: "50%",
-                        background: "#e07040",
+                        background: "#6e8b6a",
                         border: "2px solid rgba(26,22,16,0.8)",
                         marginLeft: i > 0 ? -6 : 0,
                       }}

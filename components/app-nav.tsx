@@ -59,7 +59,7 @@ export async function AppNav() {
               fontFamily: "var(--font-body)",
               fontSize: 14,
               fontWeight: 600,
-              color: "#e07040",
+              color: "#6e8b6a",
               textDecoration: "none",
             }}
           >
@@ -125,7 +125,7 @@ export async function AppNav() {
                       fontFamily: "var(--font-brand)",
                       fontSize: 12,
                       fontWeight: 700,
-                      background: "#e07040",
+                      background: "#6e8b6a",
                       color: "#ffffff",
                       borderRadius: "9999px",
                     }}

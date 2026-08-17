@@ -31,7 +31,7 @@ export function AskBoard({
         </h2>
         <button
           onClick={() => setComposing((c) => !c)}
-          style={{ padding: "8px 16px", borderRadius: 999, border: 0, background: "#e07040", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+          style={{ padding: "8px 16px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
         >
           {composing ? "Close" : "+ Post"}
         </button>
@@ -88,8 +88,8 @@ function AskComposer({
 
   const pill = (k: "ask" | "offer", label: string) => (
     <button type="button" onClick={() => setKind(k)} style={{
-      flex: 1, padding: "8px 0", borderRadius: 999, border: `1px solid ${kind === k ? "#e07040" : "#e8e2da"}`,
-      background: kind === k ? "#fdf0e9" : "#fff", color: kind === k ? "#e07040" : "#7c7589",
+      flex: 1, padding: "8px 0", borderRadius: 999, border: `1px solid ${kind === k ? "#6e8b6a" : "#e8e2da"}`,
+      background: kind === k ? "#fdf0e9" : "#fff", color: kind === k ? "#6e8b6a" : "#7c7589",
       fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer",
     }}>{label}</button>
   );
@@ -108,7 +108,7 @@ function AskComposer({
         <option value="">Tag a topic (optional)</option>
         {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
       </select>
-      <button type="submit" disabled={pending} style={{ width: "100%", padding: "10px 0", borderRadius: 999, border: 0, background: "#e07040", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+      <button type="submit" disabled={pending} style={{ width: "100%", padding: "10px 0", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
         {pending ? "Posting…" : "Post"}
       </button>
     </form>
@@ -140,12 +140,12 @@ function AskCard({
   return (
     <article style={{ border: "1px solid #e8e2da", borderRadius: 14, padding: 14, marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        {ask.kind === "ask" ? <HandHelping size={16} color="#e07040" /> : <HeartHandshake size={16} color="#e07040" />}
+        {ask.kind === "ask" ? <HandHelping size={16} color="#6e8b6a" /> : <HeartHandshake size={16} color="#6e8b6a" />}
         <span style={{ fontFamily: "var(--font-body)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", color: "#a39a8f" }}>
           {ask.kind === "ask" ? "Needs help" : "Offering"}
         </span>
         {ask.topic && (
-          <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "#e07040", background: "#fdf0e9", padding: "2px 8px", borderRadius: 999 }}>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "#6e8b6a", background: "#fdf0e9", padding: "2px 8px", borderRadius: 999 }}>
             {ask.topic.name}
           </span>
         )}
@@ -220,7 +220,7 @@ function AskCard({
 }
 
 function btn(): React.CSSProperties {
-  return { padding: "8px 16px", borderRadius: 999, border: 0, background: "#e07040", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" };
+  return { padding: "8px 16px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" };
 }
 function btnGhost(): React.CSSProperties {
   return { padding: "8px 16px", borderRadius: 999, border: "1px solid #e8e2da", background: "#fff", color: "#7c7589", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" };

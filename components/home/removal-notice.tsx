@@ -45,7 +45,7 @@ export function RemovalNoticeBanner({ notices }: { notices: RemovalNotice[] }) {
                       toast.error(e instanceof Error ? e.message : "Could not rejoin");
                     }
                   })}
-                  style={{ padding: "8px 18px", borderRadius: 999, border: 0, background: "#e07040", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                  style={{ padding: "8px 18px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
                 >
                   Rejoin
                 </button>

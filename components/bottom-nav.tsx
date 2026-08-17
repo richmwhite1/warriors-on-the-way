@@ -18,39 +18,39 @@ export function BottomNav(_props: Props = {}) {
 
   const items = [
     {
-      label: "Home",
-      href: "/home",
-      active: pathname === "/home",
+      label: "Deck",
+      href: "/deck",
+      active: pathname === "/deck" || pathname === "/home",
       badge: 0,
       icon: (active: boolean) => (
         <svg className="w-6 h-6" fill={active ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 0 : 1.5}>
           {active ? (
-            <path d="M11.47 3.841a.75.75 0 011.06 0l8.69 8.69a.75.75 0 01-.53 1.28h-1.44v7.44a.75.75 0 01-.75.75h-3a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-3a.75.75 0 00-.75.75v4.5a.75.75 0 01-.75.75h-3a.75.75 0 01-.75-.75v-7.44H4.31a.75.75 0 01-.53-1.28l8.69-8.69z" />
+            <path d="M3.75 5.25A2.25 2.25 0 016 3h12a2.25 2.25 0 012.25 2.25v9A2.25 2.25 0 0118 16.5H6a2.25 2.25 0 01-2.25-2.25v-9zM6.75 19.5a.75.75 0 000 1.5h10.5a.75.75 0 000-1.5H6.75z" />
           ) : (
             <path strokeLinecap="round" strokeLinejoin="round"
-              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              d="M3.75 6A2.25 2.25 0 016 3.75h12A2.25 2.25 0 0120.25 6v8.25A2.25 2.25 0 0118 16.5H6a2.25 2.25 0 01-2.25-2.25V6zM7.5 20.25h9" />
           )}
         </svg>
       ),
     },
     {
-      label: "Topics",
-      href: "/topics",
-      active: pathname.startsWith("/topics"),
+      label: "Events",
+      href: "/events",
+      active: pathname.startsWith("/events"),
       badge: 0,
       icon: (active: boolean) => (
         <svg className="w-6 h-6" fill={active ? "currentColor" : "none"} viewBox="0 0 24 24" stroke="currentColor" strokeWidth={active ? 0 : 1.5}>
           {active ? (
-            <path d="M3 3.75A.75.75 0 013.75 3h6a.75.75 0 01.75.75v6a.75.75 0 01-.75.75h-6A.75.75 0 013 9.75v-6zM3 14.25a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v6a.75.75 0 01-.75.75h-6a.75.75 0 01-.75-.75v-6zM13.5 3.75a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v6a.75.75 0 01-.75.75h-6a.75.75 0 01-.75-.75v-6zM13.5 14.25a.75.75 0 01.75-.75h6a.75.75 0 01.75.75v6a.75.75 0 01-.75.75h-6a.75.75 0 01-.75-.75v-6z" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M6.75 2.25A.75.75 0 017.5 3v1.5h9V3a.75.75 0 011.5 0v1.5h.75a3 3 0 013 3v11.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V7.5a3 3 0 013-3H6V3a.75.75 0 01.75-.75zm13.5 9a1.5 1.5 0 00-1.5-1.5H5.25a1.5 1.5 0 00-1.5 1.5v7.5a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5v-7.5z" />
           ) : (
             <path strokeLinecap="round" strokeLinejoin="round"
-              d="M3.75 6A2.25 2.25 0 016 3.75h1.5A2.25 2.25 0 019.75 6v1.5A2.25 2.25 0 017.5 9.75H6A2.25 2.25 0 013.75 7.5V6zm10.5 0A2.25 2.25 0 0116.5 3.75H18A2.25 2.25 0 0120.25 6v1.5A2.25 2.25 0 0118 9.75h-1.5A2.25 2.25 0 0114.25 7.5V6zM3.75 16.5A2.25 2.25 0 016 14.25h1.5A2.25 2.25 0 019.75 16.5V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-1.5zm10.5 0a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-1.5A2.25 2.25 0 0114.25 18v-1.5z" />
+              d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
           )}
         </svg>
       ),
     },
     {
-      label: "My Communities",
+      label: "Communities",
       href: "/community",
       active: pathname.startsWith("/community"),
       badge: 0,
@@ -66,7 +66,7 @@ export function BottomNav(_props: Props = {}) {
       ),
     },
     {
-      label: "Profile",
+      label: "You",
       href: "/profile",
       active: pathname === "/profile",
       badge: 0,
@@ -108,7 +108,7 @@ export function BottomNav(_props: Props = {}) {
               justifyContent: "center",
               gap: 2,
               textDecoration: "none",
-              color: item.active ? "#e07040" : "#7c7589",
+              color: item.active ? "#6e8b6a" : "#7c7589",
               transition: "color 0.2s ease",
             }}
           >
@@ -127,7 +127,7 @@ export function BottomNav(_props: Props = {}) {
                     alignItems: "center",
                     justifyContent: "center",
                     borderRadius: 9999,
-                    background: "#e07040",
+                    background: "#6e8b6a",
                     color: "#ffffff",
                     fontSize: 10,
                     fontFamily: "var(--font-brand)",
