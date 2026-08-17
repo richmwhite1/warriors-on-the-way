@@ -5,7 +5,7 @@
 -- listings, onboarding, and paid acquisition. The two are never concatenated in code.
 
 create table if not exists public.topics (
-  id                  uuid primary key default uuid_generate_v4(),
+  id                  uuid primary key default gen_random_uuid(),
   slug                text not null unique,
   name                text not null,
   -- Seán's verbatim manifesto line. Do not edit, soften, or paraphrase.

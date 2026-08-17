@@ -16,7 +16,7 @@ do $$ begin
 exception when duplicate_object then null; end $$;
 
 create table if not exists public.asks (
-  id             uuid primary key default uuid_generate_v4(),
+  id             uuid primary key default gen_random_uuid(),
   community_id   uuid not null references public.communities (id) on delete cascade,
   author_id      uuid not null references public.users (id) on delete cascade,
   kind           public.ask_kind not null,
@@ -101,7 +101,7 @@ create policy "asks: update"
 
 -- ─── Ask coordination thread (replaces DMs) ────────────────────────────────
 create table if not exists public.ask_comments (
-  id         uuid primary key default uuid_generate_v4(),
+  id         uuid primary key default gen_random_uuid(),
   ask_id     uuid not null references public.asks (id) on delete cascade,
   author_id  uuid not null references public.users (id) on delete cascade,
   body       text not null,
