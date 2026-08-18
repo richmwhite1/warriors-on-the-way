@@ -36,7 +36,7 @@ export async function AppNav() {
       >
         {/* Wordmark */}
         <Link
-          href="/home"
+          href="/deck"
           style={{
             fontFamily: "var(--font-brand)",
             fontSize: 16,

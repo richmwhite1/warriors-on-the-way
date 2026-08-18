@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { AppNav } from "@/components/app-nav";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listUpcomingEventsForUser } from "@/lib/queries/events";
 
@@ -10,7 +11,9 @@ export default async function EventsPage() {
   const events = await listUpcomingEventsForUser(user.id);
 
   return (
-    <main className="animate-page-enter" style={{ maxWidth: 480, margin: "0 auto", padding: "1.25rem 1rem 5rem" }}>
+    <>
+      <AppNav />
+      <main className="animate-page-enter" style={{ maxWidth: 480, margin: "0 auto", padding: "1.25rem 1rem 5rem" }}>
       <h1
         style={{
           fontFamily: "var(--font-brand)",
@@ -82,6 +85,7 @@ export default async function EventsPage() {
           })}
         </div>
       )}
-    </main>
+      </main>
+    </>
   );
 }

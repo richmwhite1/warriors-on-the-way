@@ -3,17 +3,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-// unreadDMs is retained (ignored) so existing section layouts compile unchanged;
-// direct messages were removed in phase one.
-type Props = { unreadDMs?: number };
-
 function vibrate() {
   if (typeof navigator !== "undefined" && navigator.vibrate) {
     navigator.vibrate(8);
   }
 }
 
-export function BottomNav(_props: Props = {}) {
+export function BottomNav() {
   const pathname = usePathname();
 
   const items = [

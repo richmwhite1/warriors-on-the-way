@@ -40,6 +40,9 @@ export default async function DeckPage({ searchParams }: Props) {
     topics.find((t) => followedIds.includes(t.id)) ??
     topics[0];
   const isFollowingActive = followedIds.includes(active.id);
+  // First run: a signed-in user who follows no objectives yet. The Deck falls back to
+  // showing the first objective, so nudge them to make it their own.
+  const firstRun = followedIds.length === 0;
 
   const [posts, events, asks, communities] = await Promise.all([
     listTopicPosts(active.id, INITIAL),
@@ -97,8 +100,28 @@ export default async function DeckPage({ searchParams }: Props) {
             padding: "1rem 1rem 0.75rem",
           }}
         >
-          Discover
+          Deck
         </h1>
+
+        {/* ── First-run nudge: make the Deck personal by following objectives ── */}
+        {firstRun && (
+          <div
+            style={{
+              margin: "0 1rem 0.75rem",
+              background: "linear-gradient(135deg, #f8f4ec 0%, #fdf9f0 100%)",
+              border: "1px solid #e8dcc8",
+              borderRadius: 12,
+              padding: "0.85rem 1rem",
+            }}
+          >
+            <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, color: "#1a1a2e", margin: 0 }}>
+              Make this your own
+            </p>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", lineHeight: 1.5, margin: "4px 0 0" }}>
+              Tap an objective below, then <strong style={{ color: "#4a4438", fontWeight: 600 }}>Follow</strong> the ones that call you — your Deck opens to what you follow.
+            </p>
+          </div>
+        )}
 
         {/* ── Objective toggle pills ─────────────────────────────────────────── */}
         <ObjectivePills

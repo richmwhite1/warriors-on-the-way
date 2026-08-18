@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { DeckCard } from "@/components/deck/deck-card";
 import { DeckStack } from "@/components/deck/deck-stack";
 import { DeckComposer } from "@/components/deck/deck-composer";
@@ -9,6 +10,17 @@ import { DeckLoadMore } from "@/components/deck/deck-load-more";
 import type { TopicPost, PostComment } from "@/lib/queries/topics";
 
 type View = "feed" | "stack";
+
+const emptyActionStyle: React.CSSProperties = {
+  fontFamily: "var(--font-brand)",
+  fontWeight: 700,
+  fontSize: 13,
+  color: "var(--primary)",
+  background: "var(--secondary)",
+  padding: "8px 14px",
+  borderRadius: 9999,
+  textDecoration: "none",
+};
 
 // Client body of the deck: switches between the scrolling Feed (full interaction,
 // mixed content) and the swipeable Stack (Axis 2). Fed plain data by the server page.
@@ -34,13 +46,21 @@ export function DeckBody({
     return (
       <section style={{ padding: "1rem", display: "flex", flexDirection: "column", gap: 16 }}>
         <DeckComposer topicId={topicId} topicSlug={topicSlug} objectiveName={objectiveName} />
-        <div style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
+        <div style={{ textAlign: "center", padding: "2rem 1rem 1rem" }}>
           <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: "1rem", color: "var(--foreground)", margin: 0 }}>
             Nothing in {objectiveName} yet
           </p>
           <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--muted-foreground)", marginTop: 6 }}>
             Be the first to share something — paste a link or start a discussion above.
           </p>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 18 }}>
+            <Link href="/community" className="press-scale" style={emptyActionStyle}>
+              Find a community
+            </Link>
+            <Link href="/topics" className="press-scale" style={emptyActionStyle}>
+              Explore other objectives
+            </Link>
+          </div>
         </div>
       </section>
     );
