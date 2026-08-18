@@ -202,7 +202,32 @@ export async function deletePost(postId: string, communitySlug: string) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const { error } = await supabase
+  // Authorize against the post's author + community, then write with the service
+  // role. The posts UPDATE policy rejects setting deleted_at from the user client
+  // (soft-delete is column-gated), so mirror the pattern used by member/RSVP
+  // moderation actions: verify permission here, mutate via admin.
+  const admin = createAdminClient();
+  const { data: post } = await admin
+    .from("posts")
+    .select("author_id, community_id")
+    .eq("id", postId)
+    .single();
+  if (!post) throw new Error("Post not found");
+
+  let authorized = post.author_id === user.id;
+  if (!authorized && post.community_id) {
+    const { data: membership } = await admin
+      .from("community_members")
+      .select("role")
+      .eq("community_id", post.community_id)
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .single();
+    authorized = !!membership && ["admin", "organizer"].includes(membership.role);
+  }
+  if (!authorized) throw new Error("Not authorized");
+
+  const { error } = await admin
     .from("posts")
     .update({ deleted_at: new Date().toISOString() })
     .eq("id", postId);
