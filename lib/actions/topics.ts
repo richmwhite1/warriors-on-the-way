@@ -26,6 +26,7 @@ export async function createTopicPost(formData: FormData) {
   let link_url: string | null = null;
   let link_preview = null;
   let embed_provider: string | null = null;
+  let display_body: string | null = text;
 
   if (url) {
     const preview = await resolveLink(url);
@@ -38,6 +39,9 @@ export async function createTopicPost(formData: FormData) {
         : MUSIC_PROVIDERS.has(preview.provider)
         ? "music"
         : "discussion";
+      // If the post was nothing but the link, drop the raw URL so it shows only
+      // the player/thumbnail — an image, not a bare link.
+      if (text === url) display_body = null;
     }
   }
 
@@ -47,7 +51,7 @@ export async function createTopicPost(formData: FormData) {
     visibility: "topic",
     author_id: user.id,
     post_type,
-    body: text,
+    body: display_body,
     link_url,
     link_preview,
     embed_provider,

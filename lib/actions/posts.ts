@@ -52,6 +52,7 @@ export async function createPost(formData: FormData) {
   let link_url: string | null = null;
   let link_preview = null;
   let embed_provider: string | null = null;
+  let display_body = body;
   if (!embed_url && body) {
     const url = extractFirstUrl(body);
     if (url) {
@@ -67,6 +68,9 @@ export async function createPost(formData: FormData) {
             ? "music"
             : "discussion";
         }
+        // If the body was nothing but the link, drop the raw URL so the post
+        // shows only the player/thumbnail — an image, not a bare link.
+        if (body === url) display_body = null;
       }
     }
   }
@@ -76,7 +80,7 @@ export async function createPost(formData: FormData) {
     author_id: user.id,
     post_type,
     title,
-    body: body || null,
+    body: display_body || null,
     embed_url,
     link_url,
     link_preview,
