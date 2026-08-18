@@ -33,6 +33,7 @@ export function TopicPostCard({
   const [showComments, setShowComments] = useState(false);
   const [reply, setReply] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
 
   const likes = (post.reactions ?? []).filter((r) => r.type === "like");
   const liked = likes.some((r) => r.user_id === currentUserId);
@@ -43,8 +44,8 @@ export function TopicPostCard({
     start(async () => { await toggleTopicReaction(post.id, topicSlug); router.refresh(); });
   }
   function remove() {
-    if (!confirm("Delete this post? This can't be undone.")) return;
     setDeleting(true);
+    setConfirmingDelete(false);
     start(async () => {
       try { await deleteTopicPost(post.id, topicSlug); router.refresh(); }
       catch { setDeleting(false); }
@@ -98,17 +99,44 @@ export function TopicPostCard({
         </button>
         <span style={{ marginLeft: "auto" }}>
           {isOwn ? (
-            <button
-              onClick={remove}
-              disabled={deleting}
-              style={{
-                border: 0, background: "transparent", cursor: deleting ? "default" : "pointer",
-                fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)",
-                opacity: deleting ? 0.5 : 1,
-              }}
-            >
-              {deleting ? "Deleting…" : "Delete"}
-            </button>
+            confirmingDelete ? (
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                <button
+                  onClick={remove}
+                  disabled={deleting}
+                  aria-label="Confirm delete post"
+                  style={{
+                    border: 0, background: "transparent", cursor: deleting ? "default" : "pointer",
+                    fontFamily: "var(--font-body)", fontSize: 13, fontWeight: 600, color: "var(--destructive)",
+                    opacity: deleting ? 0.5 : 1,
+                  }}
+                >
+                  {deleting ? "Deleting…" : "Confirm"}
+                </button>
+                <button
+                  onClick={() => setConfirmingDelete(false)}
+                  disabled={deleting}
+                  style={{
+                    border: 0, background: "transparent", cursor: "pointer",
+                    fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)",
+                  }}
+                >
+                  Cancel
+                </button>
+              </span>
+            ) : (
+              <button
+                onClick={() => setConfirmingDelete(true)}
+                disabled={deleting}
+                aria-label="Delete post"
+                style={{
+                  border: 0, background: "transparent", cursor: "pointer",
+                  fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)",
+                }}
+              >
+                Delete
+              </button>
+            )
           ) : (
             <FlagButton targetType="post" targetId={post.id} />
           )}

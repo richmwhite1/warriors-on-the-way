@@ -11,9 +11,10 @@ type Props = {
   status: "none" | "active" | "waitlisted" | "pending_approval" | "banned";
   isFull: boolean;
   inviteToken?: string;
+  role?: "member" | "admin" | "organizer";
 };
 
-export function JoinButton({ communityId, communitySlug, status, isFull, inviteToken }: Props) {
+export function JoinButton({ communityId, communitySlug, status, isFull, inviteToken, role }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleJoin() {
@@ -42,6 +43,15 @@ export function JoinButton({ communityId, communitySlug, status, isFull, inviteT
   if (status === "banned") return null;
 
   if (status === "active") {
+    // Organizers can't leave (ownership must be transferred first), so we show a
+    // status chip instead of a Leave button that would only error on click.
+    if (role === "organizer") {
+      return (
+        <Button variant="ghost" size="sm" disabled className="text-muted-foreground">
+          Organizer
+        </Button>
+      );
+    }
     return (
       <Button variant="outline" size="sm" onClick={handleLeave} disabled={isPending}>
         {isPending ? "Leaving…" : "Leave community"}

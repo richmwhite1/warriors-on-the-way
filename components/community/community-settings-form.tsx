@@ -2,6 +2,7 @@
 
 import { useState, useTransition, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
@@ -124,7 +125,6 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
   }
 
   function handleDisconnectBot() {
-    if (!confirm("Stop automatic posts to this Telegram group?")) return;
     startTransition(async () => {
       try {
         await disconnectTelegramChannel(community.id, community.slug);
@@ -231,14 +231,15 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
                       </p>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleDisconnectBot}
+                  <ConfirmButton
+                    onConfirm={handleDisconnectBot}
+                    confirmLabel="Disconnect"
                     disabled={isPending}
+                    aria-label="Disconnect Telegram bot"
                     className="text-xs text-muted-foreground hover:text-destructive transition-colors shrink-0"
                   >
                     Disconnect
-                  </button>
+                  </ConfirmButton>
                 </div>
                 {/* Push type filter */}
                 <div className="rounded-xl bg-background border px-4 py-3 space-y-2">

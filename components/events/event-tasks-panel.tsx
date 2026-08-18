@@ -174,7 +174,8 @@ function TaskRow({
         <button
           onClick={onDelete}
           disabled={isPending}
-          className="text-xs text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5"
+          aria-label={`Remove task: ${task.title}`}
+          className="text-sm leading-none text-muted-foreground/60 hover:text-destructive focus-visible:text-destructive transition-colors shrink-0 mt-0.5 px-1 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
         >
           ×
         </button>

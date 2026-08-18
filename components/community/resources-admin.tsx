@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
+import { ConfirmButton } from "@/components/ui/confirm-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createResource, updateResource, deleteResource } from "@/lib/actions/resources";
@@ -205,14 +206,15 @@ function ResourceRow({
         >
           Edit
         </button>
-        <button
-          type="button"
-          onClick={onDelete}
+        <ConfirmButton
+          onConfirm={onDelete}
+          confirmLabel="Remove"
           disabled={isPending}
+          aria-label="Remove resource"
           className="text-xs text-muted-foreground hover:text-destructive transition-colors"
         >
           Delete
-        </button>
+        </ConfirmButton>
       </div>
     </div>
   );
@@ -279,7 +281,6 @@ export function ResourcesAdmin({ communityId, communitySlug, initialResources }:
   }
 
   function handleDelete(resourceId: string) {
-    if (!confirm("Remove this resource?")) return;
     startTransition(async () => {
       try {
         await deleteResource(resourceId, communityId, communitySlug);

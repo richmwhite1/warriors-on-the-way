@@ -191,7 +191,7 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin, userAv
         <span className="text-muted-foreground text-base group-hover:text-foreground transition-colors">
           Share something with the community…
         </span>
-        <div className="ml-auto flex gap-1.5 shrink-0">
+        <div className="ml-auto flex gap-1.5 shrink-0" aria-hidden="true">
           {(["reflection", "wisdom", "prayer", "video", "music"] as PostType[]).map((t) => (
             <span key={t} className="text-base leading-none opacity-40 group-hover:opacity-70 transition-opacity" title={TYPE_LABELS[t]}>
               {TYPE_ICONS[t]}

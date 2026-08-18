@@ -263,6 +263,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 status={joinStatus}
                 isFull={isFull}
                 inviteToken={inviteToken}
+                role={membership?.role}
               />
           </div>
 
@@ -564,6 +565,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 status={joinStatus}
                 isFull={isFull}
                 inviteToken={inviteToken}
+                role={membership?.role}
               />
               {!user && (
                 <Link

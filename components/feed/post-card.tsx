@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Menu } from "@base-ui/react/menu";
 import { deletePost, reportPost, pinPost, updatePost, repostPost } from "@/lib/actions/posts";
 import { toggleReaction } from "@/lib/actions/reactions";
 import { createComment, deleteComment } from "@/lib/actions/comments";
@@ -73,6 +74,7 @@ export function PostCard({
   const [editTitle, setEditTitle] = useState(post.title ?? "");
   const [editBody, setEditBody] = useState(post.body ?? "");
   const [showRepost, setShowRepost] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const isOwn = post.author_id === currentUserId;
   const canDelete = isOwn || isAdmin;
@@ -118,7 +120,6 @@ export function PostCard({
     (totalReactions + commentCount) >= 3;
 
   function handleDelete() {
-    if (!confirm("Delete this post?")) return;
     startTransition(async () => {
       try {
         await deletePost(post.id, communitySlug);
@@ -195,6 +196,13 @@ export function PostCard({
   // Communities the user can repost to (all except the current one)
   const repostTargets = (userCommunities ?? []).filter((c) => c.id !== post.community_id);
 
+  // Which actions are available — drives the overflow (⋯) menu.
+  const canEdit = isOwn && (["discussion", "event", "reflection", "wisdom", "prayer"] as string[]).includes(post.post_type);
+  const canRepost = isMember && repostTargets.length > 0;
+  const canReport = !isOwn && isMember;
+  const hasMenuActions = isAdmin || canEdit || canRepost || canReport || canDelete;
+  const menuItemCls = "flex items-center px-3 py-2 text-sm rounded-lg cursor-pointer select-none outline-none transition-colors hover:bg-muted data-[highlighted]:bg-muted";
+
   return (
     <article
       id={`post-${post.id}`}
@@ -245,57 +253,68 @@ export function PostCard({
           <Badge variant="outline" className="text-[10px] px-1.5 py-0">
             {TYPE_LABELS[post.post_type] ?? post.post_type}
           </Badge>
-          <div className="flex items-center gap-0.5">
-            {isAdmin && (
-              <button
-                onClick={handlePin}
-                disabled={isPending}
-                className={cn(
-                  "text-xs px-1.5 py-0.5 rounded transition-colors",
-                  pinned
-                    ? "text-primary hover:text-muted-foreground"
-                    : "text-muted-foreground hover:text-primary"
-                )}
+          {hasMenuActions && (
+            <Menu.Root>
+              <Menu.Trigger
+                aria-label="Post actions"
+                className="flex items-center justify-center size-7 rounded-full text-muted-foreground outline-none transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-expanded:bg-muted aria-expanded:text-foreground"
               >
-                {pinned ? "Unpin" : "Pin"}
-              </button>
-            )}
-            {isOwn && (["discussion", "event", "reflection", "wisdom", "prayer"] as string[]).includes(post.post_type) && (
-              <button
-                onClick={() => setEditing(!editing)}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
-              >
-                {editing ? "Cancel" : "Edit"}
-              </button>
-            )}
-            {canDelete && (
-              <button
-                onClick={handleDelete}
-                disabled={isPending}
-                className="text-xs text-muted-foreground hover:text-destructive transition-colors px-1"
-              >
-                Delete
-              </button>
-            )}
-            {isMember && repostTargets.length > 0 && (
-              <button
-                onClick={() => setShowRepost(!showRepost)}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
-              >
-                Repost
-              </button>
-            )}
-            {!isOwn && isMember && (
-              <button
-                onClick={() => setShowReport(!showReport)}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors px-1"
-              >
-                Report
-              </button>
-            )}
-          </div>
+                <svg viewBox="0 0 24 24" className="size-4 fill-current" aria-hidden="true">
+                  <circle cx="5" cy="12" r="1.8" />
+                  <circle cx="12" cy="12" r="1.8" />
+                  <circle cx="19" cy="12" r="1.8" />
+                </svg>
+              </Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner side="bottom" align="end" sideOffset={6} className="z-50">
+                  <Menu.Popup className="min-w-[9rem] rounded-xl border bg-card p-1 shadow-lg outline-none">
+                    {isAdmin && (
+                      <Menu.Item onClick={handlePin} className={menuItemCls}>
+                        {pinned ? "Unpin post" : "Pin post"}
+                      </Menu.Item>
+                    )}
+                    {canEdit && (
+                      <Menu.Item onClick={() => setEditing(true)} className={menuItemCls}>
+                        Edit
+                      </Menu.Item>
+                    )}
+                    {canRepost && (
+                      <Menu.Item onClick={() => setShowRepost(true)} className={menuItemCls}>
+                        Repost…
+                      </Menu.Item>
+                    )}
+                    {canReport && (
+                      <Menu.Item onClick={() => setShowReport(true)} className={menuItemCls}>
+                        Report
+                      </Menu.Item>
+                    )}
+                    {canDelete && (
+                      <Menu.Item onClick={() => setConfirmDelete(true)} className={cn(menuItemCls, "text-destructive")}>
+                        Delete
+                      </Menu.Item>
+                    )}
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          )}
         </div>
       </div>
+
+      {/* Delete confirmation */}
+      {confirmDelete && (
+        <div className="flex items-center justify-between gap-3 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2">
+          <span className="text-sm">Delete this post? This can&apos;t be undone.</span>
+          <div className="flex gap-2 shrink-0">
+            <Button size="sm" variant="ghost" onClick={() => setConfirmDelete(false)} disabled={isPending}>
+              Cancel
+            </Button>
+            <Button size="sm" variant="destructive" onClick={handleDelete} disabled={isPending}>
+              {isPending ? "Deleting…" : "Delete"}
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Title */}
       {post.title && (
@@ -404,6 +423,8 @@ export function PostCard({
                 key={key}
                 onClick={() => handleReaction(key)}
                 disabled={isPending}
+                aria-pressed={mine}
+                aria-label={`${key} reaction${count > 0 ? ` (${count})` : ""}`}
                 className={cn(
                   "flex items-center gap-1 px-2.5 py-1 rounded-full text-sm border transition-colors",
                   mine
@@ -671,7 +692,8 @@ function CommentRow({ comment, communitySlug, currentUserId, isAdmin }: {
         <button
           onClick={handleDelete}
           disabled={isPending}
-          className="text-xs text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+          aria-label={`Delete comment by ${author.display_name}`}
+          className="text-sm leading-none text-muted-foreground/60 hover:text-destructive focus-visible:text-destructive focus-visible:opacity-100 transition-colors shrink-0 px-1 sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100"
         >
           ×
         </button>
