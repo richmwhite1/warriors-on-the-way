@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
@@ -512,9 +513,15 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
         />
 
         {event.image_url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <div className="rounded-2xl overflow-hidden">
-            <img src={event.image_url} alt={event.title} className="w-full max-h-72 object-cover" />
+          <div className="relative h-72 rounded-2xl overflow-hidden">
+            <Image
+              src={event.image_url}
+              alt={event.title}
+              fill
+              sizes="(max-width: 640px) 100vw, 640px"
+              preload
+              className="object-cover"
+            />
           </div>
         )}
 

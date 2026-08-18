@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -178,8 +179,14 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 opacity: 0.25,
               }}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={community.banner_url} alt={`${community.name} banner`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <Image
+                src={community.banner_url}
+                alt={`${community.name} banner`}
+                fill
+                sizes="100vw"
+                preload
+                style={{ objectFit: "cover" }}
+              />
             </div>
           )}
           <div style={{ position: "relative", zIndex: 1, maxWidth: 640, margin: "0 auto" }}>

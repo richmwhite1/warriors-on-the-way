@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Heart, MessageCircle } from "lucide-react";
@@ -54,8 +55,7 @@ export function TopicPostCard({
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <div style={{ width: 34, height: 34, borderRadius: 999, background: "#f5f0eb", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
           {post.author.avatar_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={post.author.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            <Image src={post.author.avatar_url} alt="" width={34} height={34} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
             <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "var(--primary)" }}>
               {post.author.display_name?.[0] ?? "?"}

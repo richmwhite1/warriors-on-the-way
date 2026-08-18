@@ -580,8 +580,7 @@ function EmbedBlock({ embedUrl, title }: { embedUrl: string; title?: string }) {
       onClick={() => setPlaying(true)}
       className="relative w-full aspect-video rounded-xl overflow-hidden bg-black group"
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={thumbUrl} alt={title ?? "Video"} className="absolute inset-0 w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
+      <Image src={thumbUrl} alt={title ?? "Video"} fill sizes="(max-width: 480px) 100vw, 480px" className="object-cover group-hover:opacity-80 transition-opacity" />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="size-16 rounded-full bg-black/70 flex items-center justify-center group-hover:bg-black/90 transition-colors">
           <svg viewBox="0 0 24 24" className="size-7 fill-white ml-1"><path d="M8 5v14l11-7z" /></svg>
@@ -621,7 +620,7 @@ function YouTubeEmbed({ videoId, title, thumbnailUrl }: {
       onClick={() => setPlaying(true)}
       className="relative w-full aspect-video rounded-xl overflow-hidden bg-black group"
     >
-      <Image src={thumbnailUrl} alt={title} fill className="object-cover group-hover:opacity-80 transition-opacity" />
+      <Image src={thumbnailUrl} alt={title} fill sizes="(max-width: 480px) 100vw, 480px" className="object-cover group-hover:opacity-80 transition-opacity" />
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="size-14 rounded-full bg-black/70 flex items-center justify-center group-hover:bg-black/90 transition-colors">
           <svg viewBox="0 0 24 24" className="size-6 fill-white ml-1"><path d="M8 5v14l11-7z" /></svg>
