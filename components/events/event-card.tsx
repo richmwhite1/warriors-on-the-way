@@ -19,70 +19,76 @@ export function EventCard({ event, communitySlug }: Props) {
   const isPast = startsAt ? startsAt < new Date() : false;
 
   return (
-    <Link href={`/community/${communitySlug}/events/${event.id}`} className="block group">
-      <div className={`rounded-2xl border bg-card p-4 transition-all group-hover:shadow-md press-scale flex gap-3${isPast ? " opacity-75" : ""}`}>
-        {/* Date chip */}
-        {startsAt && (
-          <div
-            className="shrink-0 w-12 text-center rounded-xl py-2 px-1"
-            style={{ background: "#eef2ea" }}
-          >
-            <p className="text-[11px] font-bold text-primary uppercase leading-none">
-              {startsAt.toLocaleDateString("en-US", { month: "short" })}
-            </p>
-            <p className="text-xl font-extrabold text-foreground leading-tight">
-              {startsAt.getDate()}
-            </p>
-          </div>
+    // Overlay-link pattern: the card-covering Link handles navigation while the
+    // location link layers above it. Avoids nesting <a> inside <a> (invalid HTML
+    // that triggers hydration errors).
+    <div className={`group relative rounded-2xl border bg-card p-4 transition-all hover:shadow-md press-scale flex gap-3${isPast ? " opacity-75" : ""}`}>
+      <Link
+        href={`/community/${communitySlug}/events/${event.id}`}
+        className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        aria-label={`${event.title} — event details`}
+      />
+
+      {/* Date chip */}
+      {startsAt && (
+        <div
+          className="shrink-0 w-12 text-center rounded-xl py-2 px-1"
+          style={{ background: "#eef2ea" }}
+        >
+          <p className="text-[11px] font-bold text-primary uppercase leading-none">
+            {startsAt.toLocaleDateString("en-US", { month: "short" })}
+          </p>
+          <p className="text-xl font-extrabold text-foreground leading-tight">
+            {startsAt.getDate()}
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-1 min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <p className="font-heading font-bold text-foreground truncate">{event.title}</p>
+          <Badge variant={STATUS_COLORS[event.status]} className="shrink-0 capitalize">
+            {event.status}
+          </Badge>
+        </div>
+
+        {startsAt ? (
+          <p className="text-sm text-muted-foreground">
+            {startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+          </p>
+        ) : (
+          <p className="text-sm text-muted-foreground italic">Date TBD</p>
         )}
 
-        <div className="space-y-1 min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-2">
-            <p className="font-heading font-bold text-foreground truncate">{event.title}</p>
-            <Badge variant={STATUS_COLORS[event.status]} className="shrink-0 capitalize">
-              {event.status}
-            </Badge>
+        {event.location && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <span>📍</span>
+            <a
+              href={event.location_url || `https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative z-10 hover:text-primary hover:underline underline-offset-2 transition-colors truncate"
+            >
+              {event.location}
+            </a>
+          </p>
+        )}
+
+        {counts && (counts.yes > 0 || counts.maybe > 0) && (
+          <div className="flex gap-3 text-xs pt-0.5">
+            {counts.yes > 0 && (
+              <span className="text-green-600 font-semibold">
+                {counts.yes} {isPast ? "went" : "going"}
+              </span>
+            )}
+            {counts.maybe > 0 && (
+              <span className="text-muted-foreground">
+                {counts.maybe} maybe
+              </span>
+            )}
           </div>
-
-          {startsAt ? (
-            <p className="text-sm text-muted-foreground">
-              {startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground italic">Date TBD</p>
-          )}
-
-          {event.location && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1">
-              <span>📍</span>
-              <a
-                href={event.location_url || `https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-primary hover:underline underline-offset-2 transition-colors truncate"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {event.location}
-              </a>
-            </p>
-          )}
-
-          {counts && (counts.yes > 0 || counts.maybe > 0) && (
-            <div className="flex gap-3 text-xs pt-0.5">
-              {counts.yes > 0 && (
-                <span className="text-green-600 font-semibold">
-                  {counts.yes} {isPast ? "went" : "going"}
-                </span>
-              )}
-              {counts.maybe > 0 && (
-                <span className="text-muted-foreground">
-                  {counts.maybe} maybe
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+        )}
       </div>
-    </Link>
+    </div>
   );
 }
