@@ -6,7 +6,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { fetchYouTubeOEmbed } from "@/lib/integrations/youtube";
 import { sendPostNotification } from "@/lib/integrations/telegram";
 import { notifyCommunityMembers } from "@/lib/actions/notifications";
+import { resolveLink, extractFirstUrl } from "@/lib/link-resolver";
 import type { PostType } from "@/lib/queries/posts";
+
+const VIDEO_PROVIDERS = new Set(["youtube", "rumble", "vimeo"]);
+const MUSIC_PROVIDERS = new Set(["spotify", "soundcloud", "podcast"]);
 
 export async function createPost(formData: FormData) {
   const supabase = await createClient();
@@ -14,7 +18,7 @@ export async function createPost(formData: FormData) {
   if (!user) throw new Error("Not authenticated");
 
   const community_id = formData.get("community_id") as string;
-  const post_type = (formData.get("post_type") as PostType) || "discussion";
+  let post_type = (formData.get("post_type") as PostType) || "discussion";
   const title = (formData.get("title") as string)?.trim() || null;
   const body = (formData.get("body") as string)?.trim() || null;
   const embed_url = (formData.get("embed_url") as string)?.trim() || null;
@@ -41,6 +45,32 @@ export async function createPost(formData: FormData) {
     }
   }
 
+  // "Paste any link" — if the author dropped a media URL straight into the body
+  // (rather than using the Video/Music picker), resolve it into a streaming embed.
+  // Covers YouTube, Rumble, Spotify, Vimeo, SoundCloud, Apple Podcasts + generic
+  // link previews. Only runs when they didn't already attach an explicit embed.
+  let link_url: string | null = null;
+  let link_preview = null;
+  let embed_provider: string | null = null;
+  if (!embed_url && body) {
+    const url = extractFirstUrl(body);
+    if (url) {
+      const preview = await resolveLink(url);
+      if (preview) {
+        link_url = preview.url;
+        link_preview = preview;
+        embed_provider = preview.provider;
+        if (post_type === "discussion") {
+          post_type = VIDEO_PROVIDERS.has(preview.provider)
+            ? "video"
+            : MUSIC_PROVIDERS.has(preview.provider)
+            ? "music"
+            : "discussion";
+        }
+      }
+    }
+  }
+
   const { error } = await supabase.from("posts").insert({
     community_id,
     author_id: user.id,
@@ -48,6 +78,9 @@ export async function createPost(formData: FormData) {
     title,
     body: body || null,
     embed_url,
+    link_url,
+    link_preview,
+    embed_provider,
     youtube_url,
     youtube_oembed,
     push_to_all,
@@ -259,7 +292,7 @@ export async function repostPost(
   const admin = createAdminClient();
   const { data: original } = await admin
     .from("posts")
-    .select("post_type, title, body, embed_url, youtube_url, youtube_oembed, communities!community_id(name)")
+    .select("post_type, title, body, embed_url, link_url, link_preview, embed_provider, youtube_url, youtube_oembed, communities!community_id(name)")
     .eq("id", postId)
     .is("deleted_at", null)
     .single();
@@ -278,6 +311,9 @@ export async function repostPost(
     title: original.title,
     body: newBody,
     embed_url: original.embed_url,
+    link_url: original.link_url,
+    link_preview: original.link_preview,
+    embed_provider: original.embed_provider,
     youtube_url: original.youtube_url,
     youtube_oembed: original.youtube_oembed,
     push_to_all: false,

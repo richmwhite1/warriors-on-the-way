@@ -10,6 +10,7 @@ import { deletePost, reportPost, pinPost, updatePost, repostPost } from "@/lib/a
 import { toggleReaction } from "@/lib/actions/reactions";
 import { createComment, deleteComment } from "@/lib/actions/comments";
 import { CrossPostPrompt } from "@/components/feed/cross-post-prompt";
+import { EmbedRender } from "@/components/topics/embed-render";
 import { toast } from "sonner";
 import { cn, relativeTime } from "@/lib/utils";
 import type { Post } from "@/lib/queries/posts";
@@ -311,13 +312,17 @@ export function PostCard({
         </p>
       )}
 
-      {/* Embed — new unified format (Spotify or YouTube iframe) */}
-      {post.embed_url && (
+      {/* Auto-embed — any media link pasted straight into the post body
+          (YouTube, Rumble, Spotify, Vimeo, SoundCloud, Apple Podcasts). */}
+      {post.link_preview && <EmbedRender preview={post.link_preview} />}
+
+      {/* Embed — explicit Video/Music picker (Spotify or YouTube iframe) */}
+      {!post.link_preview && post.embed_url && (
         <EmbedBlock embedUrl={post.embed_url} title={post.title ?? undefined} />
       )}
 
       {/* Legacy YouTube (existing posts without embed_url) */}
-      {!post.embed_url && post.youtube_oembed && (
+      {!post.link_preview && !post.embed_url && post.youtube_oembed && (
         <YouTubeEmbed
           videoId={post.youtube_oembed.video_id}
           title={post.youtube_oembed.title}

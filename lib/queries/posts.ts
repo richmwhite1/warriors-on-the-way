@@ -11,6 +11,19 @@ export type Post = {
   title: string | null;
   body: string | null;
   embed_url: string | null;
+  // Unified "paste any link" embed (shared with topic posts). Populated by the
+  // link resolver when a body contains a media URL — covers YouTube, Rumble,
+  // Spotify, Vimeo, SoundCloud, Apple Podcasts, and generic link previews.
+  link_url: string | null;
+  link_preview: {
+    provider: string;
+    embedUrl: string | null;
+    thumbnailUrl: string | null;
+    title: string | null;
+    description: string | null;
+    url: string;
+  } | null;
+  embed_provider: string | null;
   is_pinned: boolean;
   // Legacy YouTube fields (kept for backwards compat with existing posts)
   youtube_url: string | null;
@@ -32,6 +45,7 @@ export type Post = {
 
 const POST_SELECT = `
   id, community_id, author_id, post_type, title, body, embed_url, is_pinned,
+  link_url, link_preview, embed_provider,
   youtube_url, youtube_oembed, push_to_all, cross_posted_at, cross_post_prompt_dismissed_at, created_at,
   author:users!author_id(id, display_name, avatar_url),
   comment_count:comments(count),

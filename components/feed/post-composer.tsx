@@ -110,6 +110,11 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin, userAv
 
   const isMedia = postType === "video" || postType === "music";
 
+  // Live "paste anything" detection: if the author drops a media link straight
+  // into the discussion body, preview the embed it will become on submit.
+  const bodyUrl = body.match(/https?:\/\/[^\s<>"']+/i)?.[0]?.replace(/[.,)]+$/, "") ?? null;
+  const bodyEmbed = bodyUrl ? getEmbedMeta(bodyUrl) : null;
+
   function handleTypeChange(t: PostType) {
     setPostType(t);
     setUrlInput("");
@@ -252,6 +257,37 @@ export function PostComposer({ communityId, communitySlug, isParentAdmin, userAv
           maxLength={2000}
           className="w-full rounded-lg border bg-background px-3 py-2.5 text-base placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
         />
+      )}
+
+      {/* Live embed preview for a link pasted into the discussion body */}
+      {!isMedia && bodyEmbed && (
+        <div className="rounded-xl overflow-hidden border bg-background">
+          {bodyEmbed.type === "music" ? (
+            <iframe
+              src={bodyEmbed.embedUrl}
+              height="152"
+              width="100%"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              className="block"
+            />
+          ) : (
+            <div className="relative w-full aspect-video">
+              <iframe
+                src={bodyEmbed.embedUrl}
+                title="Preview"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                className="absolute inset-0 w-full h-full"
+              />
+            </div>
+          )}
+        </div>
+      )}
+      {!isMedia && bodyUrl && !bodyEmbed && (
+        <p className="text-xs text-muted-foreground px-1">
+          Links to YouTube, Rumble, Spotify & more embed automatically when you post.
+        </p>
       )}
 
       {/* URL input (video + music) */}
