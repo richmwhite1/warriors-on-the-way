@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "i.ytimg.com" },
       // Supabase Storage (update with your project ref)
       { protocol: "https", hostname: "*.supabase.co" },
+      // OAuth profile photos (Google, Gravatar, GitHub)
+      { protocol: "https", hostname: "*.googleusercontent.com" },
+      { protocol: "https", hostname: "www.gravatar.com" },
+      { protocol: "https", hostname: "avatars.githubusercontent.com" },
     ],
   },
   async redirects() {

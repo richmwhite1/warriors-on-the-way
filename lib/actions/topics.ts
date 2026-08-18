@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveLink, extractFirstUrl } from "@/lib/link-resolver";
 
 const VIDEO_PROVIDERS = new Set(["youtube", "rumble", "vimeo"]);
@@ -61,6 +62,34 @@ export async function createTopicPost(formData: FormData) {
   revalidatePath(`/topics/${topic_slug}`);
   revalidatePath("/home");
   revalidatePath("/deck");
+}
+
+// Authors can remove their own topic posts. Soft-delete via deleted_at, written
+// with the service role because the posts UPDATE policy column-gates deleted_at
+// away from the user client (same pattern as the community deletePost action).
+export async function deleteTopicPost(postId: string, topicSlug: string) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const admin = createAdminClient();
+  const { data: post } = await admin
+    .from("posts")
+    .select("author_id")
+    .eq("id", postId)
+    .single();
+  if (!post) throw new Error("Post not found");
+  if (post.author_id !== user.id) throw new Error("Not authorized");
+
+  const { error } = await admin
+    .from("posts")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", postId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath(`/topics/${topicSlug}`);
+  revalidatePath("/deck");
+  revalidatePath("/home");
 }
 
 export async function followTopic(topicId: string, topicSlug: string) {

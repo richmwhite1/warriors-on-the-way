@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { Heart, MessageCircle } from "lucide-react";
 import { EmbedRender } from "@/components/topics/embed-render";
 import { FlagButton } from "@/components/moderation/flag-button";
-import { toggleTopicReaction, createTopicComment } from "@/lib/actions/topics";
+import { toggleTopicReaction, createTopicComment, deleteTopicPost } from "@/lib/actions/topics";
 import type { TopicPost, PostComment } from "@/lib/queries/topics";
 
 export function timeAgo(iso: string): string {
@@ -32,13 +32,23 @@ export function TopicPostCard({
   const [, start] = useTransition();
   const [showComments, setShowComments] = useState(false);
   const [reply, setReply] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   const likes = (post.reactions ?? []).filter((r) => r.type === "like");
   const liked = likes.some((r) => r.user_id === currentUserId);
   const topLevel = comments.filter((c) => !c.parent_id);
+  const isOwn = post.author_id === currentUserId;
 
   function like() {
     start(async () => { await toggleTopicReaction(post.id, topicSlug); router.refresh(); });
+  }
+  function remove() {
+    if (!confirm("Delete this post? This can't be undone.")) return;
+    setDeleting(true);
+    start(async () => {
+      try { await deleteTopicPost(post.id, topicSlug); router.refresh(); }
+      catch { setDeleting(false); }
+    });
   }
   function addComment(e: React.FormEvent, parentId?: string) {
     e.preventDefault();
@@ -87,7 +97,21 @@ export function TopicPostCard({
           <span style={{ fontFamily: "var(--font-body)", fontSize: 13 }}>{topLevel.length || ""}</span>
         </button>
         <span style={{ marginLeft: "auto" }}>
-          <FlagButton targetType="post" targetId={post.id} />
+          {isOwn ? (
+            <button
+              onClick={remove}
+              disabled={deleting}
+              style={{
+                border: 0, background: "transparent", cursor: deleting ? "default" : "pointer",
+                fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)",
+                opacity: deleting ? 0.5 : 1,
+              }}
+            >
+              {deleting ? "Deleting…" : "Delete"}
+            </button>
+          ) : (
+            <FlagButton targetType="post" targetId={post.id} />
+          )}
         </span>
       </div>
 
