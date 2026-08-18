@@ -57,13 +57,13 @@ export function TopicPostCard({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={post.author.avatar_url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
-            <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "#6e8b6a" }}>
+            <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "var(--primary)" }}>
               {post.author.display_name?.[0] ?? "?"}
             </span>
           )}
         </div>
         <div>
-          <div style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, color: "#1a1a2e" }}>
+          <div style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>
             {post.author.display_name}
           </div>
           <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#a39a8f" }}>{timeAgo(post.created_at)}</div>
@@ -78,11 +78,11 @@ export function TopicPostCard({
       <EmbedRender preview={post.link_preview} />
 
       <div style={{ display: "flex", alignItems: "center", gap: 18, marginTop: 10 }}>
-        <button onClick={like} style={{ display: "flex", alignItems: "center", gap: 5, border: 0, background: "transparent", cursor: "pointer", color: liked ? "#6e8b6a" : "#7c7589" }}>
-          <Heart size={17} fill={liked ? "#6e8b6a" : "none"} />
+        <button onClick={like} style={{ display: "flex", alignItems: "center", gap: 5, border: 0, background: "transparent", cursor: "pointer", color: liked ? "var(--primary)" : "var(--muted-foreground)" }}>
+          <Heart size={17} fill={liked ? "var(--primary)" : "none"} />
           <span style={{ fontFamily: "var(--font-body)", fontSize: 13 }}>{likes.length || ""}</span>
         </button>
-        <button onClick={() => setShowComments((s) => !s)} style={{ display: "flex", alignItems: "center", gap: 5, border: 0, background: "transparent", cursor: "pointer", color: "#7c7589" }}>
+        <button onClick={() => setShowComments((s) => !s)} style={{ display: "flex", alignItems: "center", gap: 5, border: 0, background: "transparent", cursor: "pointer", color: "var(--muted-foreground)" }}>
           <MessageCircle size={17} />
           <span style={{ fontFamily: "var(--font-body)", fontSize: 13 }}>{topLevel.length || ""}</span>
         </button>
@@ -95,11 +95,11 @@ export function TopicPostCard({
         <div style={{ marginTop: 12, paddingLeft: 8, borderLeft: "2px solid #f0ece5" }}>
           {topLevel.map((c) => (
             <div key={c.id} style={{ marginBottom: 10 }}>
-              <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, color: "#1a1a2e" }}>{c.author.display_name}</span>{" "}
+              <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, color: "var(--foreground)" }}>{c.author.display_name}</span>{" "}
               <span style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "#2a2a30" }}>{c.body}</span>
               {comments.filter((r) => r.parent_id === c.id).map((r) => (
                 <div key={r.id} style={{ marginTop: 6, paddingLeft: 12 }}>
-                  <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 12.5, color: "#1a1a2e" }}>{r.author.display_name}</span>{" "}
+                  <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 12.5, color: "var(--foreground)" }}>{r.author.display_name}</span>{" "}
                   <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#2a2a30" }}>{r.body}</span>
                 </div>
               ))}
@@ -110,9 +110,9 @@ export function TopicPostCard({
               value={reply}
               onChange={(e) => setReply(e.target.value)}
               placeholder="Add a comment…"
-              style={{ flex: 1, padding: "8px 12px", borderRadius: 999, border: "1px solid #e8e2da", fontFamily: "var(--font-body)", fontSize: 13, outline: "none" }}
+              style={{ flex: 1, padding: "8px 12px", borderRadius: 999, border: "1px solid var(--border)", fontFamily: "var(--font-body)", fontSize: 13, outline: "none" }}
             />
-            <button type="submit" style={{ padding: "8px 14px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+            <button type="submit" style={{ padding: "8px 14px", borderRadius: 999, border: 0, background: "var(--primary)", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
               Reply
             </button>
           </form>

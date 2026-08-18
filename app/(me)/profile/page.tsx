@@ -45,10 +45,10 @@ export default async function ProfilePage({
               marginBottom: "1.5rem",
             }}
           >
-            <p style={{ fontWeight: 700, color: "#1a1a2e", marginBottom: 4, fontSize: "1rem" }}>
+            <p style={{ fontWeight: 700, color: "var(--foreground)", marginBottom: 4, fontSize: "1rem" }}>
               Welcome! Set up your profile
             </p>
-            <p style={{ color: "#7c7589", fontSize: "0.85rem", lineHeight: 1.4 }}>
+            <p style={{ color: "var(--muted-foreground)", fontSize: "0.85rem", lineHeight: 1.4 }}>
               Add your name{!user.phone ? " and phone number" : ""} so your group knows who you are.
               {nextUrl && " You'll be redirected after saving."}
             </p>
@@ -63,7 +63,7 @@ export default async function ProfilePage({
               fontFamily: "var(--font-brand)",
               fontWeight: 800,
               fontSize: "clamp(1.5rem, 4vw, 2rem)",
-              color: "#1a1a2e",
+              color: "var(--foreground)",
               letterSpacing: "-0.01em",
               lineHeight: 1.1,
               marginBottom: "0.25rem",
@@ -74,7 +74,7 @@ export default async function ProfilePage({
           <p
             style={{
               fontFamily: "var(--font-body)",
-              color: "#7c7589",
+              color: "var(--muted-foreground)",
               fontSize: "0.9rem",
             }}
           >
@@ -92,7 +92,7 @@ export default async function ProfilePage({
 
         <OrnamentalDivider />
 
-        <ProfileForm user={user} redirectAfterSave={isWelcome ? (nextUrl || "/home") : undefined} smsEnabled={smsEnabled()} />
+        <ProfileForm user={user} redirectAfterSave={isWelcome ? (nextUrl || "/deck") : undefined} smsEnabled={smsEnabled()} />
 
         <OrnamentalDivider />
 
@@ -112,9 +112,9 @@ export default async function ProfilePage({
               fontFamily: "var(--font-brand)",
               fontSize: 15,
               fontWeight: 700,
-              color: "#7c7589",
+              color: "var(--muted-foreground)",
               background: "none",
-              border: "1px solid #e8e2da",
+              border: "1px solid var(--border)",
               borderRadius: "0.75rem",
               padding: "0.75rem",
               cursor: "pointer",

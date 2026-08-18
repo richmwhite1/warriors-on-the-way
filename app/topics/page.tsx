@@ -14,10 +14,10 @@ export default async function TopicsPage() {
   return (
     <main style={{ background: "#ffffff", minHeight: "100vh" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.25rem 3rem" }}>
-        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 28, fontWeight: 800, color: "#1a1a2e", margin: 0 }}>
+        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 28, fontWeight: 800, color: "var(--foreground)", margin: 0 }}>
           The Nine
         </h1>
-        <p style={{ fontFamily: "var(--font-body)", color: "#7c7589", marginTop: 6, marginBottom: 24 }}>
+        <p style={{ fontFamily: "var(--font-body)", color: "var(--muted-foreground)", marginTop: 6, marginBottom: 24 }}>
           Choose a domain to reclaim.
         </p>
 
@@ -32,17 +32,17 @@ export default async function TopicsPage() {
                 gap: 10,
                 padding: "18px 16px",
                 borderRadius: 16,
-                border: "1px solid #e8e2da",
+                border: "1px solid var(--border)",
                 background: "#faf8f5",
                 textDecoration: "none",
-                color: "#1a1a2e",
+                color: "var(--foreground)",
                 transition: "border-color .15s ease, transform .15s ease",
               }}
             >
               <TopicIcon icon={t.icon} />
               <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 16 }}>{t.name}</span>
               {t.solution_statement && (
-                <span style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#7c7589", lineHeight: 1.4 }}>
+                <span style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--muted-foreground)", lineHeight: 1.4 }}>
                   {t.solution_statement}
                 </span>
               )}

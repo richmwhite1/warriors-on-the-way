@@ -114,10 +114,10 @@ export default async function DeckPage({ searchParams }: Props) {
               padding: "0.85rem 1rem",
             }}
           >
-            <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, color: "#1a1a2e", margin: 0 }}>
+            <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, color: "var(--foreground)", margin: 0 }}>
               Make this your own
             </p>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", lineHeight: 1.5, margin: "4px 0 0" }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)", lineHeight: 1.5, margin: "4px 0 0" }}>
               Tap an objective below, then <strong style={{ color: "#4a4438", fontWeight: 600 }}>Follow</strong> the ones that call you — your Deck opens to what you follow.
             </p>
           </div>

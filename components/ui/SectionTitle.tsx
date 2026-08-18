@@ -11,7 +11,7 @@ export function SectionTitle({
         fontFamily: "var(--font-brand)",
         fontSize: "clamp(1.5rem, 3.5vw, 2.2rem)",
         fontWeight: 800,
-        color: light ? "white" : "#1a1a2e",
+        color: light ? "white" : "var(--foreground)",
         lineHeight: 1.1,
         letterSpacing: "-0.01em",
         marginBottom: "1rem",

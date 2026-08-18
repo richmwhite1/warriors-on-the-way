@@ -29,10 +29,10 @@ export default async function TopicResourcesPage({
   return (
     <main style={{ background: "#fff", minHeight: "100vh" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "1.5rem 1.25rem 3rem" }}>
-        <Link href={`/topics/${slug}`} style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", textDecoration: "none" }}>
+        <Link href={`/topics/${slug}`} style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)", textDecoration: "none" }}>
           ← {topic.name}
         </Link>
-        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 24, fontWeight: 800, color: "#1a1a2e", marginTop: 8, marginBottom: 14 }}>
+        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 24, fontWeight: 800, color: "var(--foreground)", marginTop: 8, marginBottom: 14 }}>
           {topic.name} · Resources
         </h1>
         <ResourceDirectory

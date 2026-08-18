@@ -22,13 +22,13 @@ export default async function TopicReviewPage({ params }: { params: Promise<{ sl
   return (
     <main style={{ background: "#fff", minHeight: "100vh" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "1.5rem 1.25rem 3rem" }}>
-        <Link href={`/topics/${slug}`} style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", textDecoration: "none" }}>
+        <Link href={`/topics/${slug}`} style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)", textDecoration: "none" }}>
           ← {topic.name}
         </Link>
-        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 24, fontWeight: 800, color: "#1a1a2e", marginTop: 8 }}>
+        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 24, fontWeight: 800, color: "var(--foreground)", marginTop: 8 }}>
           Review queue
         </h1>
-        <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#7c7589", margin: "6px 0 20px", lineHeight: 1.5 }}>
+        <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--muted-foreground)", margin: "6px 0 20px", lineHeight: 1.5 }}>
           Topic-feed content flagged past the threshold. Restore anything that belongs; leave hidden
           what doesn&apos;t. You can hide, but never permanently delete.
         </p>

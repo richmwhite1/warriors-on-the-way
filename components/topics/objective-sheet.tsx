@@ -22,7 +22,7 @@ export function ObjectiveSheet({
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 26, fontWeight: 800, color: "#1a1a2e", margin: 0 }}>
+        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 26, fontWeight: 800, color: "var(--foreground)", margin: 0 }}>
           {name}
         </h1>
         <button
@@ -30,8 +30,8 @@ export function ObjectiveSheet({
           aria-label="Show the objective"
           style={{
             marginLeft: "auto", display: "inline-flex", alignItems: "center", justifyContent: "center",
-            width: 36, height: 36, borderRadius: 999, border: "1px solid #e8e2da",
-            background: "#faf8f5", color: "#6e8b6a", cursor: "pointer",
+            width: 36, height: 36, borderRadius: 999, border: "1px solid var(--border)",
+            background: "#faf8f5", color: "var(--primary)", cursor: "pointer",
           }}
         >
           <Info size={18} strokeWidth={1.75} />
@@ -60,16 +60,16 @@ export function ObjectiveSheet({
           >
             <style>{`@keyframes objsheet-up{from{transform:translateY(100%)}to{transform:translateY(0)}}`}</style>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "#7c7589" }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted-foreground)" }}>
                 The Objective
               </span>
-              <button onClick={() => setOpen(false)} aria-label="Close" style={{ border: 0, background: "transparent", color: "#7c7589", cursor: "pointer" }}>
+              <button onClick={() => setOpen(false)} aria-label="Close" style={{ border: 0, background: "transparent", color: "var(--muted-foreground)", cursor: "pointer" }}>
                 <X size={20} />
               </button>
             </div>
 
             {/* Verbatim manifesto — Seán's words, never softened. */}
-            <p style={{ fontFamily: "var(--font-brand)", fontSize: 22, fontWeight: 700, color: "#1a1a2e", lineHeight: 1.3, margin: 0 }}>
+            <p style={{ fontFamily: "var(--font-brand)", fontSize: 22, fontWeight: 700, color: "var(--foreground)", lineHeight: 1.3, margin: 0 }}>
               {manifesto}
             </p>
 

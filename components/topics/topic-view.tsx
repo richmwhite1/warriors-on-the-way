@@ -30,8 +30,8 @@ export function TopicView({
       style={{
         flex: 1, padding: "12px 0", border: 0, background: "transparent", cursor: "pointer",
         fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14,
-        color: tab === t ? "#6e8b6a" : "#7c7589",
-        borderBottom: tab === t ? "2px solid #6e8b6a" : "2px solid transparent",
+        color: tab === t ? "var(--primary)" : "var(--muted-foreground)",
+        borderBottom: tab === t ? "2px solid var(--primary)" : "2px solid transparent",
       }}
     >
       {label}
@@ -40,7 +40,7 @@ export function TopicView({
 
   return (
     <div style={{ marginTop: 18 }}>
-      <div style={{ display: "flex", borderBottom: "1px solid #e8e2da", position: "sticky", top: 0, background: "#fff", zIndex: 10 }}>
+      <div style={{ display: "flex", borderBottom: "1px solid var(--border)", position: "sticky", top: 0, background: "#fff", zIndex: 10 }}>
         {tabBtn("info", "Info")}
         {tabBtn("resources", "Resources")}
         {tabBtn("communities", "Communities")}
@@ -96,8 +96,8 @@ function InfoFeed({
           rows={3}
           style={{
             width: "100%", padding: "12px 14px", borderRadius: 14, resize: "vertical",
-            border: "1px solid #e8e2da", background: "#faf8f5", fontFamily: "var(--font-body)",
-            fontSize: 14.5, color: "#1a1a2e", outline: "none",
+            border: "1px solid var(--border)", background: "#faf8f5", fontFamily: "var(--font-body)",
+            fontSize: 14.5, color: "var(--foreground)", outline: "none",
           }}
         />
         <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 8 }}>
@@ -106,7 +106,7 @@ function InfoFeed({
             disabled={pending || !text.trim()}
             style={{
               padding: "9px 20px", borderRadius: 999, border: 0, cursor: "pointer",
-              background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14,
+              background: "var(--primary)", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14,
               opacity: pending || !text.trim() ? 0.6 : 1,
             }}
           >
@@ -116,7 +116,7 @@ function InfoFeed({
       </form>
 
       {posts.length === 0 ? (
-        <p style={{ color: "#7c7589", fontFamily: "var(--font-body)", textAlign: "center", padding: "2rem 0" }}>
+        <p style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-body)", textAlign: "center", padding: "2rem 0" }}>
           Nothing here yet. Be the first to share.
         </p>
       ) : (
@@ -138,14 +138,14 @@ function InfoFeed({
 function ResourcesEntry({ topicSlug }: { topicSlug: string }) {
   return (
     <div style={{ textAlign: "center", padding: "2.5rem 1rem" }}>
-      <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "#1a1a2e" }}>Find people and places near you</p>
-      <p style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "#7c7589", marginTop: 6, lineHeight: 1.5, maxWidth: 360, marginInline: "auto" }}>
+      <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "var(--foreground)" }}>Find people and places near you</p>
+      <p style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "var(--muted-foreground)", marginTop: 6, lineHeight: 1.5, maxWidth: 360, marginInline: "auto" }}>
         A directory sorted by proximity, category, and vouches — practitioners, farms, schools,
         and more. Not a feed.
       </p>
       <Link href={`/topics/${topicSlug}/resources`} style={{
         display: "inline-block", marginTop: 14, padding: "10px 22px", borderRadius: 999,
-        background: "#6e8b6a", color: "#fff", textDecoration: "none",
+        background: "var(--primary)", color: "#fff", textDecoration: "none",
         fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14,
       }}>
         Open the directory
@@ -165,10 +165,10 @@ function CommunitiesList({
     <div>
       {communities.length === 0 ? (
         <div style={{ textAlign: "center", padding: "2rem 1rem" }}>
-          <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "#1a1a2e" }}>
+          <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "var(--foreground)" }}>
             No communities here yet.
           </p>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "#7c7589", marginTop: 6, lineHeight: 1.5 }}>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 13.5, color: "var(--muted-foreground)", marginTop: 6, lineHeight: 1.5 }}>
             Be the one who starts it. A community becomes browsable once it reaches five members —
             you recruit the first four with an invite link.
           </p>
@@ -177,7 +177,7 @@ function CommunitiesList({
         communities.map((c) => (
           <Link key={c.id} href={`/community/${c.slug}`} style={{
             display: "block", padding: "14px 16px", marginBottom: 10, borderRadius: 14,
-            border: "1px solid #e8e2da", background: "#faf8f5", textDecoration: "none", color: "#1a1a2e",
+            border: "1px solid var(--border)", background: "#faf8f5", textDecoration: "none", color: "var(--foreground)",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
               <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 15.5 }}>{c.name}</span>
@@ -186,7 +186,7 @@ function CommunitiesList({
               </span>
             </div>
             {c.purpose && (
-              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#7c7589", marginTop: 4, lineHeight: 1.4 }}>{c.purpose}</p>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)", marginTop: 4, lineHeight: 1.4 }}>{c.purpose}</p>
             )}
           </Link>
         ))
@@ -194,7 +194,7 @@ function CommunitiesList({
 
       <Link href={`/community/new?topic=${topic.slug}`} style={{
         display: "block", textAlign: "center", padding: "12px 0", marginTop: 8, borderRadius: 999,
-        border: "1px dashed #6e8b6a", color: "#6e8b6a", textDecoration: "none",
+        border: "1px dashed var(--primary)", color: "var(--primary)", textDecoration: "none",
         fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14,
       }}>
         Start a community here

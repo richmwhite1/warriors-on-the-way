@@ -38,7 +38,7 @@ export function FlagButton({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="Why? (not shown to the author)"
-            style={{ flex: 1, padding: "7px 11px", borderRadius: 999, border: "1px solid #e8e2da", fontFamily: "var(--font-body)", fontSize: 12.5, outline: "none" }}
+            style={{ flex: 1, padding: "7px 11px", borderRadius: 999, border: "1px solid var(--border)", fontFamily: "var(--font-body)", fontSize: 12.5, outline: "none" }}
           />
           <button
             onClick={() => start(async () => { await flagContent(targetType, targetId, communityId, reason); setDone(true); })}

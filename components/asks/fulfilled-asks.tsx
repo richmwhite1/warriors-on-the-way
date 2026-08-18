@@ -7,14 +7,14 @@ export function FulfilledAsks({ asks, name }: { asks: Ask[]; name: string }) {
   return (
     <section style={{ margin: "1.5rem 0" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <HeartHandshake size={16} color="#6e8b6a" />
-        <span style={{ fontFamily: "var(--font-body)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "#7c7589" }}>
+        <HeartHandshake size={16} color="var(--primary)" />
+        <span style={{ fontFamily: "var(--font-body)", fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--muted-foreground)" }}>
           {asks.length} {asks.length === 1 ? "person" : "people"} helped
         </span>
       </div>
       {asks.map((a) => (
-        <div key={a.id} style={{ border: "1px solid #e8e2da", borderRadius: 12, padding: "10px 14px", marginBottom: 8 }}>
-          <div style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, color: "#1a1a2e" }}>{a.title}</div>
+        <div key={a.id} style={{ border: "1px solid var(--border)", borderRadius: 12, padding: "10px 14px", marginBottom: 8 }}>
+          <div style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, color: "var(--foreground)" }}>{a.title}</div>
           <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#a39a8f", marginTop: 2 }}>
             for {a.author.display_name}{a.topic ? ` · ${a.topic.name}` : ""}
           </div>

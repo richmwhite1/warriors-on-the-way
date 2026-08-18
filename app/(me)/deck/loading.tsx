@@ -12,7 +12,7 @@ export default function DeckLoading() {
           right: 0,
           zIndex: 50,
           background: "rgba(255,255,255,0.92)",
-          borderBottom: "1px solid #e8e2da",
+          borderBottom: "1px solid var(--border)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
         }}
@@ -51,7 +51,7 @@ export default function DeckLoading() {
           {/* Composer placeholder */}
           <div className="skeleton-shimmer" style={{ width: "100%", height: 52, borderRadius: "1rem" }} />
           {[1, 2].map((i) => (
-            <div key={i} style={{ border: "1px solid #e8e2da", borderRadius: "1rem", padding: "1.25rem" }}>
+            <div key={i} style={{ border: "1px solid var(--border)", borderRadius: "1rem", padding: "1.25rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: 16 }}>
                 <div className="skeleton-shimmer" style={{ width: 40, height: 40, borderRadius: "50%" }} />
                 <div>

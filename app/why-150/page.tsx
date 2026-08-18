@@ -10,7 +10,7 @@ export default function Why150Page() {
     <main style={{ background: "#ffffff", minHeight: "100vh" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "1.25rem 1.25rem 4rem" }}>
         <BackButton />
-        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 30, fontWeight: 800, color: "#1a1a2e", marginTop: 12 }}>
+        <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 30, fontWeight: 800, color: "var(--foreground)", marginTop: 12 }}>
           Why 150?
         </h1>
 
@@ -35,7 +35,7 @@ export default function Why150Page() {
             another. Growth comes from communities birthing communities, each one small enough that
             the people in it remain real to one another.
           </p>
-          <p style={{ marginTop: 16, color: "#7c7589" }}>
+          <p style={{ marginTop: 16, color: "var(--muted-foreground)" }}>
             A person can belong to several communities. The cap protects the intimacy of each one.
           </p>
         </div>

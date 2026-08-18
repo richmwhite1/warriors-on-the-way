@@ -37,7 +37,7 @@ export function CrossPostPrompt({
       <div style={{ display: "flex", gap: 8, marginTop: 8, alignItems: "center", flexWrap: "wrap" }}>
         {topics.length > 1 && (
           <select value={picked} onChange={(e) => setPicked(e.target.value)}
-            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid #e8e2da", fontFamily: "var(--font-body)", fontSize: 13, background: "#fff" }}>
+            style={{ padding: "6px 10px", borderRadius: 8, border: "1px solid var(--border)", fontFamily: "var(--font-body)", fontSize: 13, background: "#fff" }}>
             {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
         )}
@@ -53,7 +53,7 @@ export function CrossPostPrompt({
               toast.error(e instanceof Error ? e.message : "Could not share");
             }
           })}
-          style={{ padding: "6px 14px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: pending ? 0.6 : 1 }}
+          style={{ padding: "6px 14px", borderRadius: 999, border: 0, background: "var(--primary)", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: pending ? 0.6 : 1 }}
         >
           Share to {topics.length === 1 ? topics[0].name : "topic"}
         </button>

@@ -127,7 +127,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 fontWeight: 600,
                 letterSpacing: "0.12em",
                 textTransform: "uppercase",
-                color: "#6e8b6a",
+                color: "var(--primary)",
                 marginBottom: "0.75rem",
               }}
             >
@@ -154,7 +154,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               }}
             >
               {memberCount} {memberCount === 1 ? "member" : "members"}
-              {isFull && <span style={{ marginLeft: "0.5rem", color: "#6e8b6a" }}>· Full</span>}
+              {isFull && <span style={{ marginLeft: "0.5rem", color: "var(--primary)" }}>· Full</span>}
             </p>
           </div>
         </div>
@@ -204,7 +204,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               }}
             >
               {memberCount} / {community.member_cap} {memberCount === 1 ? "member" : "members"}
-              {isFull && <span style={{ marginLeft: "0.5rem", color: "#6e8b6a" }}>· Full</span>}
+              {isFull && <span style={{ marginLeft: "0.5rem", color: "var(--primary)" }}>· Full</span>}
               {community.is_private && <span style={{ marginLeft: "0.5rem" }}>· Private</span>}
             </p>
           </div>
@@ -271,7 +271,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           )}
           {isMember && isViewer && (
             <div style={{ border: "1px dashed rgba(255,255,255,0.1)", padding: "0.75rem 1rem", textAlign: "center" }}>
-              <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "0.9rem" }}>You have view-only access to this community.</p>
+              <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "var(--muted-foreground)", fontSize: "0.9rem" }}>You have view-only access to this community.</p>
             </div>
           )}
 
@@ -280,7 +280,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             <p
               style={{
                 fontFamily: "var(--font-body)",
-                color: "#7c7589",
+                color: "var(--muted-foreground)",
                 fontSize: "0.95rem",
                 lineHeight: 1.6,
               }}
@@ -298,13 +298,13 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   fontFamily: "var(--font-brand)",
                   fontSize: 13,
                   fontWeight: 600,
-                  color: "#1a1a2e",
+                  color: "var(--foreground)",
                   cursor: "pointer",
                 }}
               >
                 Mission
               </summary>
-              <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #e8e2da", background: "#f5f0eb" }}>
+              <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid var(--border)", background: "#f5f0eb" }}>
                 <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4458" }}>{community.mission}</p>
               </div>
             </details>
@@ -313,10 +313,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           {/* Parent community: show rules collapsed */}
           {!isMember && community.is_parent && community.rules_md && (
             <details className="rounded-xl border overflow-hidden">
-              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 600, color: "#1a1a2e", cursor: "pointer" }}>
+              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 600, color: "var(--foreground)", cursor: "pointer" }}>
                 Community Standards
               </summary>
-              <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #e8e2da", background: "#f5f0eb" }}>
+              <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid var(--border)", background: "#f5f0eb" }}>
                 <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4458" }}>{community.rules_md}</p>
               </div>
             </details>
@@ -325,12 +325,12 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           {/* Child community: show parent rules collapsed */}
           {!isMember && !community.is_parent && parentCommunity?.rules_md && (
             <details style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
-              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "#7c7589", cursor: "pointer" }}>
+              <summary style={{ padding: "0.75rem 1rem", fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--muted-foreground)", cursor: "pointer" }}>
                 Community Standards ↓
               </summary>
               <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid rgba(255,255,255,0.1)", background: "#1a1a2e" }}>
                 <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "rgba(255,255,255,0.3)", marginBottom: "0.5rem" }}>Standards all Warriors on the Way communities follow:</p>
-                <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#7c7589" }}>{parentCommunity.rules_md}</p>
+                <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "var(--muted-foreground)" }}>{parentCommunity.rules_md}</p>
               </div>
             </details>
           )}
@@ -406,7 +406,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
             {allPosts.length === 0 ? (
               <div style={{ border: "1px dashed rgba(255,255,255,0.1)", padding: "3rem 2rem", textAlign: "center" }}>
-                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589" }}>
+                <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "var(--muted-foreground)" }}>
                   {postTypeFilter
                     ? `The space is quiet here. Be the first to share a ${postTypeFilter}.`
                     : "The space is quiet. What truth wants to emerge?"}
@@ -432,7 +432,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             {community.is_parent && latestVideoId && (
               <div className="space-y-3">
                 <Separator />
-                <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "#6e8b6a" }}>Latest from Seán</p>
+                <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--primary)" }}>Latest from Seán</p>
                 <div className="aspect-video overflow-hidden rounded-xl" style={{ border: "1px solid rgba(255,255,255,0.1)" }}>
                   <iframe
                     src={`https://www.youtube.com/embed/${latestVideoId}`}
@@ -454,25 +454,25 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                     fontFamily: "var(--font-brand)",
                     fontSize: 13,
                     fontWeight: 600,
-                    color: "#1a1a2e",
+                    color: "var(--foreground)",
                     cursor: "pointer",
                   }}
                 >
                   About this community
                 </summary>
-                <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid #e8e2da", background: "#f5f0eb" }} className="space-y-3">
+                <div style={{ padding: "0.75rem 1rem 1rem", borderTop: "1px solid var(--border)", background: "#f5f0eb" }} className="space-y-3">
                   {community.description && (
                     <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", lineHeight: 1.6, color: "#4a4458" }}>{community.description}</p>
                   )}
                   {community.mission && (
                     <div>
-                      <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1a1a2e", marginBottom: "0.25rem" }}>Mission</p>
+                      <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--foreground)", marginBottom: "0.25rem" }}>Mission</p>
                       <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4458" }}>{community.mission}</p>
                     </div>
                   )}
                   {(community.is_parent ? community.rules_md : parentCommunity?.rules_md) && (
                     <div>
-                      <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1a1a2e", marginBottom: "0.25rem" }}>Community Standards</p>
+                      <p style={{ fontFamily: "var(--font-brand)", fontSize: 12, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--foreground)", marginBottom: "0.25rem" }}>Community Standards</p>
                       <p style={{ fontFamily: "var(--font-body)", fontSize: "0.9rem", whiteSpace: "pre-wrap", color: "#4a4458" }}>
                         {community.is_parent ? community.rules_md : parentCommunity?.rules_md}
                       </p>
@@ -485,10 +485,10 @@ export default async function CommunityPage({ params, searchParams }: Props) {
         ) : memberStatus === "waitlisted" ? (
           <div style={{ border: "1px solid rgba(255,255,255,0.1)", padding: "3rem 2rem", textAlign: "center" }}>
             <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#f5f0eb", marginBottom: "0.5rem" }}>You&apos;re on the waitlist</p>
-            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "1rem", marginBottom: "1rem" }}>We&apos;ll let you know when a spot opens up.</p>
+            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "var(--muted-foreground)", fontSize: "1rem", marginBottom: "1rem" }}>We&apos;ll let you know when a spot opens up.</p>
             <Link
               href="/community"
-              style={{ fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 700, color: "#6e8b6a", textDecoration: "none" }}
+              style={{ fontFamily: "var(--font-brand)", fontSize: 13, fontWeight: 700, color: "var(--primary)", textDecoration: "none" }}
             >
               Find another group near you →
             </Link>
@@ -496,7 +496,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
         ) : memberStatus === "pending_approval" ? (
           <div style={{ border: "1px solid rgba(255,255,255,0.1)", padding: "3rem 2rem", textAlign: "center" }}>
             <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#f5f0eb", marginBottom: "0.5rem" }}>Request pending</p>
-            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "#7c7589", fontSize: "1rem" }}>An admin will review your request shortly.</p>
+            <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", color: "var(--muted-foreground)", fontSize: "1rem" }}>An admin will review your request shortly.</p>
           </div>
         ) : (
           <div style={{ position: "relative", minHeight: 280, overflow: "hidden" }}>
@@ -536,7 +536,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   fontSize: 9,
                   letterSpacing: "0.35em",
                   textTransform: "uppercase",
-                  color: "#6e8b6a",
+                  color: "var(--primary)",
                 }}
               >
                 Members Only
@@ -566,7 +566,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                     fontSize: 9,
                     letterSpacing: "0.15em",
                     textTransform: "uppercase",
-                    color: "#7c7589",
+                    color: "var(--muted-foreground)",
                     textDecoration: "none",
                   }}
                 >

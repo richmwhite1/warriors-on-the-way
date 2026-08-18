@@ -9,7 +9,7 @@ export default function ProfileLoading() {
           right: 0,
           zIndex: 50,
           background: "rgba(255,255,255,0.92)",
-          borderBottom: "1px solid #e8e2da",
+          borderBottom: "1px solid var(--border)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
         }}

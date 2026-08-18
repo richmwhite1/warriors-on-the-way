@@ -37,7 +37,7 @@ function ConfettiBurst() {
       y: -(Math.random() * 120 + 40),
       rotate: Math.random() * 360,
       scale: Math.random() * 0.6 + 0.4,
-      color: ["#6e8b6a", "#22c55e", "#f59e0b", "#3b82f6", "#ec4899", "#8b5cf6"][i % 6],
+      color: ["var(--primary)", "#22c55e", "#f59e0b", "#3b82f6", "#ec4899", "#8b5cf6"][i % 6],
       delay: Math.random() * 200,
     }))
   );

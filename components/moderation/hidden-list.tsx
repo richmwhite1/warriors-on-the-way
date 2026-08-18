@@ -13,15 +13,15 @@ export function HiddenList({
 }) {
   if (items.length === 0) {
     return (
-      <div style={{ border: "1px dashed #e8e2da", borderRadius: 16, padding: "3rem 2rem", textAlign: "center" }}>
-        <p style={{ fontFamily: "var(--font-body)", color: "#7c7589" }}>Nothing hidden. All clear.</p>
+      <div style={{ border: "1px dashed var(--border)", borderRadius: 16, padding: "3rem 2rem", textAlign: "center" }}>
+        <p style={{ fontFamily: "var(--font-body)", color: "var(--muted-foreground)" }}>Nothing hidden. All clear.</p>
       </div>
     );
   }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
       {items.map((it) => (
-        <article key={`${it.kind}-${it.id}`} style={{ border: "1px solid #e8e2da", borderRadius: 14, padding: 14 }}>
+        <article key={`${it.kind}-${it.id}`} style={{ border: "1px solid var(--border)", borderRadius: 14, padding: 14 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
             <span style={{ fontFamily: "var(--font-body)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", color: "#a39a8f" }}>
               {it.kind}
@@ -30,7 +30,7 @@ export function HiddenList({
               {it.flag_count} {it.flag_count === 1 ? "flag" : "flags"}
             </span>
           </div>
-          {it.title && <div style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 15, color: "#1a1a2e" }}>{it.title}</div>}
+          {it.title && <div style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 15, color: "var(--foreground)" }}>{it.title}</div>}
           {it.body && <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#4a4a45", margin: "4px 0 0", lineHeight: 1.5 }}>{it.body.slice(0, 400)}</p>}
           <div style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#a39a8f", marginTop: 6 }}>
             by {it.author?.display_name ?? "unknown"} · reason: {it.hidden_reason ?? "—"}

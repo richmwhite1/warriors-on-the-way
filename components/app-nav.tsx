@@ -3,6 +3,7 @@ import { requireUserProfile } from "@/lib/queries/users";
 import { getUnreadNotificationCount } from "@/lib/queries/notifications";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NotificationBell } from "@/components/notification-bell";
+import { TopNavLinks } from "@/components/top-nav-links";
 
 export async function AppNav() {
   const user = await requireUserProfile().catch(() => null);
@@ -18,7 +19,7 @@ export async function AppNav() {
         right: 0,
         zIndex: 50,
         background: "rgba(255,255,255,0.92)",
-        borderBottom: "1px solid #e8e2da",
+        borderBottom: "1px solid var(--border)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",
       }}
@@ -42,7 +43,7 @@ export async function AppNav() {
             fontSize: 16,
             fontWeight: 800,
             letterSpacing: "-0.01em",
-            color: "#1a1a2e",
+            color: "var(--foreground)",
             textDecoration: "none",
             whiteSpace: "nowrap",
           }}
@@ -52,60 +53,8 @@ export async function AppNav() {
 
         {/* Right side */}
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          {/* Topics — primary entry to the nine mission domains (visible at all sizes) */}
-          <Link
-            href="/topics"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 14,
-              fontWeight: 600,
-              color: "#6e8b6a",
-              textDecoration: "none",
-            }}
-          >
-            Topics
-          </Link>
-
-          <Link
-            href="/community"
-            className="hidden sm:block"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 14,
-              fontWeight: 500,
-              color: "#7c7589",
-              textDecoration: "none",
-            }}
-          >
-            Communities
-          </Link>
-
-          <Link
-            href="/sean"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 14,
-              fontWeight: 500,
-              color: "#7c7589",
-              textDecoration: "none",
-            }}
-          >
-            Seán
-          </Link>
-
-          <Link
-            href="/consciousness-map"
-            className="hidden sm:block"
-            style={{
-              fontFamily: "var(--font-body)",
-              fontSize: 14,
-              fontWeight: 500,
-              color: "#7c7589",
-              textDecoration: "none",
-            }}
-          >
-            Map
-          </Link>
+          {/* Primary + secondary destinations — see components/nav-config.tsx */}
+          <TopNavLinks />
 
           {user && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -113,6 +62,7 @@ export async function AppNav() {
 
               <Link
                 href="/profile"
+                aria-label="You"
                 style={{ display: "flex", alignItems: "center", gap: "0.5rem", textDecoration: "none" }}
               >
                 <Avatar
@@ -125,7 +75,7 @@ export async function AppNav() {
                       fontFamily: "var(--font-brand)",
                       fontSize: 12,
                       fontWeight: 700,
-                      background: "#6e8b6a",
+                      background: "var(--primary)",
                       color: "#ffffff",
                       borderRadius: "9999px",
                     }}

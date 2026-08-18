@@ -22,7 +22,7 @@ export default function PrivacyPage() {
           justifyContent: "space-between",
           alignItems: "center",
           background: "rgba(255,255,255,0.96)",
-          borderBottom: "1px solid #e8e2da",
+          borderBottom: "1px solid var(--border)",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
         }}
@@ -34,7 +34,7 @@ export default function PrivacyPage() {
             fontSize: 12,
             letterSpacing: "0.22em",
             textTransform: "uppercase",
-            color: "#1a1a2e",
+            color: "var(--foreground)",
             fontWeight: 700,
             textDecoration: "none",
           }}
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
               fontFamily: "var(--font-brand)",
               fontWeight: 900,
               fontSize: "clamp(1.8rem, 4vw, 2.8rem)",
-              color: "#1a1a2e",
+              color: "var(--foreground)",
               textTransform: "uppercase",
               letterSpacing: "0.04em",
               lineHeight: 1.1,
@@ -90,7 +90,7 @@ export default function PrivacyPage() {
             style={{
               fontFamily: "var(--font-body)",
               fontSize: 14,
-              color: "#7c7589",
+              color: "var(--muted-foreground)",
             }}
           >
             Last updated: May 2026
@@ -143,7 +143,7 @@ export default function PrivacyPage() {
                   fontSize: "1rem",
                   textTransform: "uppercase",
                   letterSpacing: "0.12em",
-                  color: "#1a1a2e",
+                  color: "var(--foreground)",
                   marginBottom: "0.75rem",
                 }}
               >
@@ -161,7 +161,7 @@ export default function PrivacyPage() {
             fontSize: 9,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: "#7c7589",
+            color: "var(--muted-foreground)",
             textDecoration: "none",
             display: "inline-flex",
             alignItems: "center",
@@ -176,7 +176,7 @@ export default function PrivacyPage() {
       {/* Footer */}
       <footer
         style={{
-          borderTop: "1px solid #e8e2da",
+          borderTop: "1px solid var(--border)",
           padding: "1.5rem 2rem",
           display: "flex",
           justifyContent: "space-between",
@@ -192,7 +192,7 @@ export default function PrivacyPage() {
           style={{
             fontFamily: "var(--font-brand)",
             fontSize: 9,
-            color: "#7c7589",
+            color: "var(--muted-foreground)",
             letterSpacing: "0.2em",
             textTransform: "uppercase",
           }}
@@ -209,7 +209,7 @@ export default function PrivacyPage() {
                 fontSize: 9,
                 letterSpacing: "0.16em",
                 textTransform: "uppercase",
-                color: "#7c7589",
+                color: "var(--muted-foreground)",
                 textDecoration: "none",
               }}
             >

@@ -25,10 +25,10 @@ export function RemovalNoticeBanner({ notices }: { notices: RemovalNotice[] }) {
             border: "1px solid #e8dcc8", borderRadius: 14, padding: "1rem 1.15rem",
             background: "linear-gradient(135deg, #f8f4ec 0%, #fdf9f0 100%)",
           }}>
-            <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "#1a1a2e", fontSize: "0.98rem" }}>
+            <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, color: "var(--foreground)", fontSize: "0.98rem" }}>
               Your seat in {n.community?.name ?? "a community"} was freed
             </p>
-            <p style={{ fontFamily: "var(--font-body)", color: "#7c7589", fontSize: "0.88rem", lineHeight: 1.5, marginTop: 4 }}>
+            <p style={{ fontFamily: "var(--font-body)", color: "var(--muted-foreground)", fontSize: "0.88rem", lineHeight: 1.5, marginTop: 4 }}>
               After six quiet months we opened your spot for someone new — it&apos;s not a ban, and
               you&apos;re welcome back {full ? "when a seat frees up." : "in one tap."}
             </p>
@@ -45,7 +45,7 @@ export function RemovalNoticeBanner({ notices }: { notices: RemovalNotice[] }) {
                       toast.error(e instanceof Error ? e.message : "Could not rejoin");
                     }
                   })}
-                  style={{ padding: "8px 18px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                  style={{ padding: "8px 18px", borderRadius: 999, border: 0, background: "var(--primary)", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
                 >
                   Rejoin
                 </button>
@@ -56,7 +56,7 @@ export function RemovalNoticeBanner({ notices }: { notices: RemovalNotice[] }) {
                   await acknowledgeRemoval(n.community_id);
                   setDismissed((s) => new Set(s).add(n.community_id));
                 })}
-                style={{ padding: "8px 18px", borderRadius: 999, border: "1px solid #e8e2da", background: "#fff", color: "#7c7589", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                style={{ padding: "8px 18px", borderRadius: 999, border: "1px solid var(--border)", background: "#fff", color: "var(--muted-foreground)", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
               >
                 Dismiss
               </button>

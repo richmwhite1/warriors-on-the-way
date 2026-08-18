@@ -26,12 +26,12 @@ export function AskBoard({
   return (
     <div>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <h2 style={{ fontFamily: "var(--font-brand)", fontWeight: 800, fontSize: 20, color: "#1a1a2e", margin: 0 }}>
+        <h2 style={{ fontFamily: "var(--font-brand)", fontWeight: 800, fontSize: 20, color: "var(--foreground)", margin: 0 }}>
           Ask &amp; Offer
         </h2>
         <button
           onClick={() => setComposing((c) => !c)}
-          style={{ padding: "8px 16px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+          style={{ padding: "8px 16px", borderRadius: 999, border: 0, background: "var(--primary)", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}
         >
           {composing ? "Close" : "+ Post"}
         </button>
@@ -47,7 +47,7 @@ export function AskBoard({
       )}
 
       {asks.length === 0 ? (
-        <p style={{ color: "#7c7589", fontFamily: "var(--font-body)", textAlign: "center", padding: "2rem 0" }}>
+        <p style={{ color: "var(--muted-foreground)", fontFamily: "var(--font-body)", textAlign: "center", padding: "2rem 0" }}>
           No asks or offers yet. Post the first — someone here can help.
         </p>
       ) : (
@@ -88,27 +88,27 @@ function AskComposer({
 
   const pill = (k: "ask" | "offer", label: string) => (
     <button type="button" onClick={() => setKind(k)} style={{
-      flex: 1, padding: "8px 0", borderRadius: 999, border: `1px solid ${kind === k ? "#6e8b6a" : "#e8e2da"}`,
-      background: kind === k ? "#fdf0e9" : "#fff", color: kind === k ? "#6e8b6a" : "#7c7589",
+      flex: 1, padding: "8px 0", borderRadius: 999, border: `1px solid ${kind === k ? "var(--primary)" : "var(--border)"}`,
+      background: kind === k ? "#fdf0e9" : "#fff", color: kind === k ? "var(--primary)" : "var(--muted-foreground)",
       fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer",
     }}>{label}</button>
   );
 
   return (
-    <form onSubmit={submit} style={{ border: "1px solid #e8e2da", borderRadius: 14, padding: 14, marginBottom: 18, background: "#faf8f5" }}>
+    <form onSubmit={submit} style={{ border: "1px solid var(--border)", borderRadius: 14, padding: 14, marginBottom: 18, background: "#faf8f5" }}>
       <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
         {pill("ask", "I need help")}
         {pill("offer", "I can help")}
       </div>
       <input name="title" placeholder={kind === "ask" ? "What do you need?" : "What can you offer?"} required
-        style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #e8e2da", fontFamily: "var(--font-body)", fontSize: 14, marginBottom: 8, outline: "none" }} />
+        style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border)", fontFamily: "var(--font-body)", fontSize: 14, marginBottom: 8, outline: "none" }} />
       <textarea name="body" placeholder="Any details…" rows={2}
-        style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #e8e2da", fontFamily: "var(--font-body)", fontSize: 14, marginBottom: 8, outline: "none", resize: "vertical" }} />
-      <select name="topic_id" defaultValue="" style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid #e8e2da", fontFamily: "var(--font-body)", fontSize: 14, marginBottom: 10, background: "#fff" }}>
+        style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border)", fontFamily: "var(--font-body)", fontSize: 14, marginBottom: 8, outline: "none", resize: "vertical" }} />
+      <select name="topic_id" defaultValue="" style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--border)", fontFamily: "var(--font-body)", fontSize: 14, marginBottom: 10, background: "#fff" }}>
         <option value="">Tag a topic (optional)</option>
         {topics.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
       </select>
-      <button type="submit" disabled={pending} style={{ width: "100%", padding: "10px 0", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
+      <button type="submit" disabled={pending} style={{ width: "100%", padding: "10px 0", borderRadius: 999, border: 0, background: "var(--primary)", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
         {pending ? "Posting…" : "Post"}
       </button>
     </form>
@@ -132,20 +132,20 @@ function AskCard({
   const isAuthor = ask.author_id === currentUserId;
   const isClaimer = ask.claimed_by === currentUserId;
 
-  const statusColor = ask.status === "open" ? "#2e7d5b" : ask.status === "claimed" ? "#b07d1c" : "#7c7589";
+  const statusColor = ask.status === "open" ? "#2e7d5b" : ask.status === "claimed" ? "#b07d1c" : "var(--muted-foreground)";
   const statusBg = ask.status === "open" ? "#e7f4ec" : ask.status === "claimed" ? "#fbf1dc" : "#f0ece5";
 
   const act = (fn: () => Promise<void>) => start(async () => { await fn(); router.refresh(); });
 
   return (
-    <article style={{ border: "1px solid #e8e2da", borderRadius: 14, padding: 14, marginBottom: 12 }}>
+    <article style={{ border: "1px solid var(--border)", borderRadius: 14, padding: 14, marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        {ask.kind === "ask" ? <HandHelping size={16} color="#6e8b6a" /> : <HeartHandshake size={16} color="#6e8b6a" />}
+        {ask.kind === "ask" ? <HandHelping size={16} color="var(--primary)" /> : <HeartHandshake size={16} color="var(--primary)" />}
         <span style={{ fontFamily: "var(--font-body)", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.06em", color: "#a39a8f" }}>
           {ask.kind === "ask" ? "Needs help" : "Offering"}
         </span>
         {ask.topic && (
-          <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "#6e8b6a", background: "#fdf0e9", padding: "2px 8px", borderRadius: 999 }}>
+          <span style={{ fontFamily: "var(--font-body)", fontSize: 11, color: "var(--primary)", background: "#fdf0e9", padding: "2px 8px", borderRadius: 999 }}>
             {ask.topic.name}
           </span>
         )}
@@ -154,7 +154,7 @@ function AskCard({
         </span>
       </div>
 
-      <div style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 16, color: "#1a1a2e" }}>{ask.title}</div>
+      <div style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 16, color: "var(--foreground)" }}>{ask.title}</div>
       {ask.body && <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "#4a4a45", margin: "4px 0 0", lineHeight: 1.5 }}>{ask.body}</p>}
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
         <span style={{ fontFamily: "var(--font-body)", fontSize: 12, color: "#a39a8f" }}>
@@ -192,7 +192,7 @@ function AskCard({
       {showThank && ask.status === "claimed" && isAuthor && (
         <div style={{ marginTop: 10 }}>
           <input value={thankYou} onChange={(e) => setThankYou(e.target.value)} placeholder="Leave a thank-you (optional)…"
-            style={{ width: "100%", padding: "9px 12px", borderRadius: 10, border: "1px solid #e8e2da", fontFamily: "var(--font-body)", fontSize: 13, outline: "none", marginBottom: 8 }} />
+            style={{ width: "100%", padding: "9px 12px", borderRadius: 10, border: "1px solid var(--border)", fontFamily: "var(--font-body)", fontSize: 13, outline: "none", marginBottom: 8 }} />
           <button onClick={() => act(() => fulfillAsk(ask.id, communitySlug, thankYou))} style={btn()}>
             Confirm &amp; thank
           </button>
@@ -204,13 +204,13 @@ function AskCard({
         <div style={{ marginTop: 12, borderTop: "1px solid #f0ece5", paddingTop: 10 }}>
           {comments.map((c) => (
             <div key={c.id} style={{ marginBottom: 6 }}>
-              <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 12.5, color: "#1a1a2e" }}>{c.author.display_name}</span>{" "}
+              <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 12.5, color: "var(--foreground)" }}>{c.author.display_name}</span>{" "}
               <span style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "#2a2a30" }}>{c.body}</span>
             </div>
           ))}
           <form onSubmit={(e) => { e.preventDefault(); if (!reply.trim()) return; act(() => addAskComment(ask.id, reply, communitySlug)); setReply(""); }} style={{ display: "flex", gap: 6, marginTop: 6 }}>
             <input value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Coordinate here…"
-              style={{ flex: 1, padding: "8px 12px", borderRadius: 999, border: "1px solid #e8e2da", fontFamily: "var(--font-body)", fontSize: 13, outline: "none" }} />
+              style={{ flex: 1, padding: "8px 12px", borderRadius: 999, border: "1px solid var(--border)", fontFamily: "var(--font-body)", fontSize: 13, outline: "none" }} />
             <button type="submit" style={{ padding: "8px 14px", borderRadius: 999, border: 0, background: "#4a4a45", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Send</button>
           </form>
         </div>
@@ -220,8 +220,8 @@ function AskCard({
 }
 
 function btn(): React.CSSProperties {
-  return { padding: "8px 16px", borderRadius: 999, border: 0, background: "#6e8b6a", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" };
+  return { padding: "8px 16px", borderRadius: 999, border: 0, background: "var(--primary)", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" };
 }
 function btnGhost(): React.CSSProperties {
-  return { padding: "8px 16px", borderRadius: 999, border: "1px solid #e8e2da", background: "#fff", color: "#7c7589", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" };
+  return { padding: "8px 16px", borderRadius: 999, border: "1px solid var(--border)", background: "#fff", color: "var(--muted-foreground)", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 13, cursor: "pointer" };
 }

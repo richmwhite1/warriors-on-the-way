@@ -16,10 +16,10 @@ export default function NotFound() {
     >
       <div style={{ width: 64, height: 64, marginBottom: "2rem" }}>
         <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" width="64" height="64">
-          <circle cx="48" cy="48" r="46" stroke="#e8e2da" strokeWidth="0.5" strokeDasharray="3 5" />
-          <circle cx="48" cy="48" r="34" stroke="#e8e2da" strokeWidth="0.5" />
-          <circle cx="48" cy="48" r="22" stroke="#6e8b6a" strokeWidth="0.5" opacity="0.4" />
-          <circle cx="48" cy="48" r="4" fill="#6e8b6a" opacity="0.5" />
+          <circle cx="48" cy="48" r="46" stroke="var(--border)" strokeWidth="0.5" strokeDasharray="3 5" />
+          <circle cx="48" cy="48" r="34" stroke="var(--border)" strokeWidth="0.5" />
+          <circle cx="48" cy="48" r="22" stroke="var(--primary)" strokeWidth="0.5" opacity="0.4" />
+          <circle cx="48" cy="48" r="4" fill="var(--primary)" opacity="0.5" />
         </svg>
       </div>
 
@@ -30,7 +30,7 @@ export default function NotFound() {
           fontWeight: 600,
           letterSpacing: "0.36em",
           textTransform: "uppercase",
-          color: "#6e8b6a",
+          color: "var(--primary)",
           marginBottom: "1rem",
         }}
       >
@@ -42,7 +42,7 @@ export default function NotFound() {
           fontFamily: "var(--font-brand)",
           fontWeight: 900,
           fontSize: "clamp(2.5rem, 8vw, 5rem)",
-          color: "#1a1a2e",
+          color: "var(--foreground)",
           textTransform: "uppercase",
           letterSpacing: "0.04em",
           lineHeight: 1,
@@ -55,7 +55,7 @@ export default function NotFound() {
       <p
         style={{
           fontFamily: "var(--font-body)",
-          color: "#7c7589",
+          color: "var(--muted-foreground)",
           fontSize: "1.05rem",
           maxWidth: 400,
           lineHeight: 1.7,

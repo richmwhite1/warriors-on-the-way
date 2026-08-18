@@ -9,7 +9,7 @@ export default function CommunityLoading() {
           right: 0,
           zIndex: 50,
           background: "rgba(255,255,255,0.92)",
-          borderBottom: "1px solid #e8e2da",
+          borderBottom: "1px solid var(--border)",
           backdropFilter: "blur(16px)",
           WebkitBackdropFilter: "blur(16px)",
         }}
@@ -32,7 +32,7 @@ export default function CommunityLoading() {
         <div className="skeleton-shimmer" style={{ width: 110, height: 18, marginBottom: 16 }} />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "0.75rem", marginBottom: "2.5rem" }}>
           {[1, 2, 3].map((i) => (
-            <div key={i} style={{ border: "1px solid #e8e2da", borderRadius: "1rem", padding: "1.25rem" }}>
+            <div key={i} style={{ border: "1px solid var(--border)", borderRadius: "1rem", padding: "1.25rem" }}>
               <div className="skeleton-shimmer" style={{ width: "75%", height: 18, marginBottom: 8 }} />
               <div className="skeleton-shimmer" style={{ width: "50%", height: 14, marginBottom: 12 }} />
               <div className="skeleton-shimmer" style={{ width: 80, height: 24, borderRadius: 9999 }} />
@@ -44,7 +44,7 @@ export default function CommunityLoading() {
         <div className="skeleton-shimmer" style={{ width: 130, height: 18, marginBottom: 16 }} />
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "0.75rem" }}>
           {[1, 2].map((i) => (
-            <div key={i} style={{ border: "1px solid #e8e2da", borderRadius: "1rem", padding: "1.25rem" }}>
+            <div key={i} style={{ border: "1px solid var(--border)", borderRadius: "1rem", padding: "1.25rem" }}>
               <div className="skeleton-shimmer" style={{ width: "80%", height: 18, marginBottom: 8 }} />
               <div className="skeleton-shimmer" style={{ width: "60%", height: 14, marginBottom: 8 }} />
               <div className="skeleton-shimmer" style={{ width: "40%", height: 14 }} />

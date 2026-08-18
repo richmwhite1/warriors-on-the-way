@@ -23,7 +23,7 @@ export function EmbedRender({ preview }: { preview: LinkPreview | null }) {
           marginTop: 10,
           borderRadius: 12,
           overflow: "hidden",
-          border: "1px solid #e8e2da",
+          border: "1px solid var(--border)",
           ...(isAudio
             ? { height: preview.provider === "spotify" ? 152 : 166 }
             : { position: "relative", paddingBottom: "56.25%", height: 0 }),
@@ -55,9 +55,9 @@ export function EmbedRender({ preview }: { preview: LinkPreview | null }) {
         marginTop: 10,
         borderRadius: 12,
         overflow: "hidden",
-        border: "1px solid #e8e2da",
+        border: "1px solid var(--border)",
         textDecoration: "none",
-        color: "#1a1a2e",
+        color: "var(--foreground)",
       }}
     >
       {preview.thumbnailUrl && (
@@ -69,7 +69,7 @@ export function EmbedRender({ preview }: { preview: LinkPreview | null }) {
           {preview.title ?? preview.url}
         </div>
         {preview.description && (
-          <div style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "#7c7589", marginTop: 4, lineHeight: 1.4 }}>
+          <div style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--muted-foreground)", marginTop: 4, lineHeight: 1.4 }}>
             {preview.description.slice(0, 160)}
           </div>
         )}

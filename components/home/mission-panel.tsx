@@ -39,7 +39,7 @@ function AccordionRow({
   last?: boolean;
 }) {
   return (
-    <div style={{ borderBottom: last ? "none" : "1px solid #e8e2da" }}>
+    <div style={{ borderBottom: last ? "none" : "1px solid var(--border)" }}>
       <button
         onClick={onToggle}
         style={{
@@ -58,7 +58,7 @@ function AccordionRow({
           style={{
             fontFamily: "var(--font-brand)",
             fontWeight: 700,
-            color: "#1a1a2e",
+            color: "var(--foreground)",
             fontSize: "0.95rem",
           }}
         >
@@ -74,7 +74,7 @@ function AccordionRow({
           style={{
             width: 16,
             height: 16,
-            color: "#7c7589",
+            color: "var(--muted-foreground)",
             flexShrink: 0,
             transform: open ? "rotate(180deg)" : "rotate(0deg)",
             transition: "transform 0.2s",
@@ -135,7 +135,7 @@ export function MissionPanel() {
             fontFamily: "var(--font-body)",
             flex: 1,
             fontSize: 14,
-            color: "#7c7589",
+            color: "var(--muted-foreground)",
           }}
         >
           Se\u00e1n \u00d3&apos;Laoire &middot; Lightworkers Manifesto
@@ -146,7 +146,7 @@ export function MissionPanel() {
             fontFamily: "var(--font-brand)",
             fontSize: 13,
             fontWeight: 700,
-            color: "#6e8b6a",
+            color: "var(--primary)",
             textDecoration: "none",
             flexShrink: 0,
           }}
@@ -156,7 +156,7 @@ export function MissionPanel() {
       </div>
 
       {/* Accordion */}
-      <div style={{ borderTop: "1px solid #e8e2da" }}>
+      <div style={{ borderTop: "1px solid var(--border)" }}>
 
         {/* The Mission */}
         <AccordionRow label="The Mission" open={missionOpen} onToggle={() => setMissionOpen(v => !v)}>
@@ -172,10 +172,10 @@ export function MissionPanel() {
                   borderBottom: "1px solid rgba(0,0,0,0.06)",
                   fontFamily: "var(--font-body)",
                   fontSize: "0.9rem",
-                  color: "#1a1a2e",
+                  color: "var(--foreground)",
                 }}
               >
-                <span style={{ color: "#6e8b6a", fontSize: "0.6rem", flexShrink: 0 }}>&bull;</span>
+                <span style={{ color: "var(--primary)", fontSize: "0.6rem", flexShrink: 0 }}>&bull;</span>
                 {point}
               </li>
             ))}
@@ -194,8 +194,8 @@ export function MissionPanel() {
             }}
           >
             As a human species, we need a transformation of both our consciousness and our mission.
-            As we move from <em style={{ color: "#1a1a2e" }}>Homo sapiens sapiens</em> to{" "}
-            <em style={{ color: "#1a1a2e", fontWeight: 500 }}>Homo spiritualis</em>, we must:
+            As we move from <em style={{ color: "var(--foreground)" }}>Homo sapiens sapiens</em> to{" "}
+            <em style={{ color: "var(--foreground)", fontWeight: 500 }}>Homo spiritualis</em>, we must:
           </p>
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {SHIFTS.map(({ domain, from, to }) => (
@@ -214,7 +214,7 @@ export function MissionPanel() {
                     fontFamily: "var(--font-brand)",
                     fontSize: 11,
                     fontWeight: 700,
-                    color: "#6e8b6a",
+                    color: "var(--primary)",
                     width: 90,
                     flexShrink: 0,
                   }}
@@ -223,8 +223,8 @@ export function MissionPanel() {
                 </span>
                 <span style={{ fontFamily: "var(--font-body)", fontSize: "0.85rem", color: "#4a4458" }}>
                   <span style={{ textDecoration: "line-through", opacity: 0.4 }}>{from}</span>
-                  <span style={{ margin: "0 0.4rem", color: "#7c7589" }}>&rarr;</span>
-                  <span style={{ fontWeight: 600, color: "#1a1a2e" }}>{to}</span>
+                  <span style={{ margin: "0 0.4rem", color: "var(--muted-foreground)" }}>&rarr;</span>
+                  <span style={{ fontWeight: 600, color: "var(--foreground)" }}>{to}</span>
                 </span>
               </li>
             ))}
