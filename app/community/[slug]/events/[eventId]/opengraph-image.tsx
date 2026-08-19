@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getEventForGuest } from "@/lib/queries/events";
+import { fetchOgBackground } from "@/lib/og-image";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -13,20 +14,9 @@ export default async function Image({
   const { eventId } = await params;
   const event = await getEventForGuest(eventId).catch(() => null);
 
-  // Try to fetch the event image as a data URI so Satori can render it
-  let bgSrc: string | null = null;
-  if (event?.image_url) {
-    try {
-      const res = await fetch(event.image_url);
-      if (res.ok) {
-        const ct = res.headers.get("content-type") ?? "image/jpeg";
-        const buf = await res.arrayBuffer();
-        bgSrc = `data:${ct};base64,${Buffer.from(buf).toString("base64")}`;
-      }
-    } catch {
-      // fall back to branded card
-    }
-  }
+  // Fetch the event image as a data URI so Satori can render it — only if it's a
+  // supported format (JPEG/PNG); WebP/AVIF would crash the renderer.
+  const bgSrc = event?.image_url ? await fetchOgBackground(event.image_url) : null;
 
   const title = event?.title ?? "Warriors on the Way";
   const formattedDate = event?.starts_at

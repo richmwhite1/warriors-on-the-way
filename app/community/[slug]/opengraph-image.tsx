@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getCommunityBySlugPublic } from "@/lib/queries/communities";
 import { getActiveMemberCount } from "@/lib/queries/members";
+import { fetchOgBackground } from "@/lib/og-image";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -17,20 +18,9 @@ export default async function Image({
     ? await getActiveMemberCount(community.id).catch(() => 0)
     : 0;
 
-  // Try to fetch the banner as a data URI so Satori can render it
-  let bgSrc: string | null = null;
-  if (community?.banner_url) {
-    try {
-      const res = await fetch(community.banner_url);
-      if (res.ok) {
-        const ct = res.headers.get("content-type") ?? "image/jpeg";
-        const buf = await res.arrayBuffer();
-        bgSrc = `data:${ct};base64,${Buffer.from(buf).toString("base64")}`;
-      }
-    } catch {
-      // fall back to branded card
-    }
-  }
+  // Fetch the banner as a data URI so Satori can render it — only if it's a
+  // supported format (JPEG/PNG); WebP/AVIF would crash the renderer.
+  const bgSrc = community?.banner_url ? await fetchOgBackground(community.banner_url) : null;
 
   const name = community?.name ?? "Warriors on the Way";
   const blurb =
