@@ -16,6 +16,7 @@ import { DeckShell } from "@/components/deck/deck-shell";
 import { DeckBody } from "@/components/deck/deck-body";
 import { FollowButton } from "@/components/deck/follow-button";
 import { type DeckMeta } from "@/components/deck/meta-card";
+import { WelcomeOverlay } from "@/components/welcome-overlay";
 
 type Props = { searchParams: Promise<{ mode?: string }> };
 
@@ -86,6 +87,7 @@ export default async function DeckPage({ searchParams }: Props) {
   return (
     <>
       <AppNav />
+      <WelcomeOverlay />
 
       <main className="animate-page-enter" style={{ maxWidth: 480, margin: "0 auto", paddingBottom: "5rem" }}>
         {/* ── Title ────────────────────────────────────────────────────────── */}

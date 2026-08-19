@@ -96,6 +96,18 @@ export function DeckBody({
           {seg("stack", "Stack")}
         </div>
       )}
+      {posts.length > 0 && (
+        <p
+          style={{
+            fontFamily: "var(--font-body)", fontSize: 11.5, color: "var(--muted-foreground)",
+            textAlign: "center", margin: "-8px auto 14px", maxWidth: 280, lineHeight: 1.4,
+          }}
+        >
+          {view === "feed"
+            ? "Feed — scroll everything happening here."
+            : "Stack — swipe through posts one at a time."}
+        </p>
+      )}
 
       {view === "stack" && posts.length > 0 ? (
         <DeckStack posts={posts} topicSlug={topicSlug} />
