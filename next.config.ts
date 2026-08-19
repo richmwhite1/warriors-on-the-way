@@ -12,6 +12,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.googleusercontent.com" },
       { protocol: "https", hostname: "www.gravatar.com" },
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
+      // Cloudinary — user uploads (event images, community banners, avatars)
+      { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },
   async redirects() {
