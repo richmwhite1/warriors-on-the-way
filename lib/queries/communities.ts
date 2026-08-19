@@ -49,20 +49,6 @@ export async function getCommunityBySlug(slug: string): Promise<Community | null
   return data as Community | null;
 }
 
-export async function getCommunityWithMemberCount(slug: string) {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("communities")
-    .select(`
-      ${COMMUNITY_SELECT},
-      member_count:community_members(count)
-    `)
-    .eq("slug", slug)
-    .eq("community_members.status", "active")
-    .single();
-  return data;
-}
-
 export async function listPublicCommunities() {
   const supabase = await createClient();
   const { data } = await supabase

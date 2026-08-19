@@ -93,34 +93,6 @@ export async function listParentPushPosts(
   return (data as unknown as Post[]) ?? [];
 }
 
-// Personal feed: most recent posts from all communities the user belongs to
-export async function listPersonalFeed(userId: string): Promise<Post[]> {
-  const supabase = await createClient();
-
-  // Get the user's active community IDs
-  const { data: memberships } = await supabase
-    .from("community_members")
-    .select("community_id")
-    .eq("user_id", userId)
-    .eq("status", "active");
-
-  const communityIds = (memberships ?? []).map((m: { community_id: string }) => m.community_id);
-  if (communityIds.length === 0) return [];
-
-  const { data } = await supabase
-    .from("posts")
-    .select(`
-      ${POST_SELECT},
-      community:communities!community_id(name, slug)
-    `)
-    .in("community_id", communityIds)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: false })
-    .limit(30);
-
-  return (data as unknown as Post[]) ?? [];
-}
-
 export async function getLatestParentPost(): Promise<Post | null> {
   const admin = createAdminClient();
 
@@ -145,18 +117,4 @@ export async function getLatestParentPost(): Promise<Post | null> {
     .limit(1);
 
   return (data?.[0] as unknown as Post) ?? null;
-}
-
-export async function getPost(postId: string): Promise<Post | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("posts")
-    .select(`
-      ${POST_SELECT},
-      community:communities!community_id(name, slug)
-    `)
-    .eq("id", postId)
-    .is("deleted_at", null)
-    .single();
-  return data as unknown as Post;
 }

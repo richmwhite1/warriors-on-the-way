@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 
-export type TaskClaim = {
+type TaskClaim = {
   id: string;
   user_id: string;
   user: { display_name: string };
@@ -33,7 +33,7 @@ export type EventExpense = {
   splits: ExpenseSplit[];
 };
 
-export type ExpenseSplit = {
+type ExpenseSplit = {
   id: string;
   expense_id: string;
   user_id: string;

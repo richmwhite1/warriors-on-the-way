@@ -83,28 +83,6 @@ export async function listTopicPosts(
   return (data as unknown as TopicPost[]) ?? [];
 }
 
-// Home feed input: recent posts from the topics a person follows.
-export async function listFollowedTopicPosts(userId: string, limit = 15): Promise<TopicPost[]> {
-  const supabase = await createClient();
-  const { data: follows } = await supabase
-    .from("topic_follows")
-    .select("topic_id")
-    .eq("user_id", userId);
-  const ids = (follows ?? []).map((f: { topic_id: string }) => f.topic_id);
-  if (ids.length === 0) return [];
-
-  const { data } = await supabase
-    .from("posts")
-    .select(TOPIC_POST_SELECT + ", topic:topics!topic_id(name, slug)")
-    .in("topic_id", ids)
-    .in("visibility", ["topic", "both"])
-    .is("deleted_at", null)
-    .is("hidden_at", null)
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  return (data as unknown as TopicPost[]) ?? [];
-}
-
 // Topics a community is tagged to (for the cross-post prompt).
 export async function getCommunityTopics(communityId: string): Promise<{ id: string; name: string }[]> {
   const supabase = await createClient();
@@ -183,17 +161,6 @@ export async function getFollowedTopicIds(userId: string): Promise<string[]> {
     .select("topic_id")
     .eq("user_id", userId);
   return (data ?? []).map((r: { topic_id: string }) => r.topic_id);
-}
-
-export async function isFollowingTopic(userId: string, topicId: string): Promise<boolean> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("topic_follows")
-    .select("topic_id")
-    .eq("user_id", userId)
-    .eq("topic_id", topicId)
-    .maybeSingle();
-  return !!data;
 }
 
 export type PostComment = {

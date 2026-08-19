@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 
-export type AskStatus = "open" | "claimed" | "fulfilled";
-export type AskKind = "ask" | "offer";
+type AskStatus = "open" | "claimed" | "fulfilled";
+type AskKind = "ask" | "offer";
 
 export type Ask = {
   id: string;
@@ -57,17 +57,6 @@ export type AskComment = {
   author: { id: string; display_name: string; avatar_url: string | null };
 };
 
-export async function listAskComments(askId: string): Promise<AskComment[]> {
-  const supabase = await createClient();
-  const { data } = await supabase
-    .from("ask_comments")
-    .select("id, ask_id, body, created_at, author:users!author_id(id, display_name, avatar_url)")
-    .eq("ask_id", askId)
-    .is("deleted_at", null)
-    .order("created_at", { ascending: true });
-  return (data as unknown as AskComment[]) ?? [];
-}
-
 export async function listAskCommentsForAsks(askIds: string[]): Promise<AskComment[]> {
   if (askIds.length === 0) return [];
   const supabase = await createClient();
@@ -101,28 +90,6 @@ export async function listOpenAsksForTopic(topicId: string, limit = 10): Promise
     .select(ASK_SELECT)
     .eq("topic_id", topicId)
     .eq("status", "open")
-    .order("created_at", { ascending: false })
-    .limit(limit);
-  return (data as unknown as Ask[]) ?? [];
-}
-
-// Open asks in the user's communities they could answer (for the Home feed).
-export async function listOpenAsksForUser(userId: string, limit = 10): Promise<Ask[]> {
-  const supabase = await createClient();
-  const { data: memberships } = await supabase
-    .from("community_members")
-    .select("community_id")
-    .eq("user_id", userId)
-    .eq("status", "active");
-  const ids = (memberships ?? []).map((m: { community_id: string }) => m.community_id);
-  if (ids.length === 0) return [];
-
-  const { data } = await supabase
-    .from("asks")
-    .select(ASK_SELECT)
-    .in("community_id", ids)
-    .eq("status", "open")
-    .neq("author_id", userId) // you answer others' asks, not your own
     .order("created_at", { ascending: false })
     .limit(limit);
   return (data as unknown as Ask[]) ?? [];

@@ -115,14 +115,3 @@ export async function addAskComment(askId: string, body: string, slug: string) {
   if (error) throw new Error(error.message);
   revalidatePath(`/community/${slug}/asks`);
 }
-
-export async function reportAsk(askId: string, communityId: string, reason: string) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-  const { error } = await supabase.from("reports").insert({
-    reporter_id: user.id, target_type: "ask", target_id: askId,
-    community_id: communityId, reason,
-  });
-  if (error) throw new Error(error.message);
-}

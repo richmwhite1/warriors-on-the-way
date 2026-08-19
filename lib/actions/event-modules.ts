@@ -61,24 +61,6 @@ export async function createEventTask(
   revalidatePath(`/community/${communitySlug}/events/${eventId}`);
 }
 
-export async function toggleEventTask(
-  taskId: string,
-  completed: boolean,
-  communitySlug: string,
-  eventId: string
-) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-
-  const { error } = await supabase
-    .from("event_tasks")
-    .update({ completed, completed_at: completed ? new Date().toISOString() : null })
-    .eq("id", taskId);
-  if (error) throw new Error(error.message);
-  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
-}
-
 export async function deleteEventTask(
   taskId: string,
   communitySlug: string,

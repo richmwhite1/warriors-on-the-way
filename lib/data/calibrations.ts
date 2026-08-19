@@ -2,7 +2,7 @@
 // To add more entries: append to the relevant group's `items` array,
 // or add a new group object following the same shape.
 
-export type CalibrationItem = {
+type CalibrationItem = {
   title: string;
   author?: string;
   level: number;

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import type { Resource } from "@/lib/types/resources";
 
-export type { ResourceCategory, Resource } from "@/lib/types/resources";
+export type { Resource } from "@/lib/types/resources";
 export { CATEGORY_LABELS, CATEGORY_ORDER } from "@/lib/types/resources";
 
 export async function listCommunityResources(communityId: string): Promise<Resource[]> {

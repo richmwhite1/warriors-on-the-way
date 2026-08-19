@@ -8,7 +8,7 @@ export type YouTubeOEmbed = {
   video_id: string;
 };
 
-export function extractYouTubeId(url: string): string | null {
+function extractYouTubeId(url: string): string | null {
   const patterns = [
     /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
   ];
@@ -36,12 +36,8 @@ export async function fetchYouTubeOEmbed(url: string): Promise<YouTubeOEmbed | n
   }
 }
 
-export function YouTubeThumbnailUrl(videoId: string) {
-  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-}
-
 // Seán's YouTube channel — the live source for "latest from Seán" surfaces
-export const SEAN_YOUTUBE_CHANNEL_ID = "UCSEABr_YYaS6MLSAXE6Tuzw";
+const SEAN_YOUTUBE_CHANNEL_ID = "UCSEABr_YYaS6MLSAXE6Tuzw";
 
 export type LatestVideo = { videoId: string; title: string; published: string | null };
 

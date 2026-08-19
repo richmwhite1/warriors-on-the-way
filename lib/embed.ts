@@ -1,7 +1,7 @@
 // Embed URL detection and normalization.
 // Add new platforms by adding a case here — nothing else changes.
 
-export type EmbedProvider =
+type EmbedProvider =
   | "youtube"
   | "spotify"
   | "vimeo"
