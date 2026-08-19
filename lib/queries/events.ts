@@ -362,3 +362,52 @@ export async function getEventWithDetails(eventId: string, userId?: string): Pro
     date_options,
   };
 }
+
+export type PublicEvent = {
+  id: string;
+  title: string;
+  starts_at: string | null;
+  location: string | null; // general location — public-safe (never the exact address)
+  image_url: string | null;
+  community_slug: string;
+  community_name: string;
+  going: number;
+};
+
+// Upcoming events across browsable (public + listed, or parent) communities — powers
+// event discovery. Uses the admin client so we control exactly which fields are
+// exposed: only the general location, never the RSVP-gated exact address.
+export async function listUpcomingPublicEvents(limit = 60): Promise<PublicEvent[]> {
+  const admin = createAdminClient();
+  const now = new Date().toISOString();
+
+  const { data } = await admin
+    .from("events")
+    .select(`
+      id, title, starts_at, location, image_url, status,
+      community:communities!community_id(slug, name, is_private, status, is_parent),
+      rsvps(status)
+    `)
+    .in("status", ["confirmed", "voting"])
+    .gt("starts_at", now)
+    .is("deleted_at", null)
+    .order("starts_at", { ascending: true })
+    .limit(limit);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data as any[]) ?? [])
+    .filter((e) => {
+      const c = e.community;
+      return c && c.is_private === false && (c.status === "listed" || c.is_parent === true);
+    })
+    .map((e) => ({
+      id: e.id,
+      title: e.title,
+      starts_at: e.starts_at,
+      location: e.location,
+      image_url: e.image_url,
+      community_slug: e.community.slug,
+      community_name: e.community.name,
+      going: (e.rsvps ?? []).filter((r: { status: string }) => r.status === "yes").length,
+    }));
+}

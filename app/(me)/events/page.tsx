@@ -2,13 +2,20 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { requireUserProfile } from "@/lib/queries/users";
-import { listUpcomingEventsForUser } from "@/lib/queries/events";
+import { listUpcomingEventsForUser, listUpcomingPublicEvents } from "@/lib/queries/events";
+import { EventDiscovery } from "@/components/events/event-discovery";
 
 export default async function EventsPage() {
   const user = await requireUserProfile().catch(() => null);
   if (!user) redirect("/sign-in");
 
-  const events = await listUpcomingEventsForUser(user.id);
+  const [events, publicEvents] = await Promise.all([
+    listUpcomingEventsForUser(user.id),
+    listUpcomingPublicEvents(),
+  ]);
+  // Don't repeat a user's own community events in the discovery list below.
+  const myEventIds = new Set(events.map((e) => e.id));
+  const discoverEvents = publicEvents.filter((e) => !myEventIds.has(e.id));
 
   return (
     <>
@@ -84,6 +91,25 @@ export default async function EventsPage() {
             );
           })}
         </div>
+      )}
+
+      {/* Discover — upcoming events from browsable communities across the movement */}
+      {discoverEvents.length > 0 && (
+        <section style={{ marginTop: "2.25rem" }}>
+          <h2
+            style={{
+              fontFamily: "var(--font-brand)",
+              fontWeight: 800,
+              fontSize: "1.15rem",
+              letterSpacing: "-0.01em",
+              color: "var(--foreground)",
+              margin: "0 0 0.85rem",
+            }}
+          >
+            Discover events
+          </h2>
+          <EventDiscovery events={discoverEvents} />
+        </section>
       )}
       </main>
     </>

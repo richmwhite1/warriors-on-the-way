@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { CommunityCard } from "@/components/community/community-card";
+import { CommunitiesMap, type MapCommunity } from "@/components/community/communities-map";
 import { toast } from "sonner";
 
 type Community = {
@@ -40,6 +41,7 @@ function haversineKm(a: UserCoords, b: { latitude: number; longitude: number }):
 export function DiscoverSearch({ communities }: { communities: Community[] }) {
   const [query, setQuery] = useState("");
   const [activeTopic, setActiveTopic] = useState<string | null>(null);
+  const [view, setView] = useState<"list" | "map">("list");
   const [userCoords, setUserCoords] = useState<UserCoords | null>(null);
   const [locating, setLocating] = useState(false);
 
@@ -111,6 +113,22 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
       })
     : withDistance;
 
+  const mapCommunities: MapCommunity[] = sorted
+    .filter((c) => c.latitude != null && c.longitude != null)
+    .map((c) => {
+      const mc =
+        typeof c.member_count === "number"
+          ? c.member_count
+          : (c.member_count as { count: number }[] | undefined)?.[0]?.count;
+      return {
+        name: c.name,
+        slug: c.slug,
+        latitude: c.latitude as number,
+        longitude: c.longitude as number,
+        memberCount: mc,
+      };
+    });
+
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
@@ -178,13 +196,34 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
         </div>
       )}
 
-      {userCoords && (
-        <p className="text-xs text-muted-foreground">
-          Sorted by distance · communities without a location appear last
-        </p>
-      )}
+      {/* List / Map view toggle */}
+      <div className="flex items-center justify-between gap-3">
+        {userCoords ? (
+          <p className="text-xs text-muted-foreground">
+            Sorted by distance · communities without a location appear last
+          </p>
+        ) : (
+          <span />
+        )}
+        <div className="flex shrink-0 rounded-full border p-0.5 text-sm">
+          {(["list", "map"] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={`rounded-full px-3 py-1 font-medium capitalize transition-colors ${
+                view === v ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {v}
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {sorted.length === 0 ? (
+      {view === "map" ? (
+        <CommunitiesMap communities={mapCommunities} />
+      ) : sorted.length === 0 ? (
         <div className="rounded-2xl border border-dashed p-8 text-center space-y-3">
           <p className="text-sm text-muted-foreground">
             {query.trim()
