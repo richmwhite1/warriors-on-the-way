@@ -74,7 +74,7 @@ export function EventCard({ event, communitySlug }: Props) {
           </p>
         )}
 
-        {counts && (counts.yes > 0 || counts.maybe > 0) && (
+        {counts && (counts.yes > 0 || counts.maybe > 0) ? (
           <div className="flex gap-3 text-xs pt-0.5">
             {counts.yes > 0 && (
               <span className="text-green-600 font-semibold">
@@ -87,6 +87,10 @@ export function EventCard({ event, communitySlug }: Props) {
               </span>
             )}
           </div>
+        ) : (
+          !isPast && event.status !== "cancelled" && (
+            <p className="text-xs text-muted-foreground pt-0.5">Be the first to RSVP</p>
+          )
         )}
       </div>
     </div>

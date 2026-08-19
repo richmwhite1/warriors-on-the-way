@@ -13,6 +13,18 @@ import { toast } from "sonner";
 
 type Props = { communityId: string; communitySlug: string };
 
+function SectionHeading({ step, title }: { step: number; title: string }) {
+  return (
+    <div className="flex items-center gap-2.5 pt-1">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+        {step}
+      </span>
+      <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{title}</h2>
+      <span className="h-px flex-1 bg-border" aria-hidden />
+    </div>
+  );
+}
+
 export function CreateEventForm({ communityId, communitySlug }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<"confirmed" | "voting">("confirmed");
@@ -42,7 +54,9 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* ── Basics ─────────────────────────────────────────────── */}
+      <SectionHeading step={1} title="Basics" />
       <div className="space-y-1.5">
         <Label htmlFor="title">Event title</Label>
         <Input id="title" name="title" required maxLength={120} placeholder="Morning hike at Muir Woods" />
@@ -66,6 +80,8 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
         />
       </div>
 
+      {/* ── Location ───────────────────────────────────────────── */}
+      <SectionHeading step={2} title="Location" />
       <div className="space-y-1.5">
         <Label htmlFor="general_location">General location</Label>
         <Input id="general_location" name="general_location" maxLength={120} placeholder="e.g. Sugar House, Salt Lake City" />
@@ -83,39 +99,26 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-1.5">
-          <Label htmlFor="registration_fee">Registration fee ($)</Label>
-          <Input
-            id="registration_fee"
-            name="registration_fee"
-            type="number"
-            min="0"
-            step="0.01"
-            placeholder="0.00 (free)"
-          />
-          <p className="text-xs text-muted-foreground">Leave blank for free events</p>
-        </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="timezone">Timezone</Label>
-          <select id="timezone" name="timezone" defaultValue={getDefaultTimezone()}
-            className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-            {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>)}
-          </select>
-        </div>
-      </div>
-
-      {/* Date mode toggle */}
-      <fieldset className="space-y-3">
-        <legend className="text-sm font-medium">Date</legend>
-        <div className="flex gap-3">
-          <label className="flex items-center gap-2 cursor-pointer text-sm">
-            <input type="radio" checked={mode === "confirmed"} onChange={() => setMode("confirmed")} />
-            Set a date
+      {/* ── When ───────────────────────────────────────────────── */}
+      <SectionHeading step={3} title="When" />
+      {/* Date mode toggle — surfaced as two selectable cards so date-voting
+          (a strong, easy-to-miss feature) reads as a first-class choice. */}
+      <fieldset className="space-y-2">
+        <legend className="sr-only">How the date is decided</legend>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <label className={`flex items-start gap-2 cursor-pointer rounded-xl border p-3 transition-colors ${mode === "confirmed" ? "border-primary bg-primary/5" : "hover:bg-muted/40"}`}>
+            <input type="radio" className="mt-0.5" checked={mode === "confirmed"} onChange={() => setMode("confirmed")} />
+            <span>
+              <span className="block text-sm font-medium">Set a date</span>
+              <span className="block text-xs text-muted-foreground">You already know when.</span>
+            </span>
           </label>
-          <label className="flex items-center gap-2 cursor-pointer text-sm">
-            <input type="radio" checked={mode === "voting"} onChange={() => setMode("voting")} />
-            Let members vote on date
+          <label className={`flex items-start gap-2 cursor-pointer rounded-xl border p-3 transition-colors ${mode === "voting" ? "border-primary bg-primary/5" : "hover:bg-muted/40"}`}>
+            <input type="radio" className="mt-0.5" checked={mode === "voting"} onChange={() => setMode("voting")} />
+            <span>
+              <span className="block text-sm font-medium">Let members vote</span>
+              <span className="block text-xs text-muted-foreground">Offer options; the group picks.</span>
+            </span>
           </label>
         </div>
       </fieldset>
@@ -164,9 +167,33 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
         </div>
       )}
 
+      <div className="space-y-1.5">
+        <Label htmlFor="timezone">Timezone</Label>
+        <select id="timezone" name="timezone" defaultValue={getDefaultTimezone()}
+          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>)}
+        </select>
+        <p className="text-xs text-muted-foreground">Defaulted to your device&apos;s timezone.</p>
+      </div>
+
+      {/* ── Options ────────────────────────────────────────────── */}
+      <SectionHeading step={4} title="Options" />
+      <div className="space-y-1.5">
+        <Label htmlFor="registration_fee">Registration fee ($)</Label>
+        <Input
+          id="registration_fee"
+          name="registration_fee"
+          type="number"
+          min="0"
+          step="0.01"
+          placeholder="0.00 (free)"
+        />
+        <p className="text-xs text-muted-foreground">Leave blank for free events</p>
+      </div>
+
       {/* Optional modules */}
       <fieldset className="space-y-3 rounded-xl border p-4">
-        <legend className="text-sm font-medium px-1">Optional modules</legend>
+        <legend className="text-sm font-medium px-1">Add-ons</legend>
         <label className="flex items-start gap-3 cursor-pointer">
           <input
             type="checkbox"
@@ -193,9 +220,12 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
         </label>
       </fieldset>
 
-      <Button type="submit" disabled={isPending} className="w-full">
-        {isPending ? "Creating…" : "Create event"}
-      </Button>
+      {/* Sticky primary action so it's always in thumb reach on a long mobile form */}
+      <div className="sticky bottom-0 -mx-4 px-4 py-3 bg-background/90 backdrop-blur border-t sm:static sm:mx-0 sm:px-0 sm:py-0 sm:bg-transparent sm:border-0 sm:backdrop-blur-none">
+        <Button type="submit" disabled={isPending} className="w-full min-h-11">
+          {isPending ? "Creating…" : "Create event"}
+        </Button>
+      </div>
     </form>
   );
 }
