@@ -98,11 +98,18 @@ export default async function CommunitiesPage() {
         <section className="space-y-4">
           <h2 className="text-lg font-heading font-semibold">Discover communities</h2>
           {discover.length === 0 ? (
-            <div className="rounded-2xl border border-dashed p-8 text-center space-y-1">
-              <p className="font-heading font-semibold">No communities to discover yet</p>
-              <p className="text-sm text-muted-foreground">
-                Be the first — create one above and others can find and join it.
-              </p>
+            <div className="rounded-2xl border border-dashed p-8 text-center space-y-4">
+              <div className="space-y-1">
+                <p className="font-heading font-semibold">No communities to discover yet</p>
+                <p className="text-sm text-muted-foreground">
+                  Be the first — start one for your town or topic and invite people to join.
+                </p>
+              </div>
+              {user && (
+                <Link href="/community/new" className={cn(buttonVariants(), "rounded-full")}>
+                  Start the first community
+                </Link>
+              )}
             </div>
           ) : (
             <DiscoverSearch communities={discover} />

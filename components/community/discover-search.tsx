@@ -17,6 +17,7 @@ type Community = {
   post_count: unknown;
   latitude: number | null;
   longitude: number | null;
+  topics?: { slug: string; name: string }[];
 };
 
 type UserCoords = { latitude: number; longitude: number };
@@ -38,8 +39,23 @@ function haversineKm(a: UserCoords, b: { latitude: number; longitude: number }):
 
 export function DiscoverSearch({ communities }: { communities: Community[] }) {
   const [query, setQuery] = useState("");
+  const [activeTopic, setActiveTopic] = useState<string | null>(null);
   const [userCoords, setUserCoords] = useState<UserCoords | null>(null);
   const [locating, setLocating] = useState(false);
+
+  // The Nine as filter chips — only topics that actually have a community here,
+  // so no chip leads to an empty result. Sorted by community count, then name.
+  const topicOptions = (() => {
+    const counts = new Map<string, { slug: string; name: string; n: number }>();
+    for (const c of communities) {
+      for (const t of c.topics ?? []) {
+        const cur = counts.get(t.slug) ?? { slug: t.slug, name: t.name, n: 0 };
+        cur.n += 1;
+        counts.set(t.slug, cur);
+      }
+    }
+    return [...counts.values()].sort((a, b) => b.n - a.n || a.name.localeCompare(b.name));
+  })();
 
   function handleNearMe() {
     if (!navigator.geolocation) {
@@ -65,13 +81,17 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
     );
   }
 
+  const topicFiltered = activeTopic
+    ? communities.filter((c) => (c.topics ?? []).some((t) => t.slug === activeTopic))
+    : communities;
+
   const textFiltered = query.trim()
-    ? communities.filter(
+    ? topicFiltered.filter(
         (c) =>
           c.name.toLowerCase().includes(query.toLowerCase()) ||
           c.description?.toLowerCase().includes(query.toLowerCase())
       )
-    : communities;
+    : topicFiltered;
 
   // Attach distances and sort if user location is known
   const withDistance = textFiltered.map((c) => ({
@@ -127,6 +147,37 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
         </button>
       </div>
 
+      {/* Browse by The Nine */}
+      {topicOptions.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1" style={{ scrollbarWidth: "none" }}>
+          <button
+            type="button"
+            onClick={() => setActiveTopic(null)}
+            className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+              activeTopic === null
+                ? "bg-primary text-primary-foreground border-primary"
+                : "bg-background text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            All
+          </button>
+          {topicOptions.map((t) => (
+            <button
+              key={t.slug}
+              type="button"
+              onClick={() => setActiveTopic((cur) => (cur === t.slug ? null : t.slug))}
+              className={`shrink-0 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors ${
+                activeTopic === t.slug
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-background text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t.name} <span className="opacity-60">{t.n}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
       {userCoords && (
         <p className="text-xs text-muted-foreground">
           Sorted by distance · communities without a location appear last
@@ -134,9 +185,19 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
       )}
 
       {sorted.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-4 text-center">
-          No communities match &ldquo;{query}&rdquo;
-        </p>
+        <div className="rounded-2xl border border-dashed p-8 text-center space-y-3">
+          <p className="text-sm text-muted-foreground">
+            {query.trim()
+              ? <>No communities match &ldquo;{query}&rdquo;{activeTopic ? " in this topic" : ""}.</>
+              : "No communities here yet."}
+          </p>
+          <a
+            href={activeTopic ? `/community/new?topic=${activeTopic}` : "/community/new"}
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 transition-opacity"
+          >
+            Start the first one
+          </a>
+        </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {sorted.map((c) => {
