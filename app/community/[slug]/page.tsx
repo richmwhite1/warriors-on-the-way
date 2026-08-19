@@ -11,7 +11,8 @@ import { EventCard } from "@/components/events/event-card";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { getCommunityBySlug, getCommunityBySlugPublic, getParentCommunity, listUserCommunities } from "@/lib/queries/communities";
+import { getCommunityBySlug, getCommunityBySlugPublic, getCommunityAdminSecrets, getParentCommunity, listUserCommunities } from "@/lib/queries/communities";
+import { CommunityShareButton, RecruitProgress } from "@/components/community/community-share";
 import { getCommunityTopics } from "@/lib/queries/topics";
 import { ConsciousnessSidebar } from "@/components/community/consciousness-sidebar";
 import { getActiveMemberCount, getMembership } from "@/lib/queries/members";
@@ -24,7 +25,7 @@ import { TelegramJoinBanner } from "@/components/telegram-join-banner";
 
 type Props = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ type?: string; invite?: string }>;
+  searchParams: Promise<{ type?: string; invite?: string; created?: string }>;
 };
 
 export async function generateMetadata({ params }: Props) {
@@ -76,7 +77,7 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function CommunityPage({ params, searchParams }: Props) {
   const { slug } = await params;
-  const { type: postTypeFilter, invite: inviteToken } = await searchParams;
+  const { type: postTypeFilter, invite: inviteToken, created: justCreated } = await searchParams;
 
   const user = await requireUserProfile().catch(() => null);
 
@@ -133,6 +134,18 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
   const isParentAdmin = isAdmin && community.is_parent;
   const canCreate = isAdmin || community.members_can_create_events;
+
+  // Growth loop: while a community is still forming (under the five-member go-live
+  // threshold) stewards get a celebrated "recruit your first four" panel. Admins
+  // also get the instant-join invite token so their shared links join in one tap;
+  // regular members share the plain link (public communities join directly).
+  const GO_LIVE_AT = 5;
+  const isForming = !community.is_parent && memberCount < GO_LIVE_AT;
+  const communityInviteToken = isAdmin
+    ? (await getCommunityAdminSecrets(community.id)).invite_token
+    : null;
+  const inviterName = user?.display_name ?? "";
+  const communityPath = `/community/${slug}`;
 
   const evNow = new Date();
   const upcomingEvs = (communityEvents as typeof communityEvents).filter((e) => e.status !== "cancelled" && (!e.starts_at || new Date(e.starts_at) >= evNow));
@@ -265,6 +278,19 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
       <main className="max-w-2xl mx-auto px-4 py-8 space-y-6 animate-page-enter">
         <div className="space-y-3">
+          {/* Recruit-your-first-four — celebrated growth nudge while forming */}
+          {isAdmin && isForming && (
+            <RecruitProgress
+              communityName={community.name}
+              communityUrl={communityPath}
+              inviterName={inviterName}
+              inviteToken={communityInviteToken}
+              memberCount={memberCount}
+              threshold={GO_LIVE_AT}
+              autoOpen={justCreated === "1"}
+            />
+          )}
+
           {/* Action buttons */}
           <div className="flex items-center gap-2 flex-wrap">
               {isMember && (
@@ -301,6 +327,14 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 <Link href={`/community/${slug}/settings`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Settings
                 </Link>
+              )}
+              {isMember && !community.is_parent && (
+                <CommunityShareButton
+                  communityName={community.name}
+                  communityUrl={communityPath}
+                  inviterName={inviterName}
+                  inviteToken={communityInviteToken}
+                />
               )}
               <JoinButton
                 communityId={community.id}

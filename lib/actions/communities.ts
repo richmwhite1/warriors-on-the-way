@@ -74,6 +74,9 @@ export async function createCommunity(formData: FormData) {
     .insert({
       slug, name, description, purpose, location, is_private, members_can_create_events,
       created_by: user.id,
+      // Mint an invite link up front so the steward can recruit their first four
+      // immediately — the token makes shared links one-tap-join, even when private.
+      invite_token: crypto.randomUUID(),
       ...(coords ?? {}),
     })
     .select("id, slug")
@@ -94,7 +97,7 @@ export async function createCommunity(formData: FormData) {
     .insert(topicIds.map((topic_id) => ({ community_id: community.id, topic_id })));
   if (topicError) throw new Error(topicError.message);
 
-  redirect(`/community/${community.slug}`);
+  redirect(`/community/${community.slug}?created=1`);
 }
 
 export async function updateCommunitySettings(communityId: string, formData: FormData) {
