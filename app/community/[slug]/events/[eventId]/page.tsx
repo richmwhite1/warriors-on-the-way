@@ -573,6 +573,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
               creatorVenmo={event.creator.venmo_handle}
               mapsUrl={memberMapsUrl}
               hasDate={!!event.starts_at}
+              eventTitle={event.title}
+              shareUrl={shareUrl}
+              hostName={user.display_name}
             />
           </div>
         )}

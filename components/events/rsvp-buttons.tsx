@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { upsertRsvp } from "@/lib/actions/rsvp";
+import { InviteModal } from "@/components/events/invite-modal";
 import { toast } from "sonner";
 
 type Props = {
@@ -15,9 +16,13 @@ type Props = {
   creatorVenmo?: string | null;
   mapsUrl?: string | null;
   hasDate?: boolean;
+  // Powers the "bring a friend" nudge once someone is going.
+  eventTitle?: string;
+  shareUrl?: string;
+  hostName?: string;
 };
 
-export function RsvpButtons({ eventId, communitySlug, current, registrationFee, creatorVenmo, mapsUrl, hasDate }: Props) {
+export function RsvpButtons({ eventId, communitySlug, current, registrationFee, creatorVenmo, mapsUrl, hasDate, eventTitle, shareUrl, hostName }: Props) {
   const [guests, setGuests] = useState(current?.guests ?? 0);
   const [showFeeGate, setShowFeeGate] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -83,7 +88,7 @@ export function RsvpButtons({ eventId, communitySlug, current, registrationFee, 
       )}
 
       {/* The moment after "yes" — capture the calendar + directions while intent is hot */}
-      {s === "yes" && (hasDate || mapsUrl) && (
+      {s === "yes" && (hasDate || mapsUrl || (eventTitle && shareUrl)) && (
         <div className="rounded-xl border bg-green-50 dark:bg-green-950/30 border-green-100 dark:border-green-900/40 p-3 flex items-center gap-2 flex-wrap">
           <p className="text-sm font-medium text-green-800 dark:text-green-300 mr-auto">
             You&apos;re going!
@@ -97,6 +102,18 @@ export function RsvpButtons({ eventId, communitySlug, current, registrationFee, 
             <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
               Directions
             </a>
+          )}
+          {eventTitle && shareUrl && (
+            <InviteModal
+              eventTitle={eventTitle}
+              eventUrl={shareUrl}
+              hostName={hostName ?? ""}
+              trigger={
+                <span className={cn(buttonVariants({ size: "sm" }), "cursor-pointer")}>
+                  Bring a friend
+                </span>
+              }
+            />
           )}
         </div>
       )}
