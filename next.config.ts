@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
     return [
       { source: "/communities", destination: "/community", permanent: true },
       { source: "/communities/:path*", destination: "/community/:path*", permanent: true },
+      // Legacy/short alias for the map — keep bookmarks and shared links alive.
+      { source: "/map", destination: "/consciousness-map", permanent: false },
     ];
   },
   async headers() {

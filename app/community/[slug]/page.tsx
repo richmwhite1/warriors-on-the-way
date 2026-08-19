@@ -11,7 +11,7 @@ import { EventCard } from "@/components/events/event-card";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { getCommunityBySlug, getParentCommunity, listUserCommunities } from "@/lib/queries/communities";
+import { getCommunityBySlug, getCommunityBySlugPublic, getParentCommunity, listUserCommunities } from "@/lib/queries/communities";
 import { getCommunityTopics } from "@/lib/queries/topics";
 import { ConsciousnessSidebar } from "@/components/community/consciousness-sidebar";
 import { getActiveMemberCount, getMembership } from "@/lib/queries/members";
@@ -29,8 +29,49 @@ type Props = {
 
 export async function generateMetadata({ params }: Props) {
   const { slug } = await params;
-  const community = await getCommunityBySlug(slug);
-  return { title: community?.name ?? "Community" };
+  // Use the public (admin) lookup so a link shared into a group chat previews
+  // richly even for logged-out recipients and private communities.
+  const community = await getCommunityBySlugPublic(slug);
+  if (!community) return { title: "Community" };
+
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const url = `${siteUrl}/community/${slug}`;
+  const memberCount = await getActiveMemberCount(community.id).catch(() => 0);
+
+  // Warm, plain-language description with light social proof.
+  const parts: string[] = [];
+  if (community.location) parts.push(community.location);
+  if (memberCount > 0) parts.push(`${memberCount} ${memberCount === 1 ? "member" : "members"}`);
+  const metaLine = parts.join(" · ");
+  const blurb = community.description?.trim() || community.mission?.trim() || "";
+  const description =
+    [metaLine, blurb].filter(Boolean).join(" — ").slice(0, 200) ||
+    `Join ${community.name} — a Warriors on the Way community.`;
+
+  return {
+    title: community.name,
+    description,
+    openGraph: {
+      title: `Join ${community.name}`,
+      description,
+      url,
+      type: "website" as const,
+      images: [
+        {
+          url: `${siteUrl}/community/${slug}/opengraph-image`,
+          width: 1200,
+          height: 630,
+          alt: community.name,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image" as const,
+      title: `Join ${community.name}`,
+      description,
+      images: [`${siteUrl}/community/${slug}/opengraph-image`],
+    },
+  };
 }
 
 export default async function CommunityPage({ params, searchParams }: Props) {
@@ -39,7 +80,11 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
   const user = await requireUserProfile().catch(() => null);
 
-  const community = await getCommunityBySlug(slug);
+  // Guests arriving via a shared invite link need the public (admin) lookup so the
+  // preview + join path render even for private communities — not a login wall.
+  const community = user
+    ? await getCommunityBySlug(slug)
+    : await getCommunityBySlugPublic(slug);
   if (!community) notFound();
 
   const [membership, memberCount, latestVideo] = await Promise.all([

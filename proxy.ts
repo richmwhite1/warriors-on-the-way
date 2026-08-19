@@ -36,10 +36,15 @@ export async function proxy(request: NextRequest) {
   const protectedPrefixes = ["/home", "/community", "/events", "/me", "/profile", "/topics"];
   const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
 
-  // Allow guests to view shared event links and their OG images
-  const isEventDetail = /^\/community\/[^/]+\/events\/[^/]+/.test(pathname);
+  // Allow guests to view shared invite links and their OG images, so a link dropped
+  // in a group chat previews and offers a join path — not a login wall. Covers event
+  // detail pages and the community detail root (+ its opengraph-image), but NOT the
+  // /community index or admin sub-routes (members/settings/moderation), which stay gated.
+  const isGuestViewable =
+    /^\/community\/[^/]+\/events\/[^/]+/.test(pathname) ||
+    /^\/community\/[^/]+(\/opengraph-image)?$/.test(pathname);
 
-  if (isProtected && !isEventDetail && !user) {
+  if (isProtected && !isGuestViewable && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
     return NextResponse.redirect(url);
