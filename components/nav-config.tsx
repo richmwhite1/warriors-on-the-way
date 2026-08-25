@@ -28,8 +28,9 @@ export const PRIMARY_NAV: NavItem[] = [
   {
     label: "Menu",
     href: "/menu",
-    // The six-need front door. Also the destination for the legacy /deck and /home paths.
-    match: (p) => p === "/menu" || p.startsWith("/needs") || p === "/deck" || p === "/home",
+    // The six-need front door. /deck and /home only ever redirect here, so they
+    // never render under this tab — no need to claim them.
+    match: (p) => p === "/menu" || p.startsWith("/needs"),
     icon: (active) =>
       svg(
         active ? (

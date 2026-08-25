@@ -4,6 +4,7 @@ import { requireUserProfile } from "@/lib/queries/users";
 import { getTopicBySlug } from "@/lib/queries/topics";
 import { listTopicResources } from "@/lib/queries/topic-resources";
 import { ResourceDirectory } from "@/components/resources/resource-directory";
+import { getNeeds } from "@/lib/queries/needs";
 
 // Phase Two / Rec 4 — the Resources directory landed. A filtered geographic directory
 // (proximity, category, vouches). Reachable now; the topic-page tab still points here.
@@ -20,11 +21,14 @@ export default async function TopicResourcesPage({
   const topic = await getTopicBySlug(slug);
   if (!topic) notFound();
 
-  const resources = await listTopicResources(topic.id, user.id, {
-    category: category || undefined,
-    lat: lat ? parseFloat(lat) : undefined,
-    lng: lng ? parseFloat(lng) : undefined,
-  });
+  const [resources, needs] = await Promise.all([
+    listTopicResources(topic.id, user.id, {
+      category: category || undefined,
+      lat: lat ? parseFloat(lat) : undefined,
+      lng: lng ? parseFloat(lng) : undefined,
+    }),
+    getNeeds(),
+  ]);
 
   return (
     <main style={{ background: "#fff", minHeight: "100vh" }}>
@@ -40,6 +44,7 @@ export default async function TopicResourcesPage({
           currentUserId={user.id}
           resources={resources}
           activeCategory={category ?? null}
+          needs={needs}
         />
       </div>
     </main>

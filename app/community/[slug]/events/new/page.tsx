@@ -4,6 +4,7 @@ import { CreateEventForm } from "@/components/events/create-event-form";
 import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
+import { getNeeds } from "@/lib/queries/needs";
 import Link from "next/link";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -24,6 +25,8 @@ export default async function NewEventPage({ params }: Props) {
   const isAdmin = membership.role === "admin" || membership.role === "organizer";
   if (!isAdmin && !community.members_can_create_events) redirect(`/community/${slug}/events`);
 
+  const needs = await getNeeds();
+
   return (
     <>
       <AppNav />
@@ -35,7 +38,7 @@ export default async function NewEventPage({ params }: Props) {
           <h1 className="text-2xl font-heading font-semibold mt-1">New event</h1>
           <p className="text-sm text-muted-foreground mt-1">{community.name}</p>
         </div>
-        <CreateEventForm communityId={community.id} communitySlug={slug} />
+        <CreateEventForm communityId={community.id} communitySlug={slug} needs={needs} />
       </main>
     </>
   );

@@ -1,8 +1,8 @@
 {
   "name": "Warriors on the Way",
   "short_name": "Warriors",
-  "description": "Build vibrant communities. Create events. Get your people together.",
-  "start_url": "/home",
+  "description": "Find your people offline. Free, peer-to-peer local community — gatherings, circles, and support near you.",
+  "start_url": "/menu",
   "display": "standalone",
   "background_color": "#f9f4ef",
   "theme_color": "#e07040",
@@ -25,8 +25,13 @@
   "screenshots": [],
   "shortcuts": [
     {
+      "name": "Menu",
+      "url": "/menu",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
       "name": "My communities",
-      "url": "/home",
+      "url": "/community",
       "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]

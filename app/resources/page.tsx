@@ -169,7 +169,7 @@ export default async function ResourcesPage() {
             Warriors on the Way brings people together in local communities of practice.
           </p>
           <Link
-            href="/deck"
+            href="/menu"
             className="inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground text-sm font-medium px-5 py-2 hover:opacity-90 transition-opacity"
           >
             Find a community

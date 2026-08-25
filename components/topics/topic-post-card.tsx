@@ -19,7 +19,7 @@ export function timeAgo(iso: string): string {
 
 // The canonical renderer for a topic-scoped post: like via toggleTopicReaction,
 // threaded comments via createTopicComment, link previews via EmbedRender.
-// Shared by the topic detail feed (TopicView) and the objective Deck.
+// Shared by the topic detail feed (TopicView).
 export function TopicPostCard({
   post, topicSlug, currentUserId, comments,
 }: {

@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { PlacesAutocomplete } from "@/components/ui/places-autocomplete";
 import { updateEvent } from "@/lib/actions/events";
+import { NeedsPicker } from "@/components/needs/needs-picker";
+import type { Need } from "@/lib/queries/needs";
 import { TIMEZONES } from "@/lib/timezones";
 import { toast } from "sonner";
 
@@ -25,11 +27,12 @@ type Props = {
     ends_at: string;
     image_url: string | null;
     timezone: string;
-    registration_fee: number | null;
   };
+  needs: Need[];
+  selectedNeedIds: string[];
 };
 
-export function EditEventForm({ eventId, communitySlug, initialValues }: Props) {
+export function EditEventForm({ eventId, communitySlug, initialValues, needs, selectedNeedIds }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [imageUrl, setImageUrl] = useState<string | null>(initialValues.image_url);
@@ -111,6 +114,8 @@ export function EditEventForm({ eventId, communitySlug, initialValues }: Props) 
           />
         </div>
       </div>
+
+      <NeedsPicker needs={needs} defaultSelected={selectedNeedIds} />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">

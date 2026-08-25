@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { MapPin, BadgeCheck } from "lucide-react";
 import { createTopicResource, toggleVouch } from "@/lib/actions/topic-resources";
 import type { TopicResource } from "@/lib/queries/topic-resources";
+import { NeedsPicker } from "@/components/needs/needs-picker";
+import type { Need } from "@/lib/queries/needs";
 
 const CATEGORIES = ["practitioner", "farm", "school", "business", "organization", "place", "service", "other"] as const;
 
@@ -13,11 +15,13 @@ export function ResourceDirectory({
   currentUserId,
   resources,
   activeCategory,
+  needs,
 }: {
   topic: { id: string; slug: string; name: string };
   currentUserId: string;
   resources: TopicResource[];
   activeCategory: string | null;
+  needs: Need[];
 }) {
   const router = useRouter();
   const [composing, setComposing] = useState(false);
@@ -39,7 +43,7 @@ export function ResourceDirectory({
         </button>
       </div>
 
-      {composing && <AddForm topic={topic} onDone={() => setComposing(false)} />}
+      {composing && <AddForm topic={topic} onDone={() => setComposing(false)} needs={needs} />}
 
       {/* Category filter chips */}
       <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 12 }} className="no-scrollbar">
@@ -72,7 +76,7 @@ function Chip({ label, active, onClick }: { label: string; active: boolean; onCl
   );
 }
 
-function AddForm({ topic, onDone }: { topic: { id: string; slug: string }; onDone: () => void }) {
+function AddForm({ topic, onDone, needs }: { topic: { id: string; slug: string }; onDone: () => void; needs: Need[] }) {
   const router = useRouter();
   const [pending, start] = useTransition();
   function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -92,6 +96,11 @@ function AddForm({ topic, onDone }: { topic: { id: string; slug: string }; onDon
       </select>
       <input name="address" placeholder="Location (city or address)" style={inp()} />
       <input name="url" type="url" placeholder="Website (optional)" style={inp()} />
+      {/* Tagging doorways is what puts a practitioner in front of someone who needs
+          them — without it the entry only ever surfaces under its mission. */}
+      <div style={{ margin: "10px 0 14px" }}>
+        <NeedsPicker needs={needs} />
+      </div>
       <button type="submit" disabled={pending}
         style={{ width: "100%", padding: "10px 0", borderRadius: 999, border: 0, background: "var(--primary)", color: "#fff", fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: pending ? 0.6 : 1 }}>
         {pending ? "Adding…" : "Add to directory"}

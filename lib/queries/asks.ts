@@ -82,7 +82,7 @@ export async function getFulfilledAsksForUser(userId: string): Promise<Ask[]> {
   return (data as unknown as Ask[]) ?? [];
 }
 
-// Open asks tagged to an objective, for that objective's Deck feed.
+// Open asks tagged to an objective.
 export async function listOpenAsksForTopic(topicId: string, limit = 10): Promise<Ask[]> {
   const supabase = await createClient();
   const { data } = await supabase

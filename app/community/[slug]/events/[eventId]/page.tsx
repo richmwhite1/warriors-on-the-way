@@ -530,7 +530,6 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
                 attendees={attendees}
                 guestAttendees={guestAttendees}
                 isAdmin={isAdmin}
-                registrationFee={event.registration_fee}
                 eventId={eventId}
                 communitySlug={slug}
               />
@@ -760,7 +759,6 @@ function EventMeta({
     timezone: string;
     location: string | null;
     virtual_url: string | null;
-    registration_fee?: number | null;
   };
   mapsUrl?: string | null;
 }) {

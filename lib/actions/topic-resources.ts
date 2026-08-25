@@ -36,12 +36,27 @@ export async function createTopicResource(formData: FormData) {
 
   const coords = address ? await geocode(address) : null;
 
-  const { error } = await supabase.from("topic_resources").insert({
-    topic_id, created_by: user.id, title, description, category, url, address,
-    latitude: coords?.lat ?? null, longitude: coords?.lng ?? null,
-  });
+  const { data: resource, error } = await supabase
+    .from("topic_resources")
+    .insert({
+      topic_id, created_by: user.id, title, description, category, url, address,
+      latitude: coords?.lat ?? null, longitude: coords?.lng ?? null,
+    })
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
+
+  // Doorway tags — what surfaces this entry under "People & practitioners" for
+  // someone browsing by felt need rather than by mission.
+  const need_ids = (formData.getAll("need_ids") as string[]).filter(Boolean);
+  if (need_ids.length > 0) {
+    await supabase
+      .from("resource_needs")
+      .insert(need_ids.map((need_id) => ({ resource_id: resource.id, need_id })));
+  }
+
   revalidatePath(`/topics/${topic_slug}/resources`);
+  revalidatePath("/needs", "layout");
 }
 
 // A vouch is a lightweight trust signal used for directory sorting.

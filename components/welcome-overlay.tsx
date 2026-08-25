@@ -10,12 +10,17 @@ const STEPS: Step[] = [
   {
     eyebrow: "Welcome",
     title: "Warriors on the Way",
-    body: "A place to find your people — offline. Small local communities (capped at 150) and real, in-person gatherings, organized around nine things worth building a life around.",
+    body: "A place to find your people — offline. Small local communities and real, in-person gatherings. Everything here is free and peer-to-peer. Nobody ever charges to gather.",
   },
   {
-    eyebrow: "The Nine & your Deck",
-    title: "Follow what calls you",
-    body: "The Nine are the domains we focus on. Follow the ones that matter to you and your Deck fills with what's happening in them — discussions, gatherings, and communities to join.",
+    eyebrow: "Start with the Menu",
+    title: "Come as you are",
+    body: "Six doorways, by what you're actually looking for — curious, needing support, wanting community, ready to serve. Pick the one that's true today and see what's near you.",
+  },
+  {
+    eyebrow: "The Nine",
+    title: "The why underneath",
+    body: "Every gathering carries a mission badge — the reclamation it belongs to. Tap one any time to read what it stands for. The Nine are the meaning; the Menu is the door.",
   },
   {
     eyebrow: "Find your people",

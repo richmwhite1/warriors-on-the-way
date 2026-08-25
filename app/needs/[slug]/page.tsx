@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { requireUserProfile } from "@/lib/queries/users";
+import { notFound } from "next/navigation";
 import {
   getNeedBySlug,
   listOfferingsForNeed,
@@ -10,6 +9,7 @@ import {
 import { AppNav } from "@/components/app-nav";
 import { NeedIcon } from "@/components/needs/need-icon";
 import { MissionBadge } from "@/components/needs/mission-badge";
+import { OfferingCard } from "@/components/needs/offering-card";
 
 function eventDate(iso: string | null): string {
   if (!iso) return "Date TBD";
@@ -52,9 +52,6 @@ const cardMeta = {
 
 export default async function NeedPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const user = await requireUserProfile().catch(() => null);
-  if (!user) redirect("/sign-in");
-
   const need = await getNeedBySlug(slug);
   if (!need) notFound();
 
@@ -97,6 +94,13 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
               Nothing here yet. As people add offerings and gatherings for this doorway, they’ll appear here.
             </p>
           )}
+          {empty && (
+            <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--muted-foreground)", lineHeight: 1.6, marginTop: "0.75rem" }}>
+              <Link href="/community" style={{ color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}>
+                Find a community near you →
+              </Link>
+            </p>
+          )}
 
           {/* ── Ongoing offerings ────────────────────────────────────────────── */}
           {offerings.length > 0 && (
@@ -104,18 +108,7 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
               <h2 style={sectionTitle}>Ongoing offerings</h2>
               <div style={{ display: "grid", gap: 10 }}>
                 {offerings.map((o) => (
-                  <Link key={o.id} href={`/community/${o.community_slug}`} className="press-scale" style={card}>
-                    <MissionBadge mission={o.mission} />
-                    <p style={cardTitle}>{o.title}</p>
-                    <p style={cardMeta}>
-                      {[o.cadence_text, o.facilitator_name && `with ${o.facilitator_name}`, o.location]
-                        .filter(Boolean)
-                        .join(" · ") || o.community_name}
-                    </p>
-                    {o.cost_note && (
-                      <p style={{ ...cardMeta, marginTop: 4, color: "var(--primary)" }}>{o.cost_note}</p>
-                    )}
-                  </Link>
+                  <OfferingCard key={o.id} offering={o} showCommunity />
                 ))}
               </div>
             </>

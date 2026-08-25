@@ -8,10 +8,12 @@ import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { PlacesAutocomplete } from "@/components/ui/places-autocomplete";
 import { createEvent } from "@/lib/actions/events";
+import { NeedsPicker } from "@/components/needs/needs-picker";
+import type { Need } from "@/lib/queries/needs";
 import { TIMEZONES, getDefaultTimezone } from "@/lib/timezones";
 import { toast } from "sonner";
 
-type Props = { communityId: string; communitySlug: string };
+type Props = { communityId: string; communitySlug: string; needs: Need[] };
 
 function SectionHeading({ step, title }: { step: number; title: string }) {
   return (
@@ -25,7 +27,7 @@ function SectionHeading({ step, title }: { step: number; title: string }) {
   );
 }
 
-export function CreateEventForm({ communityId, communitySlug }: Props) {
+export function CreateEventForm({ communityId, communitySlug, needs }: Props) {
   const router = useRouter();
   const [mode, setMode] = useState<"confirmed" | "voting">("confirmed");
   const [dateOptions, setDateOptions] = useState([{ starts_at: "", ends_at: "" }]);
@@ -176,8 +178,12 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
         <p className="text-xs text-muted-foreground">Defaulted to your device&apos;s timezone.</p>
       </div>
 
+      {/* ── Who it's for ───────────────────────────────────────── */}
+      <SectionHeading step={4} title="Who it's for" />
+      <NeedsPicker needs={needs} />
+
       {/* ── Options ────────────────────────────────────────────── */}
-      <SectionHeading step={4} title="Options" />
+      <SectionHeading step={5} title="Options" />
 
       {/* Optional modules */}
       <fieldset className="space-y-3 rounded-xl border p-4">

@@ -29,7 +29,6 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
   const timezone = (formData.get("timezone") as string) || "UTC";
   const mode = formData.get("mode") as string; // "confirmed" | "voting"
   const vote_threshold = parseInt(formData.get("vote_threshold") as string) || 75;
-  const registration_fee = parseFloat(formData.get("registration_fee") as string) || 0;
   const tasks_enabled = formData.get("tasks_enabled") === "true";
   const expenses_enabled = formData.get("expenses_enabled") === "true";
 
@@ -54,7 +53,6 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
       community_id, created_by: user.id, title, description,
       location: general_location, general_location, exact_address, location_url, virtual_url,
       image_url, timezone, starts_at, ends_at, status, vote_threshold,
-      registration_fee: registration_fee > 0 ? registration_fee : null,
       tasks_enabled,
       expenses_enabled,
     })
@@ -62,6 +60,17 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
     .single();
 
   if (error) throw new Error(error.message);
+
+  // ── Doorway tags (Shannon's six needs) ───────────────────────────────────
+  // Without these the event exists only inside its community; these are what put
+  // it on /needs/<slug>, which is how someone arriving by felt need ever finds it.
+  const need_ids = (formData.getAll("need_ids") as string[]).filter(Boolean);
+  if (need_ids.length > 0) {
+    await supabase
+      .from("event_needs")
+      .insert(need_ids.map((need_id) => ({ event_id: event.id, need_id })));
+    revalidatePath("/needs", "layout");
+  }
 
   // Add voting date options if provided
   if (mode === "voting") {
@@ -189,17 +198,26 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const starts_at = dateStr ? new Date(dateStr).toISOString() : null;
   const ends_at = endsStr ? new Date(endsStr).toISOString() : null;
   const timezone = (formData.get("timezone") as string)?.trim() || "America/Los_Angeles";
-  const feeStr = formData.get("registration_fee") as string;
-  const registration_fee = feeStr && feeStr.trim() !== "" ? parseFloat(feeStr) : null;
+  const need_ids = (formData.getAll("need_ids") as string[]).filter(Boolean);
 
   const { data: event, error } = await supabase
     .from("events")
-    .update({ title, description, location: general_location, general_location, exact_address, location_url, virtual_url, image_url, starts_at, ends_at, timezone, registration_fee })
+    .update({ title, description, location: general_location, general_location, exact_address, location_url, virtual_url, image_url, starts_at, ends_at, timezone })
     .eq("id", eventId)
     .select("community_id")
     .single();
 
   if (error) throw new Error(error.message);
+
+  // Re-sync doorway tags: the form always posts the full set, so replace rather
+  // than merge — unchecking a doorway has to actually remove it.
+  await supabase.from("event_needs").delete().eq("event_id", eventId);
+  if (need_ids.length > 0) {
+    await supabase
+      .from("event_needs")
+      .insert(need_ids.map((need_id) => ({ event_id: eventId, need_id })));
+  }
+  revalidatePath("/needs", "layout");
 
   const { data: community } = await supabase
     .from("communities").select("slug").eq("id", event.community_id).single();

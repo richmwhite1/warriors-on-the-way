@@ -31,7 +31,7 @@ export function RsvpButtons({ eventId, communitySlug, current, mapsUrl, hasDate,
   function submitRsvp(status: "yes" | "no" | "maybe") {
     startTransition(async () => {
       try {
-        await upsertRsvp(eventId, status, status === "yes" ? guests : 0, communitySlug, true);
+        await upsertRsvp(eventId, status, status === "yes" ? guests : 0, communitySlug);
         toast.success(
           status === "yes" ? "You're going!" :
           status === "maybe" ? "Marked as maybe" : "Marked as not going"

@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { EditEventForm } from "@/components/events/edit-event-form";
+import { getNeeds, getNeedIdsForEvent } from "@/lib/queries/needs";
 import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
@@ -32,6 +33,7 @@ export default async function EditEventPage({ params }: Props) {
 
   // Creator/steward is entitled to the exact address via the RPC (column is revoked).
   const exactAddress = await getEventExactAddress(eventId);
+  const [needs, selectedNeedIds] = await Promise.all([getNeeds(), getNeedIdsForEvent(eventId)]);
 
   return (
     <>
@@ -61,8 +63,9 @@ export default async function EditEventPage({ params }: Props) {
             ends_at: event.ends_at ? toDatetimeLocal(event.ends_at) : "",
             image_url: (event as unknown as { image_url?: string | null }).image_url ?? null,
             timezone: event.timezone,
-            registration_fee: event.registration_fee,
           }}
+          needs={needs}
+          selectedNeedIds={selectedNeedIds}
         />
       </main>
     </>

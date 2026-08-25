@@ -184,7 +184,7 @@ export default function InstallPage() {
         </section>
 
         <div className="text-center pb-8">
-          <Link href="/deck" className="text-sm text-primary hover:underline">
+          <Link href="/menu" className="text-sm text-primary hover:underline">
             ← Back to home
           </Link>
         </div>

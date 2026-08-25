@@ -61,7 +61,7 @@ export async function createTopicPost(formData: FormData) {
 
   revalidatePath(`/topics/${topic_slug}`);
   revalidatePath("/home");
-  revalidatePath("/deck");
+  revalidatePath("/menu");
 }
 
 // Authors can remove their own topic posts. Soft-delete via deleted_at, written
@@ -88,7 +88,7 @@ export async function deleteTopicPost(postId: string, topicSlug: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath(`/topics/${topicSlug}`);
-  revalidatePath("/deck");
+  revalidatePath("/menu");
   revalidatePath("/home");
 }
 

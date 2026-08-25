@@ -1,21 +1,18 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { requireUserProfile } from "@/lib/queries/users";
 import { getNeeds } from "@/lib/queries/needs";
 import { AppNav } from "@/components/app-nav";
 import { NeedIcon } from "@/components/needs/need-icon";
+import { WelcomeOverlay } from "@/components/welcome-overlay";
 
 // The chapter front door — Shannon's warm "menu for local spiritual needs".
 // People arrive by felt need (how they show up), not by mission (the why).
 export default async function MenuPage() {
-  const user = await requireUserProfile().catch(() => null);
-  if (!user) redirect("/sign-in");
-
   const needs = await getNeeds();
 
   return (
     <>
       <AppNav />
+      <WelcomeOverlay />
 
       <main className="animate-page-enter" style={{ maxWidth: 560, margin: "0 auto", paddingBottom: "5rem" }}>
         {/* ── Mission frame: Seán's why, wrapping everything ─────────────────── */}

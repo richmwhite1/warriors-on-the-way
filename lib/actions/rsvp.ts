@@ -10,17 +10,15 @@ export async function upsertRsvp(
   eventId: string,
   status: "yes" | "no" | "maybe",
   guests: number,
-  communitySlug: string,
-  paymentSent?: boolean   // true when the user explicitly clicked through the fee gate
+  communitySlug: string
 ) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
-  const row: Record<string, unknown> = { event_id: eventId, user_id: user.id, status, guests };
-  if (paymentSent) row.payment_status = "sent";
-
-  const { error } = await supabase.from("rsvps").upsert(row, { onConflict: "event_id,user_id" });
+  const { error } = await supabase
+    .from("rsvps")
+    .upsert({ event_id: eventId, user_id: user.id, status, guests }, { onConflict: "event_id,user_id" });
 
   if (error) throw new Error(error.message);
 
@@ -237,45 +235,6 @@ export async function submitGuestRsvp(
       // best-effort — never fail the RSVP over a confirmation text
     }
   }
-}
-
-export async function setRsvpPaymentStatus(
-  eventId: string,
-  targetUserId: string,
-  paymentStatus: "unpaid" | "sent" | "confirmed" | "waived",
-  communitySlug: string
-) {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) throw new Error("Not authenticated");
-
-  const admin = createAdminClient();
-  const { data: event } = await admin
-    .from("events")
-    .select("community_id")
-    .eq("id", eventId)
-    .single();
-  if (!event) throw new Error("Event not found");
-
-  const { data: membership } = await admin
-    .from("community_members")
-    .select("role")
-    .eq("community_id", event.community_id)
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .single();
-
-  if (!membership || !["admin", "organizer"].includes(membership.role)) {
-    throw new Error("Not authorized");
-  }
-
-  const { error } = await admin
-    .from("rsvps")
-    .update({ payment_status: paymentStatus })
-    .eq("event_id", eventId)
-    .eq("user_id", targetUserId);
-  if (error) throw new Error(error.message);
-  revalidatePath(`/community/${communitySlug}/events/${eventId}`);
 }
 
 export async function toggleCheckIn(

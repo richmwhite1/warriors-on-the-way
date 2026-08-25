@@ -14,7 +14,6 @@ export type EventAttendee = {
   user_id: string;
   status: "yes" | "no" | "maybe";
   guests: number;
-  payment_status: "unpaid" | "sent" | "confirmed" | "waived";
   checked_in_at: string | null;
   user: { id: string; display_name: string; avatar_url: string | null };
 };
@@ -45,7 +44,6 @@ export type EventRow = {
   vote_threshold: number;
   tasks_enabled: boolean;
   expenses_enabled: boolean;
-  registration_fee: number | null;
   created_at: string;
   creator: { id: string; display_name: string; avatar_url: string | null; venmo_handle: string | null };
   rsvp_counts?: { yes: number; no: number; maybe: number };
@@ -57,7 +55,7 @@ export async function listEventAttendees(eventId: string): Promise<EventAttendee
   const admin = createAdminClient();
   const { data } = await admin
     .from("rsvps")
-    .select(`status, guests, user_id, payment_status, checked_in_at, user:users!user_id(id, display_name, avatar_url)`)
+    .select(`status, guests, user_id, checked_in_at, user:users!user_id(id, display_name, avatar_url)`)
     .eq("event_id", eventId)
     .in("status", ["yes", "maybe"])
     .order("status"); // yes before maybe
@@ -96,7 +94,7 @@ export async function getNextParentEvent(): Promise<(EventRow & { community_slug
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("community_id", parent.id)
@@ -117,7 +115,7 @@ export async function listCommunityEvents(communityId: string): Promise<EventRow
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle),
       rsvps(status)
     `)
@@ -158,7 +156,7 @@ export async function listUpcomingEventsForUser(
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle),
       community:communities!community_id(slug, name),
       rsvps(status)
@@ -188,7 +186,7 @@ export async function listUpcomingEventsForUser(
   });
 }
 
-// Upcoming events across the communities tagged to an objective, for its Deck feed.
+// Upcoming events across the communities tagged to an objective.
 export async function listUpcomingEventsForTopic(
   topicId: string,
   limit = 4
@@ -207,7 +205,7 @@ export async function listUpcomingEventsForTopic(
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle),
       community:communities!community_id(slug, name),
       rsvps(status)
@@ -248,7 +246,7 @@ export async function getEventForGuest(eventId: string): Promise<EventRow | null
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("id", eventId)
@@ -291,7 +289,7 @@ export async function getEventWithDetails(eventId: string, userId?: string): Pro
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, registration_fee, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("id", eventId)

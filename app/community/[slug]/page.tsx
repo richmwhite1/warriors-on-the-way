@@ -8,6 +8,8 @@ import { PostComposer } from "@/components/feed/post-composer";
 import { PostCard } from "@/components/feed/post-card";
 import { FeedFilterBar } from "@/components/feed/feed-filter-bar";
 import { EventCard } from "@/components/events/event-card";
+import { OfferingCard } from "@/components/needs/offering-card";
+import { listOfferingsForCommunity } from "@/lib/queries/needs";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
@@ -119,6 +121,9 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
   // Topics this community is tagged to — powers the author cross-post prompt.
   const communityTopics = isMember ? await getCommunityTopics(community.id) : [];
+
+  // Standing/recurring programs — the community's rhythm, distinct from one-off events.
+  const offerings = isMember ? await listOfferingsForCommunity(community.id) : [];
 
   // Pinned post always shows above the filter bar, regardless of active filter
   const pinnedPost = communityPosts.find((p) => p.is_pinned) ?? null;
@@ -313,11 +318,6 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   + New event
                 </Link>
               )}
-              {isMember && (
-                <Link href={`/community/${slug}/offerings/new`} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}>
-                  + New offering
-                </Link>
-              )}
               {isAdmin && (
                 <Link href={`/community/${slug}/related`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Related
@@ -433,6 +433,26 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
         {isMember ? (
           <div className="space-y-4">
+            {/* ── Ongoing offerings ───────────────────────────────────────────── */}
+            {(offerings.length > 0 || isMember) && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Ongoing</p>
+                  <Link href={`/community/${slug}/offerings/new`} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}>
+                    + New offering
+                  </Link>
+                </div>
+                {offerings.length > 0 ? (
+                  offerings.map((o) => <OfferingCard key={o.id} offering={o} />)
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    Nothing standing yet — a weekly circle, a monthly potluck, a class that keeps going.
+                  </p>
+                )}
+                <Separator />
+              </div>
+            )}
+
             {/* ── Upcoming Events ─────────────────────────────────────────────── */}
             {(upcomingEvs.length > 0 || canCreate) && (
               <div className="space-y-3">

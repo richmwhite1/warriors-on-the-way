@@ -56,6 +56,27 @@ export async function AppNav() {
           {/* Primary + secondary destinations — see components/nav-config.tsx */}
           <TopNavLinks />
 
+          {/* The menu and doorways are public, so a guest can get this far without an
+              account. Give them the way in rather than a dead end. */}
+          {!user && (
+            <Link
+              href="/sign-in"
+              style={{
+                fontFamily: "var(--font-brand)",
+                fontSize: 14,
+                fontWeight: 700,
+                color: "#ffffff",
+                background: "var(--primary)",
+                borderRadius: 9999,
+                padding: "7px 16px",
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Sign in
+            </Link>
+          )}
+
           {user && (
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <NotificationBell initialCount={unreadCount} userId={user.id} />
