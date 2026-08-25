@@ -178,18 +178,6 @@ export function CreateEventForm({ communityId, communitySlug }: Props) {
 
       {/* ── Options ────────────────────────────────────────────── */}
       <SectionHeading step={4} title="Options" />
-      <div className="space-y-1.5">
-        <Label htmlFor="registration_fee">Registration fee ($)</Label>
-        <Input
-          id="registration_fee"
-          name="registration_fee"
-          type="number"
-          min="0"
-          step="0.01"
-          placeholder="0.00 (free)"
-        />
-        <p className="text-xs text-muted-foreground">Leave blank for free events</p>
-      </div>
 
       {/* Optional modules */}
       <fieldset className="space-y-3 rounded-xl border p-4">

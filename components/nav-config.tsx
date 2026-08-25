@@ -26,30 +26,17 @@ const svg = (path: ReactNode, active: boolean) => (
 // on desktop, so the top bar renders it via the avatar rather than as a text link.
 export const PRIMARY_NAV: NavItem[] = [
   {
-    label: "Deck",
-    href: "/deck",
-    match: (p) => p === "/deck" || p === "/home",
+    label: "Menu",
+    href: "/menu",
+    // The six-need front door. Also the destination for the legacy /deck and /home paths.
+    match: (p) => p === "/menu" || p.startsWith("/needs") || p === "/deck" || p === "/home",
     icon: (active) =>
       svg(
         active ? (
-          <path d="M3.75 5.25A2.25 2.25 0 016 3h12a2.25 2.25 0 012.25 2.25v9A2.25 2.25 0 0118 16.5H6a2.25 2.25 0 01-2.25-2.25v-9zM6.75 19.5a.75.75 0 000 1.5h10.5a.75.75 0 000-1.5H6.75z" />
+          <path d="M3.75 5.25A2.25 2.25 0 016 3h12a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0118 21H6a2.25 2.25 0 01-2.25-2.25V5.25zM7.5 7.5a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9zm0 3.75a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9zm0 3.75a.75.75 0 000 1.5h6a.75.75 0 000-1.5h-6z" />
         ) : (
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h12A2.25 2.25 0 0120.25 6v8.25A2.25 2.25 0 0118 16.5H6a2.25 2.25 0 01-2.25-2.25V6zM7.5 20.25h9" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25A1.5 1.5 0 015.25 3.75h13.5a1.5 1.5 0 011.5 1.5v13.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V5.25zM7.5 8.25h9M7.5 12h9M7.5 15.75h6" />
         ),
-        active,
-      ),
-  },
-  {
-    label: "Topics",
-    href: "/topics",
-    match: (p) => p.startsWith("/topics"),
-    icon: (active) =>
-      svg(
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25a2.25 2.25 0 01-2.25-2.25v-2.25z"
-        />,
         active,
       ),
   },
@@ -100,6 +87,9 @@ export const PRIMARY_NAV: NavItem[] = [
 // Secondary destinations — the reflective/guide surfaces. Text links in the top
 // bar on every viewport (they don't compete for a thumb-reach tab slot).
 export const SECONDARY_NAV: Pick<NavItem, "label" | "href" | "match">[] = [
+  // The Nine — Seán's missions, the "why" beneath the menu. Demoted from the primary
+  // spine so people navigate by need; the mission still rides each card as a badge.
+  { label: "The Nine", href: "/topics", match: (p) => p.startsWith("/topics") },
   { label: "Seán", href: "/sean", match: (p) => p.startsWith("/sean") },
   { label: "Map", href: "/consciousness-map", match: (p) => p.startsWith("/consciousness-map") },
 ];

@@ -4,9 +4,9 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const rawNext = searchParams.get("next") ?? "/deck";
+  const rawNext = searchParams.get("next") ?? "/menu";
   // Prevent open redirect — only allow relative paths
-  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/deck";
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/menu";
 
   if (code) {
     const supabase = await createClient();
@@ -22,7 +22,7 @@ export async function GET(request: Request) {
           .single();
 
         if (profile && /^(User \d{4}|New User)$/.test(profile.display_name)) {
-          const welcomeNext = next !== "/deck" ? `&next=${encodeURIComponent(next)}` : "";
+          const welcomeNext = next !== "/menu" ? `&next=${encodeURIComponent(next)}` : "";
           return NextResponse.redirect(`${origin}/profile?welcome=true${welcomeNext}`);
         }
       }

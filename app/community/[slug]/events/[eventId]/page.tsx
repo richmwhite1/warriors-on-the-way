@@ -340,19 +340,6 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
                   )}
                 </div>
               </div>
-
-              {/* Registration fee */}
-              {event.registration_fee != null && event.registration_fee > 0 && (
-                <div className="mt-3 pt-3 border-t border-border/40 flex items-center gap-2.5">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="12" y1="1" x2="12" y2="23" />
-                      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                    </svg>
-                  </div>
-                  <p className="text-sm font-medium">${event.registration_fee.toFixed(2)} registration fee</p>
-                </div>
-              )}
             </div>
 
             {/* Description */}
@@ -569,8 +556,6 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
               eventId={event.id}
               communitySlug={slug}
               current={event.user_rsvp ?? null}
-              registrationFee={event.registration_fee}
-              creatorVenmo={event.creator.venmo_handle}
               mapsUrl={memberMapsUrl}
               hasDate={!!event.starts_at}
               eventTitle={event.title}
@@ -830,11 +815,6 @@ function EventMeta({
         >
           <span>🔗</span> Join virtually
         </a>
-      )}
-      {event.registration_fee != null && event.registration_fee > 0 && (
-        <p className="text-sm font-medium flex items-center gap-1.5">
-          <span>💵</span> ${event.registration_fee.toFixed(2)} registration fee
-        </p>
       )}
     </div>
   );

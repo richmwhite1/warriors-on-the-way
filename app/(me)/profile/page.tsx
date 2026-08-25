@@ -92,7 +92,7 @@ export default async function ProfilePage({
 
         <OrnamentalDivider />
 
-        <ProfileForm user={user} redirectAfterSave={isWelcome ? (nextUrl || "/deck") : undefined} smsEnabled={smsEnabled()} />
+        <ProfileForm user={user} redirectAfterSave={isWelcome ? (nextUrl || "/menu") : undefined} smsEnabled={smsEnabled()} />
 
         <OrnamentalDivider />
 

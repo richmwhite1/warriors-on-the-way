@@ -313,6 +313,11 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                   + New event
                 </Link>
               )}
+              {isMember && (
+                <Link href={`/community/${slug}/offerings/new`} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "rounded-full")}>
+                  + New offering
+                </Link>
+              )}
               {isAdmin && (
                 <Link href={`/community/${slug}/related`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
                   Related
