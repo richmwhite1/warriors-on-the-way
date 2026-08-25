@@ -32,8 +32,11 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Protect authenticated routes
-  const protectedPrefixes = ["/home", "/community", "/events", "/me", "/profile", "/topics"];
+  // Protect authenticated routes. These are prefix matches, so keep them distinct
+  // from public paths: "/me" used to be here and silently swallowed "/menu" — the
+  // six-need front door and the PWA's start_url — behind the sign-in wall. There is
+  // no /me route ((me) is a route group, not a URL segment), so it is gone.
+  const protectedPrefixes = ["/home", "/community", "/events", "/profile", "/topics"];
   const isProtected = protectedPrefixes.some((p) => pathname.startsWith(p));
 
   // Allow guests to view shared invite links and their OG images, so a link dropped
@@ -50,10 +53,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Redirect signed-in users away from sign-in
+  // Redirect signed-in users away from sign-in, straight to the Menu — /home is
+  // itself only a redirect to /menu now, so routing via it just costs a hop.
   if (pathname === "/sign-in" && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/home";
+    url.pathname = "/menu";
     return NextResponse.redirect(url);
   }
 
