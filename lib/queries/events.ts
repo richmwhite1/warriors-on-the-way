@@ -163,9 +163,11 @@ export async function listUpcomingEventsForUser(
     `)
     .in("community_id", communityIds)
     .in("status", ["confirmed", "voting"])
-    .gt("starts_at", now)
+    // A voting event has no starts_at yet (its dates live in event_date_options), so a
+    // plain .gt() drops every one of them — silently defeating the "voting" above.
+    .or(`starts_at.is.null,starts_at.gt.${now}`)
     .is("deleted_at", null)
-    .order("starts_at", { ascending: true })
+    .order("starts_at", { ascending: true, nullsFirst: false })
     .limit(4);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -212,9 +214,11 @@ export async function listUpcomingEventsForTopic(
     `)
     .in("community_id", communityIds)
     .in("status", ["confirmed", "voting"])
-    .gt("starts_at", now)
+    // A voting event has no starts_at yet (its dates live in event_date_options), so a
+    // plain .gt() drops every one of them — silently defeating the "voting" above.
+    .or(`starts_at.is.null,starts_at.gt.${now}`)
     .is("deleted_at", null)
-    .order("starts_at", { ascending: true })
+    .order("starts_at", { ascending: true, nullsFirst: false })
     .limit(limit);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -387,9 +391,11 @@ export async function listUpcomingPublicEvents(limit = 60): Promise<PublicEvent[
       rsvps(status)
     `)
     .in("status", ["confirmed", "voting"])
-    .gt("starts_at", now)
+    // A voting event has no starts_at yet (its dates live in event_date_options), so a
+    // plain .gt() drops every one of them — silently defeating the "voting" above.
+    .or(`starts_at.is.null,starts_at.gt.${now}`)
     .is("deleted_at", null)
-    .order("starts_at", { ascending: true })
+    .order("starts_at", { ascending: true, nullsFirst: false })
     .limit(limit);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
