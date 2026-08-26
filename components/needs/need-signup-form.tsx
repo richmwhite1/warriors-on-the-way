@@ -16,12 +16,10 @@ import { signUpForNeed, type SignupState } from "@/lib/actions/needs";
 export function NeedSignupForm({
   needId,
   needSlug,
-  needName,
   signedIn,
 }: {
   needId: string;
   needSlug: string;
-  needName: string;
   signedIn: boolean;
 }) {
   const [state, action, pending] = useActionState<SignupState, FormData>(signUpForNeed, null);
@@ -67,7 +65,7 @@ export function NeedSignupForm({
         disabled={pending}
         className="press-scale w-full min-h-11 rounded-full border border-border bg-card px-5 py-2.5 font-heading text-sm font-bold text-foreground transition-colors hover:bg-muted disabled:opacity-60"
       >
-        {pending ? "Saving…" : `Tell me when ${needName.toLowerCase()} opens near me`}
+        {pending ? "Saving…" : "Tell me when something opens here"}
       </button>
 
       {state && !state.ok && (

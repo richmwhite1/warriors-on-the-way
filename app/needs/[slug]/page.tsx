@@ -101,8 +101,8 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
                 Nobody&rsquo;s opened this door yet
               </p>
               <p className="mt-2 font-sans text-[14.5px] leading-relaxed text-muted-foreground">
-                There&rsquo;s no circle for {need.name.toLowerCase()} near you yet. If you&rsquo;re
-                looking for one, chances are somebody nearby is too — starting it is how it begins.
+                There&rsquo;s nothing here yet. If you&rsquo;re looking for it, chances are
+                somebody nearby is too — starting it is how it begins.
               </p>
               <div className="mt-[1.15rem] flex flex-wrap gap-2.5">
                 <Link
@@ -128,12 +128,7 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
                   doorway, that&rsquo;s how a circle gets founded — and you&rsquo;ll be the
                   first to hear.
                 </p>
-                <NeedSignupForm
-                  needId={need.id}
-                  needSlug={need.slug}
-                  needName={need.name}
-                  signedIn={Boolean(user)}
-                />
+                <NeedSignupForm needId={need.id} needSlug={need.slug} signedIn={Boolean(user)} />
               </div>
             </div>
           </div>
