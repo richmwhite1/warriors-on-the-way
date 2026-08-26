@@ -49,7 +49,14 @@ export async function proxy(request: NextRequest) {
 
   if (isProtected && !isGuestViewable && !user) {
     const url = request.nextUrl.clone();
+    // Carry where they were headed through the sign-in, so intent survives the
+    // detour — someone who tapped "Start a circle" for a doorway comes back to it
+    // rather than landing on the menu having lost what they came for. Cloning
+    // nextUrl would otherwise strip the path and leave the original query behind.
+    const intended = pathname + request.nextUrl.search;
     url.pathname = "/sign-in";
+    url.search = "";
+    url.searchParams.set("next", intended);
     return NextResponse.redirect(url);
   }
 

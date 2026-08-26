@@ -12,12 +12,20 @@ export default async function NewCommunityPage({
 }: {
   searchParams: Promise<{ topic?: string; need?: string }>;
 }) {
-  const user = await requireUserProfile().catch(() => null);
-  if (!user) redirect("/sign-in");
-
   // ?need=<slug> arrives from an empty doorway — carry that doorway through so the
   // circle is born already answering the need its founder came looking for.
   const { topic: preselectSlug, need: preselectNeedSlug } = await searchParams;
+  // Guard after reading the params so a signed-out founder keeps the doorway they
+  // came from across the sign-in.
+  const user = await requireUserProfile().catch(() => null);
+  if (!user) {
+    redirect(
+      `/sign-in?next=${encodeURIComponent(
+        preselectNeedSlug ? `/community/new?need=${preselectNeedSlug}` : "/community/new"
+      )}`
+    );
+  }
+
   const [topics, needs] = await Promise.all([getTopics(), getNeeds()]);
   const preselectTopicId = topics.find((t) => t.slug === preselectSlug)?.id;
   const preselectNeed = needs.find((n) => n.slug === preselectNeedSlug);
