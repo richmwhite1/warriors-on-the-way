@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { requireUserProfile } from "@/lib/queries/users";
 import { listUpcomingEventsForUser, listUpcomingPublicEvents } from "@/lib/queries/events";
+import { listUserCommunities } from "@/lib/queries/communities";
 import { EventDiscovery } from "@/components/events/event-discovery";
 
 export default async function EventsPage() {
@@ -16,6 +17,15 @@ export default async function EventsPage() {
   // Don't repeat a user's own community events in the discovery list below.
   const myEventIds = new Set(events.map((e) => e.id));
   const discoverEvents = publicEvents.filter((e) => !myEventIds.has(e.id));
+
+  // Drives the empty state's call to action — see below. Prefer a community the user
+  // stewards, since creating there is always permitted; a plain member can be blocked
+  // by members_can_create_events.
+  const memberships = await listUserCommunities(user.id);
+  const hasCommunity = memberships.length > 0;
+  const createHere =
+    memberships.find((m) => m.role === "admin" || m.role === "organizer") ?? memberships[0];
+  const firstCommunitySlug = createHere?.community.slug ?? "";
 
   return (
     <>
@@ -35,13 +45,36 @@ export default async function EventsPage() {
       </h1>
 
       {events.length === 0 ? (
+        /* An empty calendar is the common first-run state, so it has to offer a way
+           forward — otherwise a primary tab is a dead end on day one. What's missing
+           differs: with no community there is nobody to gather with yet; with one, the
+           next step is to call the gathering. */
         <div style={{ border: "2px dashed var(--border)", borderRadius: "1rem", padding: "2.5rem 1.5rem", textAlign: "center" }}>
           <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "0.25rem" }}>
             Nothing on the calendar yet
           </p>
-          <p style={{ fontFamily: "var(--font-body)", color: "var(--muted-foreground)", fontSize: 14 }}>
-            Events from your communities will show up here.
+          <p style={{ fontFamily: "var(--font-body)", color: "var(--muted-foreground)", fontSize: 14, marginBottom: "1.25rem" }}>
+            {hasCommunity
+              ? "Events from your communities will show up here. Be the one who calls the first gathering."
+              : "Join a community and its gatherings will show up here."}
           </p>
+          <Link
+            href={hasCommunity ? `/community/${firstCommunitySlug}/events/new` : "/community"}
+            className="press-scale"
+            style={{
+              display: "inline-block",
+              fontFamily: "var(--font-brand)",
+              fontSize: 14,
+              fontWeight: 700,
+              color: "#ffffff",
+              background: "var(--primary)",
+              borderRadius: 9999,
+              padding: "9px 20px",
+              textDecoration: "none",
+            }}
+          >
+            {hasCommunity ? "Create an event" : "Find a community"}
+          </Link>
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
