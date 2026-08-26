@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { createCommunity } from "@/lib/actions/communities";
+import { NeedsPicker } from "@/components/needs/needs-picker";
+import type { Need } from "@/lib/queries/needs";
 import { toast } from "sonner";
 
 type TopicOpt = { id: string; name: string; slug: string };
@@ -12,9 +14,13 @@ type TopicOpt = { id: string; name: string; slug: string };
 export function CreateCommunityForm({
   topics = [],
   preselectTopicId,
+  needs = [],
+  preselectNeedIds = [],
 }: {
   topics?: TopicOpt[];
   preselectTopicId?: string;
+  needs?: Need[];
+  preselectNeedIds?: string[];
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -54,6 +60,18 @@ export function CreateCommunityForm({
           placeholder="What this community is for, in a sentence."
         />
       </div>
+
+      {/* Doorways first: this is how people actually find a circle. The missions below
+          are the meaning underneath, which matters less at the moment of searching. */}
+      {needs.length > 0 && (
+        <NeedsPicker
+          needs={needs}
+          defaultSelected={preselectNeedIds}
+          legend="Who is this circle for?"
+          hint="Pick the doorways this circle answers \u2014 it\u2019s how someone searching by what they need will find you."
+          emptyHint="Untagged, this circle won\u2019t appear on the menu \u2014 people can still reach it by invite link."
+        />
+      )}
 
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">Topics this community serves <span className="text-muted-foreground font-normal text-xs">(pick at least one)</span></legend>

@@ -13,6 +13,8 @@ import {
   setupTelegramWebhook,
   checkTelegramConnected,
 } from "@/lib/actions/communities";
+import { NeedsPicker } from "@/components/needs/needs-picker";
+import type { Need } from "@/lib/queries/needs";
 import { toast } from "sonner";
 import type { Community } from "@/lib/queries/communities";
 
@@ -24,7 +26,15 @@ const BOT_USERNAME = process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ?? "WoWAssist
 const POLL_INTERVAL_MS = 3000;
 const POLL_MAX_COUNT = 40; // 40 × 3s = 2 min
 
-export function CommunitySettingsForm({ community }: { community: Community }) {
+export function CommunitySettingsForm({
+  community,
+  needs = [],
+  selectedNeedIds = [],
+}: {
+  community: Community;
+  needs?: Need[];
+  selectedNeedIds?: string[];
+}) {
   const [bannerUrl, setBannerUrl] = useState<string | null>(community.banner_url);
   const [isPending, startTransition] = useTransition();
   // "idle" | "enabling" (registering webhook) | "waiting" (polling for connection)
@@ -403,6 +413,18 @@ export function CommunitySettingsForm({ community }: { community: Community }) {
             className="w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
           />
         </div>
+
+        {/* Which doorways this circle answers — how it surfaces on the menu. Stewards
+            can re-tag freely; the initial tags were mapped from the community's missions. */}
+        {needs.length > 0 && (
+          <NeedsPicker
+            needs={needs}
+            defaultSelected={selectedNeedIds}
+            legend="Who is this circle for?"
+            hint="Pick the doorways this circle answers \u2014 it\u2019s how someone searching by what they need will find you."
+            emptyHint="Untagged, this circle won\u2019t appear on the menu \u2014 people can still reach it by invite link."
+          />
+        )}
 
         <div className="space-y-1.5">
           <Label htmlFor="mission">Mission statement</Label>

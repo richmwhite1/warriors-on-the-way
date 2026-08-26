@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { CommunitySettingsForm } from "@/components/community/community-settings-form";
+import { getNeeds, getNeedIdsForCommunity } from "@/lib/queries/needs";
 import { InviteLink } from "@/components/community/invite-link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
@@ -35,6 +36,10 @@ export default async function CommunitySettingsPage({ params }: Props) {
   // invite_token / telegram_chat_id are API-hidden columns; safe to fetch here
   // because the admin check above already passed
   const secrets = await getCommunityAdminSecrets(community.id);
+  const [needs, selectedNeedIds] = await Promise.all([
+    getNeeds(),
+    getNeedIdsForCommunity(community.id),
+  ]);
   const resources = await listCommunityResources(community.id);
 
   return (
@@ -74,7 +79,11 @@ export default async function CommunitySettingsPage({ params }: Props) {
           siteUrl={process.env.NEXT_PUBLIC_SITE_URL ?? ""}
         />
 
-        <CommunitySettingsForm community={{ ...community, telegram_chat_id: secrets.telegram_chat_id }} />
+        <CommunitySettingsForm
+          community={{ ...community, telegram_chat_id: secrets.telegram_chat_id }}
+          needs={needs}
+          selectedNeedIds={selectedNeedIds}
+        />
 
         {community.is_parent && (
           <div id="resources" className="pt-4">

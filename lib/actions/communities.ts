@@ -97,6 +97,17 @@ export async function createCommunity(formData: FormData) {
     .insert(topicIds.map((topic_id) => ({ community_id: community.id, topic_id })));
   if (topicError) throw new Error(topicError.message);
 
+  // Doorway tags — how the circle surfaces on the menu. Optional: a private circle for
+  // an existing group of friends has no reason to advertise itself on the front door.
+  const needIds = (formData.getAll("need_ids") as string[]).filter(Boolean);
+  if (needIds.length > 0) {
+    const { error: needError } = await supabase
+      .from("community_needs")
+      .insert(needIds.map((need_id) => ({ community_id: community.id, need_id })));
+    if (needError) throw new Error(needError.message);
+    revalidatePath("/needs", "layout");
+  }
+
   redirect(`/community/${community.slug}?created=1`);
 }
 
@@ -147,6 +158,19 @@ export async function updateCommunitySettings(communityId: string, formData: For
     .single();
 
   if (error) throw new Error(error.message);
+
+  // Re-sync doorway tags: the form posts the full set, so replace rather than merge —
+  // unticking a doorway has to actually remove the circle from that page.
+  const needIds = (formData.getAll("need_ids") as string[]).filter(Boolean);
+  await supabase.from("community_needs").delete().eq("community_id", communityId);
+  if (needIds.length > 0) {
+    const { error: needError } = await supabase
+      .from("community_needs")
+      .insert(needIds.map((need_id) => ({ community_id: communityId, need_id })));
+    if (needError) throw new Error(needError.message);
+  }
+  revalidatePath("/needs", "layout");
+
   revalidatePath(`/community/${community.slug}`);
   revalidatePath(`/community/${community.slug}/settings`);
 }

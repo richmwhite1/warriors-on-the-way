@@ -13,9 +13,16 @@ import type { Need } from "@/lib/queries/needs";
 export function NeedsPicker({
   needs,
   defaultSelected = [],
+  legend = "Who is this for?",
+  hint = "Pick every doorway this answers — it\u2019s how people searching for what you offer will find it.",
+  emptyHint = "Untagged, this stays inside your community and won\u2019t show up on the menu.",
 }: {
   needs: Need[];
   defaultSelected?: string[];
+  /** Overridable so the same control reads naturally on a gathering, an offering, or a circle. */
+  legend?: string;
+  hint?: string;
+  emptyHint?: string;
 }) {
   const [selected, setSelected] = useState<Set<string>>(new Set(defaultSelected));
 
@@ -30,10 +37,8 @@ export function NeedsPicker({
 
   return (
     <fieldset className="space-y-2.5">
-      <legend className="text-sm font-medium">Who is this for?</legend>
-      <p className="text-xs text-muted-foreground">
-        Pick every doorway this answers — it&rsquo;s how people searching for what you offer will find it.
-      </p>
+      <legend className="text-sm font-medium">{legend}</legend>
+      <p className="text-xs text-muted-foreground">{hint}</p>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
         {needs.map((n) => {
@@ -74,9 +79,7 @@ export function NeedsPicker({
       </div>
 
       {selected.size === 0 && (
-        <p className="text-xs text-muted-foreground/80 pt-0.5">
-          Untagged, this stays inside your community and won&rsquo;t show up on the menu.
-        </p>
+        <p className="text-xs text-muted-foreground/80 pt-0.5">{emptyHint}</p>
       )}
     </fieldset>
   );

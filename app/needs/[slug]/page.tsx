@@ -5,6 +5,7 @@ import {
   listOfferingsForNeed,
   listEventsForNeed,
   listPractitionersForNeed,
+  listCommunitiesForNeed,
 } from "@/lib/queries/needs";
 import { AppNav } from "@/components/app-nav";
 import { NeedIcon } from "@/components/needs/need-icon";
@@ -55,13 +56,15 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
   const need = await getNeedBySlug(slug);
   if (!need) notFound();
 
-  const [offerings, events, practitioners] = await Promise.all([
+  const [circles, offerings, events, practitioners] = await Promise.all([
+    listCommunitiesForNeed(need.id),
     listOfferingsForNeed(need.id),
     listEventsForNeed(need.id),
     listPractitionersForNeed(need.id),
   ]);
 
-  const empty = offerings.length === 0 && events.length === 0 && practitioners.length === 0;
+  const empty =
+    circles.length === 0 && offerings.length === 0 && events.length === 0 && practitioners.length === 0;
 
   return (
     <>
@@ -89,17 +92,94 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
         </header>
 
         <div style={{ padding: "0 1rem" }}>
+          {/* An empty doorway is the highest-intent moment in the app — someone has just
+              said exactly what they need. Spending it on "nothing here yet" wastes it, so
+              the ask is to start the thing they were looking for. */}
           {empty && (
-            <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--muted-foreground)", lineHeight: 1.6, marginTop: "2rem" }}>
-              Nothing here yet. As people add offerings and gatherings for this doorway, they’ll appear here.
-            </p>
+            <div
+              style={{
+                marginTop: "1.75rem",
+                background: "var(--card)",
+                border: "1px solid var(--border)",
+                borderRadius: 20,
+                padding: "1.5rem 1.35rem",
+              }}
+            >
+              <p style={{ fontFamily: "var(--font-brand)", fontWeight: 800, fontSize: "1.15rem", lineHeight: 1.25, color: "var(--foreground)", margin: 0 }}>
+                Nobody&rsquo;s opened this door yet
+              </p>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: 14.5, color: "var(--muted-foreground)", lineHeight: 1.6, margin: "8px 0 0" }}>
+                There&rsquo;s no circle for {need.name.toLowerCase()} near you yet. If you&rsquo;re
+                looking for one, chances are somebody nearby is too — starting it is how it begins.
+              </p>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: "1.15rem" }}>
+                <Link
+                  href={`/community/new?need=${need.slug}`}
+                  className="press-scale"
+                  style={{
+                    fontFamily: "var(--font-brand)", fontSize: 14, fontWeight: 700,
+                    color: "#ffffff", background: "var(--primary)", borderRadius: 9999,
+                    padding: "10px 20px", textDecoration: "none",
+                  }}
+                >
+                  Start a circle
+                </Link>
+                <Link
+                  href="/community"
+                  className="press-scale"
+                  style={{
+                    fontFamily: "var(--font-brand)", fontSize: 14, fontWeight: 700,
+                    color: "var(--foreground)", background: "transparent",
+                    border: "1px solid var(--border)", borderRadius: 9999,
+                    padding: "10px 20px", textDecoration: "none",
+                  }}
+                >
+                  Browse all communities
+                </Link>
+              </div>
+            </div>
           )}
-          {empty && (
-            <p style={{ fontFamily: "var(--font-body)", fontSize: 14, color: "var(--muted-foreground)", lineHeight: 1.6, marginTop: "0.75rem" }}>
-              <Link href="/community" style={{ color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}>
-                Find a community near you →
-              </Link>
-            </p>
+
+          {/* ── Circles to join ──────────────────────────────────────────────── */}
+          {circles.length > 0 && (
+            <>
+              <h2 style={sectionTitle}>Circles to join</h2>
+              <div style={{ display: "grid", gap: 10 }}>
+                {circles.map((c) => (
+                  <Link key={c.id} href={`/community/${c.slug}`} className="press-scale" style={card}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                      <p style={{ ...cardTitle, margin: 0 }}>{c.name}</p>
+                      {c.is_forming && (
+                        <span
+                          style={{
+                            fontFamily: "var(--font-brand)", fontSize: 10.5, fontWeight: 700,
+                            letterSpacing: "0.06em", textTransform: "uppercase",
+                            color: "var(--primary)",
+                            background: "color-mix(in srgb, var(--primary) 10%, transparent)",
+                            borderRadius: 9999, padding: "3px 8px",
+                          }}
+                        >
+                          Just forming
+                        </span>
+                      )}
+                    </div>
+                    {(c.purpose ?? c.description) && (
+                      <p style={{ ...cardMeta, marginTop: 5 }}>{c.purpose ?? c.description}</p>
+                    )}
+                    <p style={{ ...cardMeta, marginTop: 4 }}>
+                      {[
+                        c.location,
+                        c.is_forming
+                          ? `${c.member_count} so far — be one of the first`
+                          : `${c.member_count} member${c.member_count === 1 ? "" : "s"}`,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </>
           )}
 
           {/* ── Ongoing offerings ────────────────────────────────────────────── */}

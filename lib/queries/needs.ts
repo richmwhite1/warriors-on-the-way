@@ -252,3 +252,67 @@ export async function getOfferingById(offeringId: string): Promise<Offering | nu
     needs: ((o.offering_needs as any[]) ?? []).map((r) => r.need).filter(Boolean),
   };
 }
+
+// ── Communities by doorway ─────────────────────────────────────────────────
+
+export type NeedCommunity = {
+  id: string;
+  slug: string;
+  name: string;
+  purpose: string | null;
+  description: string | null;
+  location: string | null;
+  member_count: number;
+  is_forming: boolean;
+};
+
+// The circles answering a felt need — the missing middle of the menu. Offerings and
+// gatherings tell you what's happening; this is the thing you actually join, and a
+// member hears about everything afterwards while a browser hears about nothing.
+//
+// Forming communities (under the 5-member visibility gate) are included here, unlike
+// general browse. On a doorway a forming circle is often the *only* honest answer, and
+// someone who just said "I need support" is better served by a three-person circle
+// finding its feet than by an empty page. They're flagged so the UI can say so plainly.
+// Private communities stay out entirely — those are invite-only by definition.
+export async function listCommunitiesForNeed(needId: string): Promise<NeedCommunity[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("community_needs")
+    .select(`
+      community:communities!community_id(
+        id, slug, name, purpose, description, location,
+        public_member_count, status, is_private, is_parent
+      )
+    `)
+    .eq("need_id", needId);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((data as any[]) ?? [])
+    .map((r) => r.community)
+    .filter((c) => c && c.is_private === false && c.status !== "dormant")
+    .map((c) => ({
+      id: c.id,
+      slug: c.slug,
+      name: c.name,
+      purpose: c.purpose,
+      description: c.description,
+      location: c.location,
+      member_count: c.public_member_count ?? 0,
+      is_forming: c.status === "forming" && !c.is_parent,
+    }))
+    // Established circles first, then the ones still gathering their first few.
+    .sort((a, b) =>
+      Number(a.is_forming) - Number(b.is_forming) || b.member_count - a.member_count
+    );
+}
+
+// The doorway ids already tagged on a community — powers the settings picker.
+export async function getNeedIdsForCommunity(communityId: string): Promise<string[]> {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("community_needs")
+    .select("need_id")
+    .eq("community_id", communityId);
+  return ((data as { need_id: string }[]) ?? []).map((r) => r.need_id);
+}
