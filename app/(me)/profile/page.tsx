@@ -4,8 +4,10 @@ import { ProfileForm } from "@/components/profile/profile-form";
 import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { PushSubscriptionToggle } from "@/components/profile/push-subscription-toggle";
 import { LinkAccounts } from "@/components/profile/link-accounts";
+import { MyNeedsForm } from "@/components/profile/my-needs-form";
 import { requireUserProfile, getAuthUser } from "@/lib/queries/users";
 import { getFulfilledAsksForUser } from "@/lib/queries/asks";
+import { getNeeds, getMyNeedIds } from "@/lib/queries/needs";
 import { FulfilledAsks } from "@/components/asks/fulfilled-asks";
 import { signOut } from "@/lib/actions/auth";
 import { smsEnabled } from "@/lib/phone";
@@ -25,6 +27,7 @@ export default async function ProfilePage({
   const authUser = await getAuthUser();
   const identities = (authUser?.identities ?? []).map((i) => ({ provider: i.provider }));
   const fulfilledAsks = await getFulfilledAsksForUser(user.id);
+  const [needs, myNeedIds] = await Promise.all([getNeeds(), getMyNeedIds()]);
   const params = await searchParams;
   const isWelcome = params.welcome === "true";
   const nextUrl = params.next;
@@ -93,6 +96,10 @@ export default async function ProfilePage({
         <OrnamentalDivider />
 
         <ProfileForm user={user} redirectAfterSave={isWelcome ? (nextUrl || "/menu") : undefined} smsEnabled={smsEnabled()} />
+
+        <OrnamentalDivider />
+
+        <MyNeedsForm needs={needs} selected={myNeedIds} />
 
         <OrnamentalDivider />
 

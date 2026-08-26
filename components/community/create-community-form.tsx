@@ -134,6 +134,18 @@ export function CreateCommunityForm({
         <p className="text-xs text-muted-foreground">Helps people find your community nearby</p>
       </div>
 
+      {/* Free-text location can't answer "can I actually get there" — an online circle
+          read exactly like one meeting across the valley. This is what the doorway
+          filters narrow on. */}
+      <div className="space-y-1.5">
+        <Label htmlFor="format">How does it meet?</Label>
+        <select id="format" name="format" defaultValue="in_person" className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+          <option value="in_person">In person</option>
+          <option value="online">Online</option>
+          <option value="hybrid">Both — in person and online</option>
+        </select>
+      </div>
+
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium">Settings</legend>
         <label className="flex items-center gap-3 cursor-pointer">

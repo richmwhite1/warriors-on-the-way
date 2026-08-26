@@ -23,6 +23,7 @@ type Props = {
     location: string;
     location_url: string;
     virtual_url: string;
+    format?: "in_person" | "online" | "hybrid" | null;
     starts_at: string;
     ends_at: string;
     image_url: string | null;
@@ -112,6 +113,18 @@ export function EditEventForm({ eventId, communitySlug, initialValues, needs, se
             defaultValue={initialValues.virtual_url}
             placeholder="https://meet.google.com/..."
           />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="format">How do people join?</Label>
+          <select id="format" name="format" defaultValue={initialValues.format ?? "in_person"} className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+            <option value="in_person">In person</option>
+            <option value="online">Online</option>
+            <option value="hybrid">Both — in person and online</option>
+          </select>
+          <p className="text-xs text-muted-foreground">
+            People filter the doorways by this — an online gathering is invisible to
+            someone searching for one if it says in person.
+          </p>
         </div>
       </div>
 

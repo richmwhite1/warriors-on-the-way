@@ -18,7 +18,7 @@ export function BottomNav() {
       aria-label="Primary"
       className="fixed bottom-0 inset-x-0 z-40 sm:hidden"
       style={{
-        background: "rgba(255,255,255,0.95)",
+        background: "color-mix(in srgb, var(--background) 95%, transparent)",
         borderTop: "1px solid var(--border)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",

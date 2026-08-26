@@ -63,6 +63,7 @@ export default async function EditEventPage({ params }: Props) {
             ends_at: event.ends_at ? toDatetimeLocal(event.ends_at) : "",
             image_url: (event as unknown as { image_url?: string | null }).image_url ?? null,
             timezone: event.timezone,
+            format: (event as unknown as { format?: "in_person" | "online" | "hybrid" | null }).format ?? "in_person",
           }}
           needs={needs}
           selectedNeedIds={selectedNeedIds}

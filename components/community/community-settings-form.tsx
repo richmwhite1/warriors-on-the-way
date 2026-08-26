@@ -460,6 +460,23 @@ export function CommunitySettingsForm({
           />
           <p className="text-xs text-muted-foreground">Helps people find your community nearby</p>
         </div>
+
+        <div className="space-y-1.5">
+          <Label htmlFor="format">How does it meet?</Label>
+          <select
+            id="format" name="format"
+            defaultValue={community.format ?? "in_person"}
+            className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <option value="in_person">In person</option>
+            <option value="online">Online</option>
+            <option value="hybrid">Both — in person and online</option>
+          </select>
+          <p className="text-xs text-muted-foreground">
+            People filter the doorways by this — an online circle is invisible to someone
+            searching for one if it says in person.
+          </p>
+        </div>
       </div>
 
       {/* ── Access ──────────────────────────────────────────────────────────── */}

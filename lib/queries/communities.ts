@@ -27,6 +27,8 @@ export type Community = {
   // Geocoded coordinates for proximity search
   latitude?: number | null;
   longitude?: number | null;
+  // How the circle actually meets — what the doorway filters narrow on.
+  format?: "in_person" | "online" | "hybrid" | null;
 };
 
 // Every column except invite_token / telegram_chat_id, which are revoked from
@@ -36,7 +38,7 @@ const COMMUNITY_SELECT = `
   id, slug, name, description, banner_url, is_parent, is_private,
   members_can_create_events, member_cap, created_by, created_at, updated_at,
   allow_guest_rsvp, location, telegram_invite_link, telegram_push_types,
-  mission, rules_md, latitude, longitude, public_member_count
+  mission, rules_md, latitude, longitude, public_member_count, format
 `;
 
 export async function getCommunityBySlug(slug: string): Promise<Community | null> {

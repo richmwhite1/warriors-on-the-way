@@ -18,7 +18,7 @@ export async function AppNav() {
         left: 0,
         right: 0,
         zIndex: 50,
-        background: "rgba(255,255,255,0.92)",
+        background: "color-mix(in srgb, var(--background) 92%, transparent)",
         borderBottom: "1px solid var(--border)",
         backdropFilter: "blur(16px)",
         WebkitBackdropFilter: "blur(16px)",

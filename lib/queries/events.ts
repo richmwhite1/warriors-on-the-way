@@ -45,6 +45,8 @@ export type EventRow = {
   tasks_enabled: boolean;
   expenses_enabled: boolean;
   created_at: string;
+  // How people join — what the doorway filters narrow on.
+  format?: "in_person" | "online" | "hybrid" | null;
   creator: { id: string; display_name: string; avatar_url: string | null; venmo_handle: string | null };
   rsvp_counts?: { yes: number; no: number; maybe: number };
   user_rsvp?: { status: string; guests: number } | null;
@@ -94,7 +96,7 @@ export async function getNextParentEvent(): Promise<(EventRow & { community_slug
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at, format,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("community_id", parent.id)
@@ -115,7 +117,7 @@ export async function listCommunityEvents(communityId: string): Promise<EventRow
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at, format,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle),
       rsvps(status)
     `)
@@ -156,7 +158,7 @@ export async function listUpcomingEventsForUser(
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at, format,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle),
       community:communities!community_id(slug, name),
       rsvps(status)
@@ -207,7 +209,7 @@ export async function listUpcomingEventsForTopic(
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at, format,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle),
       community:communities!community_id(slug, name),
       rsvps(status)
@@ -250,7 +252,7 @@ export async function getEventForGuest(eventId: string): Promise<EventRow | null
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at, format,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("id", eventId)
@@ -293,7 +295,7 @@ export async function getEventWithDetails(eventId: string, userId?: string): Pro
     .from("events")
     .select(`
       id, community_id, created_by, title, description, location, location_url, virtual_url, image_url,
-      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at,
+      starts_at, ends_at, timezone, status, vote_threshold, tasks_enabled, expenses_enabled, created_at, format,
       creator:users!created_by(id, display_name, avatar_url, venmo_handle)
     `)
     .eq("id", eventId)

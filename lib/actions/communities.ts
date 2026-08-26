@@ -3,6 +3,13 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+
+// in_person / online / hybrid. Anything unrecognised falls back to the column default
+// rather than throwing — a bad value here should not cost someone their community.
+function readFormat(formData: FormData): "in_person" | "online" | "hybrid" {
+  const raw = formData.get("format") as string;
+  return raw === "online" || raw === "hybrid" ? raw : "in_person";
+}
 import { slugExists } from "@/lib/queries/communities";
 import { registerWebhook, sendMessage, detectNewGroupChatId } from "@/lib/integrations/telegram";
 
@@ -50,6 +57,7 @@ export async function createCommunity(formData: FormData) {
   // Required one-sentence declaration — what stewards point at when a group drifts.
   const purpose = (formData.get("purpose") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
+  const format = readFormat(formData);
   const is_private = formData.get("is_private") === "true";
   const members_can_create_events = formData.get("members_can_create_events") === "true";
   const custom_slug = (formData.get("slug") as string)?.trim();
@@ -72,7 +80,7 @@ export async function createCommunity(formData: FormData) {
   const { data: community, error: communityError } = await supabase
     .from("communities")
     .insert({
-      slug, name, description, purpose, location, is_private, members_can_create_events,
+      slug, name, description, purpose, location, format, is_private, members_can_create_events,
       created_by: user.id,
       // Mint an invite link up front so the steward can recruit their first four
       // immediately — the token makes shared links one-tap-join, even when private.
@@ -125,6 +133,7 @@ export async function updateCommunitySettings(communityId: string, formData: For
   const name = (formData.get("name") as string)?.trim();
   const description = (formData.get("description") as string)?.trim() || null;
   const location = (formData.get("location") as string)?.trim() || null;
+  const format = readFormat(formData);
   const is_private = formData.get("is_private") === "true";
   const members_can_create_events = formData.get("members_can_create_events") === "true";
   const allow_guest_rsvp = formData.get("allow_guest_rsvp") === "true";
@@ -143,7 +152,7 @@ export async function updateCommunitySettings(communityId: string, formData: For
   const coords = location ? await geocodeLocation(location) : null;
 
   const updateData: Record<string, unknown> = {
-    name, description, location, is_private, members_can_create_events,
+    name, description, location, format, is_private, members_can_create_events,
     allow_guest_rsvp, member_cap, telegram_invite_link, mission, rules_md, telegram_push_types,
     latitude: coords?.latitude ?? null,
     longitude: coords?.longitude ?? null,

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MissionBadge } from "@/components/needs/mission-badge";
+import { FormatBadge } from "@/components/needs/format-badge";
 import type { NeedOffering } from "@/lib/queries/needs";
 
 function nextSession(iso: string | null): string | null {
@@ -49,6 +50,7 @@ export function OfferingCard({ offering, showCommunity = false }: { offering: Ne
           Ongoing
         </span>
         <MissionBadge mission={offering.mission} />
+        <FormatBadge format={offering.format} />
       </div>
 
       <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: "1.1rem", lineHeight: 1.25, color: "var(--foreground)", margin: "8px 0 0" }}>
@@ -73,6 +75,14 @@ export function OfferingCard({ offering, showCommunity = false }: { offering: Ne
 
       {offering.cost_note && (
         <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--primary)", margin: "6px 0 0" }}>{offering.cost_note}</p>
+      )}
+
+      {/* The hard part of a standing group is walking in alone; the headcount is the
+          answer to that, so it belongs on the card and not only on the detail page. */}
+      {offering.interest_count > 0 && (
+        <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)", margin: "6px 0 0" }}>
+          {offering.interest_count} {offering.interest_count === 1 ? "person is" : "people are"} coming
+        </p>
       )}
     </Link>
   );

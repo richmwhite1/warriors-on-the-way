@@ -96,6 +96,12 @@
 }
 
 /* ─── Dark mode — used by special pages (sign-in, consciousness map) ─────── */
+/* NOT a global theme, and deliberately so. `.dark` is applied by hand to individual
+   surfaces (see app/sign-in/page.tsx) to force the shadcn dark variants there; the app
+   itself is light. next-themes is a dependency only because the Toaster reads it.
+   Before anyone wires a theme toggle to this: the consciousness map and the Seán portal
+   paint their own dark palettes in hardcoded rgba, so a toggle would need those audited
+   first — it is a bigger change than it looks. */
 .dark {
   --background: #1a1610;
   --foreground: #f5f0eb;

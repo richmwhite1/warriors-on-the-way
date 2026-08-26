@@ -1,108 +1,106 @@
 import Link from "next/link";
-import { getNeeds } from "@/lib/queries/needs";
+import { getNeedsWithSignal, type NeedSignal } from "@/lib/queries/needs";
 import { AppNav } from "@/components/app-nav";
 import { NeedIcon } from "@/components/needs/need-icon";
 import { WelcomeOverlay } from "@/components/welcome-overlay";
 
+// What's actually behind this door, in the fewest words that are still true.
+//
+// The six doors used to look identically promising, so choosing between them was a coin
+// flip — and a wrong flip landed on "nobody's opened this door yet". Someone who came
+// here because life feels heavy does not have a second guess in them. Putting the honest
+// state on the front means the busy doors advertise themselves and the quiet ones read
+// as an invitation to found, rather than a dead end discovered one tap too late.
+function signalLine(n: NeedSignal): { text: string; live: boolean } {
+  const parts: string[] = [];
+  if (n.circles) parts.push(`${n.circles} circle${n.circles === 1 ? "" : "s"}`);
+  if (n.offerings) parts.push(`${n.offerings} ongoing`);
+  if (n.events) parts.push(`${n.events} gathering${n.events === 1 ? "" : "s"}`);
+
+  if (parts.length === 0) {
+    return { text: "Nobody's opened this door yet", live: false };
+  }
+
+  if (n.next_at) {
+    const d = new Date(n.next_at);
+    const days = Math.round((d.getTime() - Date.now()) / 86_400_000);
+    const when =
+      days <= 0 ? "today" : days === 1 ? "tomorrow" : days <= 6
+        ? d.toLocaleDateString("en-US", { weekday: "long" })
+        : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    parts.push(`next ${when}`);
+  }
+
+  return { text: parts.join(" · "), live: true };
+}
+
 // The chapter front door — Shannon's warm "menu for local spiritual needs".
 // People arrive by felt need (how they show up), not by mission (the why).
 export default async function MenuPage() {
-  const needs = await getNeeds();
+  const needs = await getNeedsWithSignal();
 
   return (
     <>
       <AppNav />
       <WelcomeOverlay />
 
-      <main className="animate-page-enter" style={{ maxWidth: 560, margin: "0 auto", paddingBottom: "5rem" }}>
-        {/* ── Mission frame: Seán's why, wrapping everything ─────────────────── */}
-        <section style={{ padding: "1.25rem 1rem 0.5rem" }}>
-          <p
-            style={{
-              fontFamily: "var(--font-brand)",
-              fontSize: 11,
-              fontWeight: 700,
-              letterSpacing: "0.14em",
-              textTransform: "uppercase",
-              color: "var(--primary)",
-              margin: 0,
-            }}
-          >
+      <main className="animate-page-enter mx-auto max-w-[560px] pb-20">
+        {/* ── Mission frame: Seán's why, wrapping everything ────────────────── */}
+        <section className="px-4 pb-2 pt-5">
+          <p className="font-heading text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
             Salt Lake City &amp; Park City
           </p>
-          <h1
-            style={{
-              fontFamily: "var(--font-brand)",
-              fontWeight: 800,
-              fontSize: "2rem",
-              letterSpacing: "-0.02em",
-              lineHeight: 1.1,
-              color: "var(--foreground)",
-              margin: "6px 0 0",
-            }}
-          >
+          <h1 className="mt-1.5 font-heading text-[2rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-foreground">
             What are you looking for?
           </h1>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: 15, color: "var(--muted-foreground)", lineHeight: 1.5, margin: "10px 0 0" }}>
-            A free, peer-to-peer network of spiritual community — nobody ever charges. Pick a doorway.{" "}
-            <Link href="/sean" style={{ color: "var(--primary)", fontWeight: 600, textDecoration: "none" }}>
+          <p className="mt-2.5 font-sans text-[15px] leading-relaxed text-muted-foreground">
+            A free, peer-to-peer network of spiritual community — nobody ever charges. Pick a
+            doorway.{" "}
+            <Link href="/sean" className="font-semibold text-primary no-underline">
               Why this exists →
             </Link>
           </p>
         </section>
 
-        {/* ── The six doorways ───────────────────────────────────────────────── */}
-        <div style={{ display: "grid", gap: 12, padding: "1rem" }}>
-          {needs.map((need) => (
-            <Link
-              key={need.id}
-              href={`/needs/${need.slug}`}
-              className="press-scale animate-fade-up"
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-                gap: 14,
-                background: "var(--card)",
-                border: "1px solid var(--border)",
-                borderRadius: 20,
-                padding: "18px 18px",
-                textDecoration: "none",
-              }}
-            >
-              <div
-                style={{
-                  flexShrink: 0,
-                  width: 48,
-                  height: 48,
-                  borderRadius: 14,
-                  display: "grid",
-                  placeItems: "center",
-                  background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-                }}
+        {/* ── The six doorways ─────────────────────────────────────────────── */}
+        <div className="grid gap-3 p-4">
+          {needs.map((need) => {
+            const signal = signalLine(need);
+            return (
+              <Link
+                key={need.id}
+                href={`/needs/${need.slug}`}
+                className="press-scale animate-fade-up flex items-start gap-3.5 rounded-[20px] border border-border bg-card p-[18px] no-underline"
               >
-                <NeedIcon icon={need.icon} size={26} />
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-brand)",
-                    fontWeight: 700,
-                    fontSize: "1.25rem",
-                    lineHeight: 1.2,
-                    color: "var(--foreground)",
-                    margin: 0,
-                  }}
-                >
-                  {need.name}
-                </h2>
-                {need.prompt && (
-                  <p style={{ fontFamily: "var(--font-body)", fontStyle: "italic", fontSize: 14, color: "var(--muted-foreground)", lineHeight: 1.45, margin: "6px 0 0" }}>
-                    “{need.prompt}”
+                <div className="grid h-12 w-12 flex-none place-items-center rounded-[14px] bg-primary/[0.08]">
+                  <NeedIcon icon={need.icon} size={26} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h2 className="font-heading text-[1.25rem] font-bold leading-tight text-foreground">
+                    {need.name}
+                  </h2>
+                  {need.prompt && (
+                    <p className="mt-1.5 font-sans text-sm italic leading-[1.45] text-muted-foreground">
+                      &ldquo;{need.prompt}&rdquo;
+                    </p>
+                  )}
+                  <p
+                    className={`mt-2 font-sans text-[12.5px] font-semibold ${
+                      signal.live ? "text-primary" : "text-muted-foreground"
+                    }`}
+                  >
+                    {signal.live && (
+                      <span
+                        aria-hidden
+                        className="mr-1.5 inline-block h-1.5 w-1.5 -translate-y-px rounded-full bg-primary align-middle"
+                      />
+                    )}
+                    {signal.text}
                   </p>
-                )}
-              </div>
-            </Link>
-          ))}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       </main>
     </>

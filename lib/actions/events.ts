@@ -4,6 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 // redirect is used by updateEvent (not createEvent — createEvent returns the URL)
 import { createClient } from "@/lib/supabase/server";
+
+// in_person / online / hybrid. Unrecognised values fall back to the column default.
+function readFormat(formData: FormData): "in_person" | "online" | "hybrid" {
+  const raw = formData.get("format") as string;
+  return raw === "online" || raw === "hybrid" ? raw : "in_person";
+}
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendEventNotification } from "@/lib/integrations/telegram";
 import { sendEventAnnouncements } from "@/lib/integrations/email";
@@ -52,6 +58,7 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
     .insert({
       community_id, created_by: user.id, title, description,
       location: general_location, general_location, exact_address, location_url, virtual_url,
+      format: readFormat(formData),
       image_url, timezone, starts_at, ends_at, status, vote_threshold,
       tasks_enabled,
       expenses_enabled,
@@ -202,7 +209,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
 
   const { data: event, error } = await supabase
     .from("events")
-    .update({ title, description, location: general_location, general_location, exact_address, location_url, virtual_url, image_url, starts_at, ends_at, timezone })
+    .update({ title, description, location: general_location, general_location, exact_address, location_url, virtual_url, image_url, starts_at, ends_at, timezone, format: readFormat(formData) })
     .eq("id", eventId)
     .select("community_id")
     .single();
