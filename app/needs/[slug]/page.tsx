@@ -98,10 +98,10 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
           <div className="px-4">
             <div className="mt-7 rounded-[20px] border border-border bg-card px-[1.35rem] py-6">
               <p className="font-heading text-[1.15rem] font-extrabold leading-[1.25] text-foreground">
-                Nobody&rsquo;s opened this door yet
+                You&rsquo;re first through this door
               </p>
               <p className="mt-2 font-sans text-[14.5px] leading-relaxed text-muted-foreground">
-                There&rsquo;s nothing here yet. If you&rsquo;re looking for it, chances are
+                Nobody has started one here yet. If you&rsquo;re looking for it, chances are
                 somebody nearby is too — starting it is how it begins.
               </p>
               <div className="mt-[1.15rem] flex flex-wrap gap-2.5">

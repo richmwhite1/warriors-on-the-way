@@ -16,6 +16,11 @@ function slugGradient(slug: string): string {
   return GRADIENTS[hash % GRADIENTS.length];
 }
 
+// A circle opens to the wider network at its fifth active member — the threshold the
+// promote_community_on_fifth_member trigger enforces. Kept here so the card counts
+// toward the same number the database does.
+const OPEN_AT = 5;
+
 type Props = {
   name: string;
   slug: string;
@@ -28,6 +33,7 @@ type Props = {
   role?: string;
   postCount?: number;
   distance?: number; // km, shown when proximity sort is active
+  status?: "forming" | "listed" | "dormant";
 };
 
 export function CommunityCard({
@@ -42,9 +48,21 @@ export function CommunityCard({
   role,
   postCount,
   distance,
+  status,
 }: Props) {
   const isFull = !isParent && memberCap != null && memberCount >= memberCap;
-  const pct = isParent || memberCap == null ? 0 : Math.round((memberCount / memberCap) * 100);
+  // A forming circle is measured against the five that open it, not the cap that closes
+  // it. Showing "147 spots left" on a circle with three members answers a question
+  // nobody asked and hides the one that matters: how close is this to happening?
+  const isForming = !isParent && status === "forming";
+  const needed = Math.max(OPEN_AT - memberCount, 0);
+  const pct = isParent
+    ? 0
+    : isForming
+      ? Math.round((Math.min(memberCount, OPEN_AT) / OPEN_AT) * 100)
+      : memberCap == null
+        ? 0
+        : Math.round((memberCount / memberCap) * 100);
 
   return (
     <Link href={`/community/${slug}`} className="block group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-2xl">
@@ -104,6 +122,11 @@ export function CommunityCard({
                 Private
               </Badge>
             )}
+            {isForming && (
+              <Badge className="text-xs px-1.5 py-0 bg-emerald-500/90 text-emerald-950 border-0">
+                Forming
+              </Badge>
+            )}
             {role && (
               <Badge className="text-xs px-1.5 py-0 bg-primary/80 text-primary-foreground border-0 capitalize">
                 {role}
@@ -141,15 +164,23 @@ export function CommunityCard({
                 )}
               </span>
               {!isParent && (
-                <span className={isFull ? "text-destructive font-medium" : ""}>
-                  {isFull ? "Full" : memberCap != null ? `${memberCap - memberCount} spots left` : ""}
-                </span>
+                isForming ? (
+                  <span className="font-medium text-emerald-700 dark:text-emerald-400">
+                    {needed === 0 ? "Opening now" : `${needed} more to open`}
+                  </span>
+                ) : (
+                  <span className={isFull ? "text-destructive font-medium" : ""}>
+                    {isFull ? "Full" : memberCap != null ? `${memberCap - memberCount} spots left` : ""}
+                  </span>
+                )
               )}
             </div>
             {!isParent && (
               <div className="h-1 rounded-full bg-muted overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all ${isFull ? "bg-destructive" : "bg-primary"}`}
+                  className={`h-full rounded-full transition-all ${
+                    isForming ? "bg-emerald-500" : isFull ? "bg-destructive" : "bg-primary"
+                  }`}
                   style={{ width: `${Math.min(pct, 100)}%` }}
                 />
               </div>

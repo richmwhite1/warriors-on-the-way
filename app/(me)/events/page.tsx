@@ -48,15 +48,28 @@ export default async function EventsPage() {
         /* An empty calendar is the common first-run state, so it has to offer a way
            forward — otherwise a primary tab is a dead end on day one. What's missing
            differs: with no community there is nobody to gather with yet; with one, the
-           next step is to call the gathering. */
+           next step is to call the gathering.
+
+           When there are public events to discover, though, the page is not empty — it
+           only lacks events from *your* communities. The full dashed panel used to
+           render anyway, announcing "nothing on the calendar" directly above a list of
+           gatherings anyone could walk into. Demote it to a single line there and let
+           the real events be the page. */
+        discoverEvents.length > 0 ? (
+          <p style={{ fontFamily: "var(--font-body)", color: "var(--muted-foreground)", fontSize: 14, lineHeight: 1.5, margin: 0 }}>
+            {hasCommunity
+              ? "Nothing from your communities yet — here's what else is happening nearby."
+              : "You haven't joined a community yet. Here's what's happening nearby — anyone can come."}
+          </p>
+        ) : (
         <div style={{ border: "2px dashed var(--border)", borderRadius: "1rem", padding: "2.5rem 1.5rem", textAlign: "center" }}>
           <p style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: "0.95rem", color: "var(--foreground)", marginBottom: "0.25rem" }}>
-            Nothing on the calendar yet
+            Be the first to call a gathering
           </p>
           <p style={{ fontFamily: "var(--font-body)", color: "var(--muted-foreground)", fontSize: 14, marginBottom: "1.25rem" }}>
             {hasCommunity
-              ? "Events from your communities will show up here. Be the one who calls the first gathering."
-              : "Join a community and its gatherings will show up here."}
+              ? "Nothing on the calendar yet. Name a time and a place — that's all it takes to start one."
+              : "Join a community and its gatherings show up here. Most people find theirs in a few minutes."}
           </p>
           <Link
             href={hasCommunity ? `/community/${firstCommunitySlug}/events/new` : "/community"}
@@ -76,6 +89,7 @@ export default async function EventsPage() {
             {hasCommunity ? "Create an event" : "Find a community"}
           </Link>
         </div>
+        )
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
           {events.map((event) => {
@@ -128,7 +142,7 @@ export default async function EventsPage() {
 
       {/* Discover — upcoming events from browsable communities across the movement */}
       {discoverEvents.length > 0 && (
-        <section style={{ marginTop: "2.25rem" }}>
+        <section style={{ marginTop: events.length === 0 ? "1.25rem" : "2.25rem" }}>
           <h2
             style={{
               fontFamily: "var(--font-brand)",
@@ -139,7 +153,7 @@ export default async function EventsPage() {
               margin: "0 0 0.85rem",
             }}
           >
-            Discover events
+            {events.length === 0 ? "Happening nearby" : "Discover events"}
           </h2>
           <EventDiscovery events={discoverEvents} />
         </section>

@@ -17,8 +17,12 @@ function signalLine(n: NeedSignal): { text: string; live: boolean } {
   if (n.offerings) parts.push(`${n.offerings} ongoing`);
   if (n.events) parts.push(`${n.events} gathering${n.events === 1 ? "" : "s"}`);
 
+  // Five of the six doors are usually quiet, so this line renders five times on the
+  // front page. "Nobody's opened this door yet" made the entrance report emptiness five
+  // times before anyone had opened anything — an accurate sentence that reads as a dead
+  // product. Same fact, stated as the opening it actually is.
   if (parts.length === 0) {
-    return { text: "Nobody's opened this door yet", live: false };
+    return { text: "Be the first to open this →", live: false };
   }
 
   if (n.next_at) {

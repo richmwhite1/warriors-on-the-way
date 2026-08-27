@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
       { source: "/communities/:path*", destination: "/community/:path*", permanent: true },
       // Legacy/short alias for the map — keep bookmarks and shared links alive.
       { source: "/map", destination: "/consciousness-map", permanent: false },
+      // "The Nine" is the label; /topics is the route. Anyone who types what the nav
+      // says — or shares it — landed on a 404 until now.
+      { source: "/the-nine", destination: "/topics", permanent: false },
+      { source: "/the-nine/:path*", destination: "/topics/:path*", permanent: false },
     ];
   },
   async headers() {

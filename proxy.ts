@@ -41,9 +41,14 @@ export async function proxy(request: NextRequest) {
 
   // Allow guests to view shared invite links and their OG images, so a link dropped
   // in a group chat previews and offers a join path — not a login wall. Covers event
-  // detail pages and the community detail root (+ its opengraph-image), but NOT the
-  // /community index or admin sub-routes (members/settings/moderation), which stay gated.
+  // detail pages and the community detail root (+ its opengraph-image). The /community
+  // index is public too: it is the natural landing page for "come find us here", and
+  // gating it meant the one screen that proves the network exists was the one screen a
+  // stranger could not see. Admin sub-routes (members/settings/moderation) stay gated,
+  // and /community/new guards itself at the page level so it keeps the founder's
+  // doorway across the sign-in.
   const isGuestViewable =
+    pathname === "/community" ||
     /^\/community\/[^/]+\/events\/[^/]+/.test(pathname) ||
     /^\/community\/[^/]+(\/opengraph-image)?$/.test(pathname);
 

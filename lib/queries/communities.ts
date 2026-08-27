@@ -58,14 +58,19 @@ export async function listPublicCommunities() {
     .select(`
       id, slug, name, description, banner_url, is_parent,
       is_private, member_cap, created_at, latitude, longitude,
-      public_member_count,
+      public_member_count, status,
       post_count:posts(count),
       community_topics(topic:topics!topic_id(slug, name))
     `)
     .eq("is_private", false)
-    // Visibility gate: only communities past the 5-member threshold are browsable.
-    // Forming (1–4) and dormant communities never appear here.
-    .or("status.eq.listed,is_parent.eq.true")
+    // Forming circles are browsable, not hidden. Holding them back until the fifth
+    // member was the engine of the ghost town: a founder started a circle, the network
+    // still reported itself empty — to them and to the very people who could have been
+    // members two, three and four. The threshold meant to protect quality was what kept
+    // anything from reaching it. They surface with their real state on the card
+    // ("Forming — 3 of 5") so the honesty is kept and the invitation is legible.
+    // Dormant (forming + 30 days + still under five) stays hidden, as designed.
+    .or("status.eq.listed,status.eq.forming,is_parent.eq.true")
     .is("posts.deleted_at", null)
     .order("created_at", { ascending: false });
   // Normalise to member_count + a flat topics array so the client can filter by The Nine.
@@ -95,6 +100,7 @@ export type UserMembership = {
     is_private: boolean;
     member_cap: number | null;
     created_at: string;
+    status?: "forming" | "listed" | "dormant";
   };
 };
 
@@ -106,7 +112,7 @@ export async function listUserCommunities(userId: string): Promise<UserMembershi
       role, status, joined_at,
       community:communities!inner(
         id, slug, name, description, banner_url, is_parent,
-        is_private, member_cap, created_at
+        is_private, member_cap, created_at, status
       )
     `)
     .eq("user_id", userId)

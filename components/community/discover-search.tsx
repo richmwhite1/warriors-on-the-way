@@ -19,9 +19,21 @@ type Community = {
   latitude: number | null;
   longitude: number | null;
   topics?: { slug: string; name: string }[];
+  status?: "forming" | "listed" | "dormant";
 };
 
 type UserCoords = { latitude: number; longitude: number };
+
+// Supabase hands back aggregates two different shapes depending on how they were
+// selected: post_count comes through as [{count}], while member_count is flattened to
+// a plain number by listPublicCommunities. Reading one as the other silently yields 0,
+// which is how every card in Discover came to claim it had no members and a wide-open
+// cap. Accept both rather than trusting either.
+function countOf(value: unknown): number {
+  if (typeof value === "number") return value;
+  if (Array.isArray(value)) return (value[0] as { count?: number } | undefined)?.count ?? 0;
+  return 0;
+}
 
 // Haversine distance in km
 function haversineKm(a: UserCoords, b: { latitude: number; longitude: number }): number {
@@ -115,19 +127,13 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
 
   const mapCommunities: MapCommunity[] = sorted
     .filter((c) => c.latitude != null && c.longitude != null)
-    .map((c) => {
-      const mc =
-        typeof c.member_count === "number"
-          ? c.member_count
-          : (c.member_count as { count: number }[] | undefined)?.[0]?.count;
-      return {
-        name: c.name,
-        slug: c.slug,
-        latitude: c.latitude as number,
-        longitude: c.longitude as number,
-        memberCount: mc,
-      };
-    });
+    .map((c) => ({
+      name: c.name,
+      slug: c.slug,
+      latitude: c.latitude as number,
+      longitude: c.longitude as number,
+      memberCount: countOf(c.member_count),
+    }));
 
   return (
     <div className="space-y-4">
@@ -239,25 +245,22 @@ export function DiscoverSearch({ communities }: { communities: Community[] }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {sorted.map((c) => {
-            const count = (c.member_count as { count: number }[])?.[0]?.count ?? 0;
-            const posts = (c.post_count as { count: number }[])?.[0]?.count ?? 0;
-            return (
-              <CommunityCard
-                key={c.id}
-                name={c.name}
-                slug={c.slug}
-                description={c.description}
-                bannerUrl={c.banner_url}
-                isPrivate={c.is_private}
-                isParent={c.is_parent}
-                memberCount={count}
-                memberCap={c.member_cap}
-                postCount={posts}
-                distance={c.distance}
-              />
-            );
-          })}
+          {sorted.map((c) => (
+            <CommunityCard
+              key={c.id}
+              name={c.name}
+              slug={c.slug}
+              description={c.description}
+              bannerUrl={c.banner_url}
+              isPrivate={c.is_private}
+              isParent={c.is_parent}
+              memberCount={countOf(c.member_count)}
+              memberCap={c.member_cap}
+              postCount={countOf(c.post_count)}
+              distance={c.distance}
+              status={c.status}
+            />
+          ))}
         </div>
       )}
     </div>
