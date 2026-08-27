@@ -9,7 +9,6 @@ import {
 } from "@/lib/queries/topics";
 import { getReviewerTopics } from "@/lib/queries/moderation";
 import { ObjectiveSheet } from "@/components/topics/objective-sheet";
-import { SeanBand } from "@/components/topics/sean-band";
 import { TopicView } from "@/components/topics/topic-view";
 import Link from "next/link";
 
@@ -44,10 +43,6 @@ export default async function TopicPage({ params }: { params: Promise<{ slug: st
             </Link>
           </div>
         )}
-
-        <div style={{ marginTop: 18 }}>
-          <SeanBand topicSlug={topic.slug} topicName={topic.name} />
-        </div>
 
         <TopicView
           topic={{ id: topic.id, slug: topic.slug, name: topic.name }}

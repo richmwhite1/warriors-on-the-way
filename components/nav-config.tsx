@@ -106,7 +106,7 @@ export const SECONDARY_NAV: (Pick<NavItem, "label" | "href" | "match"> & { blurb
     label: "Seán",
     href: "/sean",
     match: (p) => p.startsWith("/sean"),
-    blurb: "Why this exists, in his words",
+    blurb: "Our Spiritual Director, in his own words",
   },
   {
     label: "Map",

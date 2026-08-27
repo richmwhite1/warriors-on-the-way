@@ -1,7 +1,7 @@
 # Phase One — Runtime Setup
 
 Everything is committed on `feat/nine-topics-phase-one` and passes typecheck + build.
-Three things must happen before the topic pages, Seán band, and seeded feeds are fully live.
+Three things must happen before the topic pages and seeded feeds are fully live.
 
 ## 1. Apply the Warriors migrations
 
@@ -22,9 +22,9 @@ New migrations:
 - `20260817000007_asks.sql` — Ask & Offer board + coordination thread
 - `20260817000008_moderation_flag_dial.sql` — flag threshold auto-hide + reversible hide
 
-## 2. Apply the corpus topic-tagging + backfill (Seán band)
+## 2. Apply the corpus topic-tagging + backfill (topic feed seeding)
 
-The per-topic teaching band answers only from a topic's slice of the corpus. That slicing
+Seeding a topic's feed pulls only that topic's slice of the corpus. That slicing
 does not exist until the corpus is tagged. This step touches the **external Seán corpus
 Supabase** (spiritsinspacesuits.com's project) — NOT Warriors, and NOT the spirits-vercel
 git repo. Both artifacts live in THIS repo:
@@ -38,15 +38,15 @@ SUPABASE_URL=<corpus url> SUPABASE_SERVICE_KEY=<corpus key> GEMINI_API_KEY=<key>
   node scripts/tag_topics.mjs           # AI-tags ~700 transcripts + 4 books into the nine
 ```
 
-## 3. Env for the Warriors Seán-band route + seeding
+## 3. Env for seeding
 
 Add to Warriors `.env.local` (and Vercel project env):
 ```
 SEAN_SUPABASE_URL=<spirits project url>
 SEAN_SUPABASE_SERVICE_KEY=<spirits service key>
-GEMINI_API_KEY=<gemini key>
 SEED_USER_ID=<an existing Warriors user id to author seed posts>
 ```
+(`GEMINI_API_KEY` is only needed by `scripts/tag_topics.mjs`, run from the shell.)
 
 Then seed topic feeds so none are empty on first view:
 ```
@@ -54,10 +54,11 @@ node scripts/seed_topic_feeds.mjs --per-topic=8
 ```
 
 ## Notes / corrections to the brief
-- The RAG is **Gemini** (`gemini-embedding-2` 768-dim + `gemini-2.5-flash`), not Claude. Any
+- The in-app "Ask Seán" Q&A band is **gone**. People ask Seán on his own site,
+  spiritsinspacesuits.com; nothing here answers in his voice. The corpus is still used —
+  read-only, for tagging and seeding topic feeds with his actual videos.
+- The corpus embeddings are **Gemini** (`gemini-embedding-2`, 768-dim), not Claude. Any
   product copy that says "Claude" is inaccurate.
-- Without `SEAN_*` env, `/api/sean/ask` returns a graceful 503 and the band shows an error line —
-  the rest of the app is unaffected.
 - The dormancy sweep runs inside the existing daily cron (`/api/cron/event-reminders`); Hobby plan
   allows daily crons only, so it is piggybacked rather than a second cron.
 

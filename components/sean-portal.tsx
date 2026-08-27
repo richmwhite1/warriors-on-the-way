@@ -177,22 +177,32 @@ export function SeanPortal({ latestVideo }: { latestVideo?: LatestVideo | null }
             </div>
 
             <p className="text-stone-400 max-w-sm leading-relaxed text-sm">
-              Irish-born priest, scientist, and mystic. Holding advanced degrees in
-              philosophy, mathematics, theology, and clinical psychology. Author of{" "}
-              <em className="text-stone-300">Souls on Safari</em>. Providing the
-              philosophical foundation and the Lightworkers Manifesto for Warriors on the Way.
+              Spiritual Director of Warriors on the Way. Irish-born priest, scientist,
+              and mystic, holding advanced degrees in philosophy, mathematics, theology,
+              and clinical psychology. Author of{" "}
+              <em className="text-stone-300">Souls on Safari</em>. His teaching is the
+              philosophical foundation and the Lightworkers Manifesto beneath everything
+              this community does.
             </p>
 
-            <a
-              href="https://www.spiritsinspacesuits.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-widest transition-colors hover:opacity-80"
-              style={{ color: GOLD }}
-            >
-              spiritsinspacesuits.com
-              <ChevronRight size={10} />
-            </a>
+            {/* Questions go to Seán himself, on his own site — not to us, and not to
+                a machine speaking in his voice. */}
+            <div className="space-y-2">
+              <p className="text-stone-500 max-w-sm leading-relaxed text-sm">
+                Questions for Seán go to Seán. His full archive, his writing, and every
+                way to reach him live on his own site.
+              </p>
+              <a
+                href="https://www.spiritsinspacesuits.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-xs uppercase tracking-widest transition-colors hover:opacity-80"
+                style={{ color: GOLD }}
+              >
+                Ask him at spiritsinspacesuits.com
+                <ChevronRight size={10} />
+              </a>
+            </div>
 
             {/* Divider accent */}
             <div className="flex items-center gap-3 justify-center lg:justify-start">

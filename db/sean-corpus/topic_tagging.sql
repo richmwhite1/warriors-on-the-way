@@ -19,7 +19,7 @@ create index if not exists sean_chunks_topics_idx
   on public.sean_chunks using gin (topics);
 
 -- Topic-filtered semantic search. When p_topic is null it behaves like the global
--- match_chunks (so the same RPC can serve both the topic band and the open Ask Seán).
+-- match_chunks, so topic-sliced retrieval stays available to corpus-side tooling.
 create or replace function public.match_chunks_by_topic(
   query_embedding vector(768),
   p_topic text default null,
