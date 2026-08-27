@@ -175,7 +175,17 @@ export function CommunityCard({
                     {needed === 0 ? "Opening now" : `${needed} more to open`}
                   </span>
                 ) : (
-                  <span className={isFull ? "text-destructive font-medium" : ""}>
+                  /* The whole card is a link, so this can't carry one of its own — the
+                     detail page has the real "Why 150?" link. A title at least answers
+                     the question for anyone who stops on the countdown. */
+                  <span
+                    className={isFull ? "text-destructive font-medium" : ""}
+                    title={
+                      memberCap != null
+                        ? `Circles stay small — they cap at ${memberCap} members so everyone can still know everyone.`
+                        : undefined
+                    }
+                  >
                     {isFull ? "Full" : memberCap != null ? `${memberCap - memberCount} spots left` : ""}
                   </span>
                 )

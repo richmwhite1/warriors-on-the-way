@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { AppNav } from "@/components/app-nav";
 import { RsvpButtons } from "@/components/events/rsvp-buttons";
+import { SafetyNote } from "@/components/safety-note";
 import { GuestRsvpForm } from "@/components/events/guest-rsvp-form";
 import { InviteModal } from "@/components/events/invite-modal";
 import { InvitationReveal } from "@/components/events/invitation-reveal";
@@ -390,6 +391,11 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
                   maybeNames={maybeNames}
                   smsEnabled={smsEnabled()}
                 />
+                {/* A guest RSVPing from a shared link is the furthest anyone gets from
+                    context — no profile, no community, just a time and a place. */}
+                <div className="mt-4">
+                  <SafetyNote context="event" />
+                </div>
               </div>
             )}
 

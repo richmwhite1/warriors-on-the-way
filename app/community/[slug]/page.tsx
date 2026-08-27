@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { SafetyNote } from "@/components/safety-note";
 import { Suspense } from "react";
 import { AppNav } from "@/components/app-nav";
 import { JoinButton } from "@/components/community/join-button";
@@ -276,6 +277,20 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               {memberCount} / {community.member_cap} {memberCount === 1 ? "member" : "members"}
               {isFull && <span style={{ marginLeft: "0.5rem", color: "var(--primary)" }}>· Full</span>}
               {community.is_private && <span style={{ marginLeft: "0.5rem" }}>· Private</span>}
+              {/* The cap is the one number here that reads as arbitrary pressure unless
+                  someone says why it exists. why-150 already explained it; nothing linked
+                  to it from the place the question actually occurs. */}
+              {!community.is_parent && community.member_cap != null && (
+                <>
+                  {" · "}
+                  <Link
+                    href="/why-150"
+                    style={{ color: "rgba(255,255,255,0.72)", textDecoration: "underline", textUnderlineOffset: 2 }}
+                  >
+                    Why {community.member_cap}?
+                  </Link>
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -296,41 +311,36 @@ export default async function CommunityPage({ params, searchParams }: Props) {
             />
           )}
 
-          {/* Action buttons */}
+          {/* Places, actions and organizer tools, kept apart.
+              These were one flat row of eight identically-styled pills, so "Members"
+              (a place you browse) looked exactly like "+ New event" (a thing you do)
+              and exactly like "Settings" (a tool only stewards hold). Same shape,
+              three different kinds of promise. */}
+
+          {/* ── Places: where you can go inside this circle ─────────────────── */}
+          {isMember && (
+            <nav aria-label="Sections" className="flex flex-wrap items-center gap-1">
+              {[
+                { href: `/community/${slug}/members`, label: "Members" },
+                { href: `/community/${slug}/events`, label: "Events" },
+                { href: `/community/${slug}/asks`, label: "Ask & Offer" },
+              ].map((t) => (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  className="rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground no-underline transition-colors hover:bg-muted hover:text-foreground"
+                >
+                  {t.label}
+                </Link>
+              ))}
+            </nav>
+          )}
+
+          {/* ── Actions: things you do ──────────────────────────────────────── */}
           <div className="flex items-center gap-2 flex-wrap">
-              {isMember && (
-                <Link href={`/community/${slug}/members`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Members
-                </Link>
-              )}
-              {isMember && (
-                <Link href={`/community/${slug}/events`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Events
-                </Link>
-              )}
-              {isMember && (
-                <Link href={`/community/${slug}/asks`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Ask &amp; Offer
-                </Link>
-              )}
               {canCreate && (
                 <Link href={`/community/${slug}/events/new`} className={cn(buttonVariants({ size: "sm" }), "rounded-full")}>
                   + New event
-                </Link>
-              )}
-              {isAdmin && (
-                <Link href={`/community/${slug}/related`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Related
-                </Link>
-              )}
-              {isAdmin && (
-                <Link href={`/community/${slug}/moderation`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Moderation
-                </Link>
-              )}
-              {isAdmin && (
-                <Link href={`/community/${slug}/settings`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-                  Settings
                 </Link>
               )}
               {isMember && !community.is_parent && (
@@ -350,6 +360,27 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 role={membership?.role}
               />
           </div>
+
+          {/* ── Organizer tools: only stewards hold these, and it should look
+                 like it rather than sitting in the same row as "Members" ───── */}
+          {isAdmin && (
+            <div className="rounded-xl border border-dashed border-border px-3 py-2.5">
+              <p className="mb-1.5 font-heading text-[10.5px] font-bold uppercase tracking-[0.08em] text-muted-foreground">
+                Organizer tools
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Link href={`/community/${slug}/related`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Related
+                </Link>
+                <Link href={`/community/${slug}/moderation`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Moderation
+                </Link>
+                <Link href={`/community/${slug}/settings`} className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+                  Settings
+                </Link>
+              </div>
+            </div>
+          )}
 
           {/* Post composer — right at the top, Facebook-style */}
           {isMember && !isViewer && (
@@ -380,6 +411,9 @@ export default async function CommunityPage({ params, searchParams }: Props) {
               {community.description}
             </p>
           )}
+
+          {/* Shown to the people deciding whether to walk into a room of strangers. */}
+          {!isMember && <SafetyNote context="circle" />}
 
           {/* Mission statement — collapsible */}
           {!isMember && community.mission && (

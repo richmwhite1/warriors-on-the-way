@@ -1,4 +1,5 @@
 import { ConsciousnessMap } from "@/components/consciousness-map";
+import { ContemplativeNav } from "@/components/contemplative-nav";
 import Link from "next/link";
 
 export const metadata = {
@@ -10,25 +11,26 @@ export const metadata = {
 export default function ConsciousnessMapPage() {
   return (
     <>
-      {/* Minimal dark nav */}
+      <ContemplativeNav current="map" />
+      <ConsciousnessMap />
+      {/* The map is something to contemplate, with nothing to do at the end of it.
+          One quiet way back into the app, in its own voice. */}
       <div
-        className="sticky top-0 z-40 px-6 py-3 flex items-center justify-between"
-        style={{ background: "rgba(6,4,10,0.88)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(255,255,255,0.05)" }}
+        className="px-6 py-10 text-center"
+        style={{ background: "#060409", borderTop: "1px solid rgba(255,255,255,0.06)" }}
       >
+        <p className="mx-auto max-w-md text-sm leading-relaxed text-stone-400">
+          Nobody climbs a scale alone. The people doing this work meet in person, in small
+          circles, and it costs nothing to sit down with them.
+        </p>
         <Link
-          href="/"
-          className="text-xs uppercase tracking-widest text-stone-600 hover:text-stone-400 transition-colors"
+          href="/community"
+          className="mt-5 inline-block rounded-full px-6 py-2.5 text-sm font-bold no-underline"
+          style={{ background: "#D4AF37", color: "#1a1200" }}
         >
-          ← Warriors on the Way
-        </Link>
-        <Link
-          href="/sean"
-          className="text-xs uppercase tracking-widest text-stone-600 hover:text-stone-400 transition-colors"
-        >
-          Seán's Portal →
+          Find a circle near you
         </Link>
       </div>
-      <ConsciousnessMap />
     </>
   );
 }

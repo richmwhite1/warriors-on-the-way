@@ -60,6 +60,37 @@ export default async function TopicsPage() {
             </Link>
           ))}
         </div>
+
+        {/* The Nine read as an exhibit: nine beautiful cards and nothing to do with them.
+            The doing happens in circles, so say so and point at them. */}
+        <div style={{ marginTop: 28, borderTop: "1px solid var(--border)", paddingTop: 20 }}>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: 14.5, lineHeight: 1.6, color: "var(--muted-foreground)", margin: 0 }}>
+            These are the why. The doing happens in circles — small groups meeting in person
+            around Salt Lake City and Park City.
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, marginTop: 14 }}>
+            <Link
+              href="/community"
+              style={{
+                fontFamily: "var(--font-brand)", fontSize: 14, fontWeight: 700,
+                color: "#ffffff", background: "var(--primary)", borderRadius: 9999,
+                padding: "10px 20px", textDecoration: "none",
+              }}
+            >
+              Find a circle near you
+            </Link>
+            <Link
+              href="/menu"
+              style={{
+                fontFamily: "var(--font-brand)", fontSize: 14, fontWeight: 700,
+                color: "var(--foreground)", border: "1px solid var(--border)", borderRadius: 9999,
+                padding: "10px 20px", textDecoration: "none",
+              }}
+            >
+              Start from what you need
+            </Link>
+          </div>
+        </div>
         </div>
       </main>
     </>

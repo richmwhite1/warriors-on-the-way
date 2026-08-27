@@ -208,7 +208,7 @@ what real names/addresses protect against.
 **Phase 1 — Stop the bleeding.** C1, C2, C3, E1, E2, E3, N1. — **shipped**
 **Phase 2 — Make it understandable.** Welcome overlay reach, term glossing, N3. — **shipped**
 **Phase 3 — Simplify navigation.** N2, N4, N5. — **shipped** (N2 declined, see below)
-**Phase 4 — Screen polish & consistency.** P1–P5.
+**Phase 4 — Screen polish & consistency.** P1–P5. — **shipped**
 
 ---
 
@@ -270,6 +270,31 @@ that hid real activity rather than copy that described it badly.
   already resolve both ways in both directions, so this is churn with no user benefit and
   a fresh set of redirects to maintain. Revisit only if the URL shows up somewhere it
   reads badly.
+
+### Phase 4 — screen polish & consistency
+
+- **P1** Community detail split into three kinds of thing. It had been one flat row of
+  eight identically-styled pills where "Members" (a place), "+ New event" (an action) and
+  "Settings" (a steward's tool) were the same shape. Places are now a plain nav row,
+  actions are buttons, and the admin three sit under an "Organizer tools" label. Note the
+  review's claim that Moderation/Settings show regardless of role was already false —
+  they were `isAdmin`-gated; the problem was that they *looked* identical to everything
+  else.
+- **P2** "Why 150?" now links from the member count on community detail, where the
+  question occurs. The card's "N spots left" carries the explanation as a title (the whole
+  card is a link, so it cannot nest another).
+- **P3** Seán's portal and the Map now share one `ContemplativeNav`. Each had hand-rolled
+  its own header with a slightly different background, and both linked back to `/` — the
+  public landing page — so the way out of a contemplative page was out of the app. The
+  dark palette is kept deliberately: it is the voice those pages are written in. The seam
+  was the missing shared chrome, not the colour.
+- **P4** The Nine and the Map each end with a way into the core loop instead of stopping
+  dead — "Find a circle near you" / "Start from what you need".
+- **P5** A `SafetyNote` sits at both points of commitment: joining a circle and RSVPing to
+  an event. It states only what is verifiably true in the schema — real names, 18+, exact
+  addresses gated behind RSVP, reporting on every post and profile — and says plainly that
+  **organizers are not vetted**, because they are not. Answering "how are organizers
+  vetted?" with a comfortable half-truth would have been worse than the silence.
 
 ### Known gaps left open
 
