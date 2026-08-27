@@ -205,7 +205,53 @@ what real names/addresses protect against.
 
 ## Roadmap
 
-**Phase 1 — Stop the bleeding.** C1, C2, C3, E1, E2, E3, N1.
-**Phase 2 — Make it understandable.** Welcome overlay reach, term glossing, N3.
+**Phase 1 — Stop the bleeding.** C1, C2, C3, E1, E2, E3, N1. — **shipped**
+**Phase 2 — Make it understandable.** Welcome overlay reach, term glossing, N3. — **shipped**
 **Phase 3 — Simplify navigation.** N2, N4, N5.
 **Phase 4 — Screen polish & consistency.** P1–P5.
+
+---
+
+## Shipped
+
+### Phase 1 — `c6d8e29`
+
+Root cause first: the empty states were a symptom. Three of the seven changes were bugs
+that hid real activity rather than copy that described it badly.
+
+- **C1** `listPublicCommunities` no longer hides forming circles. They surface with a
+  Forming badge and "N more to open". Dormant stays hidden.
+- **Discover member counts** — `DiscoverSearch` read `member_count` as `[{count}]` while
+  the query flattens it to a number, so *every card in Discover showed 0 members* and a
+  wide-open cap. `countOf()` now accepts both shapes. Not in the original review; only
+  visible from the code.
+- **C2/C3** `/community` shows at most one empty state, and "you're in every circle here"
+  replaced an absence notice that fired on full participation.
+- **E2** `/events` demotes its empty panel to one line when there are events to discover,
+  instead of announcing emptiness above a populated list.
+- **E3** `/community` index is guest-viewable. **N1** `/the-nine` redirects to `/topics`.
+- **E1** Doorway cards invite instead of reporting absence.
+
+### Phase 2 — make it understandable
+
+- **N3** Nav "Menu" → **"Home"**, with a house icon replacing the list icon that
+  reinforced the hamburger reading. Route `/menu` unchanged; the `← Menu` back-link on
+  doorway pages follows.
+- **Welcome overlay reach** — was mounted on `/menu` only, so anyone arriving by a shared
+  link never met it. Now mounted in `AppNav` and gated to front doors (`/menu`,
+  `/community`, `/events`). Deliberately *not* shown on deep-linked circle or event
+  pages: a shared link is a specific promise, and a modal in front of it is a toll gate.
+  Same reasoning that already keeps shared event links public.
+- **Term glossing on first use** — `doorway`, `circle`, `The Nine`, `offerings`, and
+  `North Star` are now defined where they are first met, in plain words, with the
+  community's own word kept alongside rather than replaced. The overlay is skippable and
+  one-time, so the glosses live on the pages too and do not depend on it.
+
+### Known gaps left open
+
+- `/topics` renders without `AppNav` — no way back except the browser button, and it is
+  light-themed while its neighbours are dark. Phase 3/4 territory.
+- The "147 spots left" cap on listed circles is still unexplained at the point it is
+  felt; `why-150` exists but is linked only from the create form (P2).
+- Existing visitors who dismissed the old overlay will not see the rewritten one — the
+  `wow_welcome_seen_v1` key is intentionally unchanged, so nobody gets re-nagged.

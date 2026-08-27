@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getNeedsWithSignal, type NeedSignal } from "@/lib/queries/needs";
 import { AppNav } from "@/components/app-nav";
 import { NeedIcon } from "@/components/needs/need-icon";
-import { WelcomeOverlay } from "@/components/welcome-overlay";
 
 // What's actually behind this door, in the fewest words that are still true.
 //
@@ -46,7 +45,6 @@ export default async function MenuPage() {
   return (
     <>
       <AppNav />
-      <WelcomeOverlay />
 
       <main className="animate-page-enter mx-auto max-w-[560px] pb-20">
         {/* ── Mission frame: Seán's why, wrapping everything ────────────────── */}
@@ -57,9 +55,13 @@ export default async function MenuPage() {
           <h1 className="mt-1.5 font-heading text-[2rem] font-extrabold leading-[1.1] tracking-[-0.02em] text-foreground">
             What are you looking for?
           </h1>
+          {/* Plain words first, the words this community uses second. "Pick a doorway"
+              assumed you already knew what a doorway was, and what was behind it — two
+              pieces of vocabulary before anyone had earned them. */}
           <p className="mt-2.5 font-sans text-[15px] leading-relaxed text-muted-foreground">
-            A free, peer-to-peer network of spiritual community — nobody ever charges. Pick a
-            doorway.{" "}
+            Free, always — nobody ever charges to gather. Each doorway below opens onto{" "}
+            <span className="font-semibold text-foreground">circles</span>: small groups
+            that meet in person near you.{" "}
             <Link href="/sean" className="font-semibold text-primary no-underline">
               Why this exists →
             </Link>

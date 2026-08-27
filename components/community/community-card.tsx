@@ -113,7 +113,13 @@ export function CommunityCard({
           {/* Badges overlaid on banner */}
           <div className="absolute bottom-2.5 left-3 flex gap-1.5 flex-wrap">
             {isParent && (
-              <Badge className="text-xs px-1.5 py-0 bg-amber-500/90 text-amber-950 border-0">
+              /* "North Star" appears nowhere else and is defined nowhere, so it read as
+                 a rank rather than a description. The title says what it means for
+                 anyone who stops to ask. */
+              <Badge
+                title="The community everyone here belongs to — the one all the local circles orbit."
+                className="text-xs px-1.5 py-0 bg-amber-500/90 text-amber-950 border-0"
+              >
                 North Star
               </Badge>
             )}

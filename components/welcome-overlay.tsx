@@ -1,45 +1,64 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 const STORAGE_KEY = "wow_welcome_seen_v1";
 
+// Front doors only. The explainer used to live on /menu alone, so anyone arriving by a
+// shared link — the most common way a stranger gets here — never met it. But it must not
+// open over a page someone was *sent* to: a shared circle or event link is a specific
+// promise, and a modal in front of it is a toll gate. So it greets on the browse
+// surfaces and stays out of the way on anything deep-linked.
+const FRONT_DOORS = new Set(["/menu", "/community", "/events"]);
+
 type Step = { eyebrow: string; title: string; body: string };
 
+// Plain words carry the meaning; the words this community actually uses are introduced
+// right beside them. Someone who bounces after step one should still know what the app
+// is, and someone who reads all four should never meet "doorway", "circle" or "The Nine"
+// later without having been told what it means.
 const STEPS: Step[] = [
   {
     eyebrow: "Welcome",
     title: "Warriors on the Way",
-    body: "A place to find your people — offline. Small local communities and real, in-person gatherings. Everything here is free and peer-to-peer. Nobody ever charges to gather.",
+    body: "A free network of small spiritual communities around Salt Lake City and Park City. You find a group near you, then you meet them in person. Nobody ever charges to gather — there's nothing to buy here.",
   },
   {
-    eyebrow: "Start with the Menu",
-    title: "Come as you are",
-    body: "Six doorways, by what you're actually looking for — curious, needing support, wanting community, ready to serve. Pick the one that's true today and see what's near you.",
+    eyebrow: "How it works",
+    title: "Start with what you need",
+    body: "Home asks what you're looking for. Each answer is a doorway — a way in. Behind it are circles: small groups that meet regularly, close to you.",
+  },
+  {
+    eyebrow: "Step two",
+    title: "Show up in person",
+    body: "Circles post real gatherings at real addresses — a walk, a sit, a potluck, a class. You'll see what's coming up and can say you're in. Everyone here uses their real name, and everyone is 18 or older.",
   },
   {
     eyebrow: "The Nine",
     title: "The why underneath",
-    body: "Every gathering carries a mission badge — the reclamation it belongs to. Tap one any time to read what it stands for. The Nine are the meaning; the Menu is the door.",
+    body: "Nine things this community is trying to reclaim — health, land, learning and six more. Every gathering wears one as a badge. It's the meaning behind the meeting; you never need it to join.",
   },
   {
     eyebrow: "Find your people",
     title: "Join, or start something",
-    body: "Browse Communities to join one near you — or start your own and invite friends. A new community goes live once it reaches five members. Then you gather, for real.",
+    body: "Browse Communities to join one near you — or start your own and invite friends. A new circle opens to everyone once five people join. Then you gather, for real.",
   },
 ];
 
 export function WelcomeOverlay() {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
+  const pathname = usePathname();
 
   useEffect(() => {
+    if (!FRONT_DOORS.has(pathname)) return;
     try {
       if (!localStorage.getItem(STORAGE_KEY)) setVisible(true);
     } catch {
       // localStorage unavailable (private mode) — just don't show it
     }
-  }, []);
+  }, [pathname]);
 
   function dismiss() {
     try {
@@ -119,7 +138,8 @@ export function WelcomeOverlay() {
             lineHeight: 1.55,
             color: "#4a4438",
             margin: 0,
-            minHeight: 92,
+            // Holds the tallest step so the dots and buttons don't jump between them.
+            minHeight: 116,
           }}
         >
           {s.body}

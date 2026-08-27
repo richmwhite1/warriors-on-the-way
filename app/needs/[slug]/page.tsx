@@ -72,7 +72,7 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
         {/* ── Need header ──────────────────────────────────────────────────── */}
         <header className="px-4 pb-1 pt-5">
           <Link href="/menu" className="font-heading text-[13px] font-bold text-primary no-underline">
-            ← Menu
+            ← Home
           </Link>
           <div className="mt-3 flex items-center gap-3">
             <div className="grid h-11 w-11 place-items-center rounded-[13px] bg-primary/[0.08]">

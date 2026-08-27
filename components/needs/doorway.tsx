@@ -208,6 +208,11 @@ export function Doorway({
       {filtered.circles.length > 0 && (
         <>
           <h2 className={sectionTitle}>Circles to join</h2>
+          {/* First meeting with the word, for anyone who came straight here from a
+              shared link and skipped the front door. */}
+          <p className="-mt-1 mb-2.5 font-sans text-[13px] leading-snug text-muted-foreground">
+            Small groups that meet regularly, in person.
+          </p>
           <div className="grid gap-2.5">
             {filtered.circles.map((c) => (
               <Link key={c.id} href={`/community/${c.slug}`} className={cardBase}>
@@ -245,6 +250,9 @@ export function Doorway({
       {filtered.offerings.length > 0 && (
         <>
           <h2 className={sectionTitle}>Ongoing offerings</h2>
+          <p className="-mt-1 mb-2.5 font-sans text-[13px] leading-snug text-muted-foreground">
+            Things people here run on a regular rhythm — always free to attend.
+          </p>
           <div className="grid gap-2.5">
             {filtered.offerings.map((o) => (
               <OfferingCard key={o.id} offering={o} showCommunity />

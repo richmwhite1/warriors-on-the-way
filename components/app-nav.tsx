@@ -4,6 +4,7 @@ import { getUnreadNotificationCount } from "@/lib/queries/notifications";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NotificationBell } from "@/components/notification-bell";
 import { TopNavLinks } from "@/components/top-nav-links";
+import { WelcomeOverlay } from "@/components/welcome-overlay";
 
 export async function AppNav() {
   const user = await requireUserProfile().catch(() => null);
@@ -11,6 +12,9 @@ export async function AppNav() {
 
   return (
     <>
+    {/* Mounted here so every app surface can greet a first-time visitor; the overlay
+        itself decides which paths are front doors and stays silent elsewhere. */}
+    <WelcomeOverlay />
     <header
       style={{
         position: "fixed",

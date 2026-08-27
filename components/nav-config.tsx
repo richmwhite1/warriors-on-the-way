@@ -26,7 +26,11 @@ const svg = (path: ReactNode, active: boolean) => (
 // on desktop, so the top bar renders it via the avatar rather than as a text link.
 export const PRIMARY_NAV: NavItem[] = [
   {
-    label: "Menu",
+    // "Menu" named the metaphor, not the destination — it reads as a hamburger or a
+    // list of links, and the list icon said the same thing twice. The page it points at
+    // is the front door ("What are you looking for?"), so it is Home. The route stays
+    // /menu; only what people see changed.
+    label: "Home",
     href: "/menu",
     // The six-need front door. /deck and /home only ever redirect here, so they
     // never render under this tab — no need to claim them.
@@ -34,9 +38,9 @@ export const PRIMARY_NAV: NavItem[] = [
     icon: (active) =>
       svg(
         active ? (
-          <path d="M3.75 5.25A2.25 2.25 0 016 3h12a2.25 2.25 0 012.25 2.25v13.5A2.25 2.25 0 0118 21H6a2.25 2.25 0 01-2.25-2.25V5.25zM7.5 7.5a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9zm0 3.75a.75.75 0 000 1.5h9a.75.75 0 000-1.5h-9zm0 3.75a.75.75 0 000 1.5h6a.75.75 0 000-1.5h-6z" />
+          <path d="M11.47 3.841a.75.75 0 011.06 0l8.69 8.69a.75.75 0 101.06-1.061l-8.689-8.69a2.25 2.25 0 00-3.182 0l-8.69 8.69a.75.75 0 101.061 1.06l8.69-8.689z M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H14.25a.75.75 0 01-.75-.75v-4.5a.75.75 0 00-.75-.75h-1.5a.75.75 0 00-.75.75v4.5a.75.75 0 01-.75.75H5.625a1.875 1.875 0 01-1.875-1.875v-6.198a2.29 2.29 0 00.091-.086L12 5.432z" />
         ) : (
-          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 5.25A1.5 1.5 0 015.25 3.75h13.5a1.5 1.5 0 011.5 1.5v13.5a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5V5.25zM7.5 8.25h9M7.5 12h9M7.5 15.75h6" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
         ),
         active,
       ),
