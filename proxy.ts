@@ -47,8 +47,15 @@ export async function proxy(request: NextRequest) {
   // stranger could not see. Admin sub-routes (members/settings/moderation) stay gated,
   // and /community/new guards itself at the page level so it keeps the founder's
   // doorway across the sign-in.
+  // The Nine sits in the top nav on every page, guests included, and pointed straight at
+  // a sign-in wall — the nav was advertising a door that was locked. The index itself is
+  // nine names and nine one-line statements with no member content in it, so it opens.
+  // The per-topic pages stay gated: they render a members' feed and thread the viewer's
+  // id through posting and commenting, which is a real product boundary rather than an
+  // oversight.
   const isGuestViewable =
     pathname === "/community" ||
+    pathname === "/topics" ||
     /^\/community\/[^/]+\/events\/[^/]+/.test(pathname) ||
     /^\/community\/[^/]+(\/opengraph-image)?$/.test(pathname);
 

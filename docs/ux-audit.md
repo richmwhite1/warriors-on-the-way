@@ -207,7 +207,7 @@ what real names/addresses protect against.
 
 **Phase 1 — Stop the bleeding.** C1, C2, C3, E1, E2, E3, N1. — **shipped**
 **Phase 2 — Make it understandable.** Welcome overlay reach, term glossing, N3. — **shipped**
-**Phase 3 — Simplify navigation.** N2, N4, N5.
+**Phase 3 — Simplify navigation.** N2, N4, N5. — **shipped** (N2 declined, see below)
 **Phase 4 — Screen polish & consistency.** P1–P5.
 
 ---
@@ -247,10 +247,37 @@ that hid real activity rather than copy that described it badly.
   community's own word kept alongside rather than replaced. The overlay is skippable and
   one-time, so the glosses live on the pages too and do not depend on it.
 
+### Phase 3 — simplify navigation
+
+- **N4** The Nine / Seán / Map collapsed into one **Discover** menu in the top bar. They
+  had been three loose links at every width, and since the primary links hide behind the
+  bottom bar on mobile, they were the *only* top-bar links a phone user saw — the
+  supporting material outranking the core loop. Each now carries a blurb, because none of
+  the three names tells you what is behind it.
+- **`/topics` opened to guests.** The Nine sat in the nav on every page, guests included,
+  and pointed at a sign-in wall — the nav advertised a locked door. The index is nine
+  names and nine one-line statements, so it opens. Per-topic pages stay gated: they
+  render a members' feed and thread the viewer's id through posting. That is a product
+  boundary, not an oversight.
+- **`/topics` got `AppNav`.** It had rendered without navigation — a room with no door.
+- **N5** The two "What are you looking for?" surfaces are now one thing. They were never
+  duplicate state — both write `user_needs`; one is per-doorway signup, the other the bulk
+  editor — but the identical heading made Profile read as a rival copy of the doorway
+  navigation. Profile is now "Tell me when something opens", and the front door shows a
+  **Following** badge on the doorways you follow with a link to manage them, so the state
+  is visible where it is used rather than stranded in settings.
+- **N2 declined** — normalising `/community` → `/communities` to match the label. Aliases
+  already resolve both ways in both directions, so this is churn with no user benefit and
+  a fresh set of redirects to maintain. Revisit only if the URL shows up somewhere it
+  reads badly.
+
 ### Known gaps left open
 
-- `/topics` renders without `AppNav` — no way back except the browser button, and it is
-  light-themed while its neighbours are dark. Phase 3/4 territory.
+- `/topics` is light-themed while Seán's portal and the Map are dark — the two-product
+  seam (P3). Its missing `AppNav` is fixed.
+- Per-topic pages (`/topics/[slug]`) remain sign-in gated, so a guest who reads The Nine
+  and taps a domain still meets a wall. Opening them read-only means making the viewer
+  nullable through the feed, posting and commenting — a real change, not a config flag.
 - The "147 spots left" cap on listed circles is still unexplained at the point it is
   felt; `why-150` exists but is linked only from the create form (P2).
 - Existing visitors who dismissed the old overlay will not see the rewritten one — the

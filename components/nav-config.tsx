@@ -89,12 +89,29 @@ export const PRIMARY_NAV: NavItem[] = [
   },
 ];
 
-// Secondary destinations — the reflective/guide surfaces. Text links in the top
-// bar on every viewport (they don't compete for a thumb-reach tab slot).
-export const SECONDARY_NAV: Pick<NavItem, "label" | "href" | "match">[] = [
-  // The Nine — Seán's missions, the "why" beneath the menu. Demoted from the primary
-  // spine so people navigate by need; the mission still rides each card as a badge.
-  { label: "The Nine", href: "/topics", match: (p) => p.startsWith("/topics") },
-  { label: "Seán", href: "/sean", match: (p) => p.startsWith("/sean") },
-  { label: "Map", href: "/consciousness-map", match: (p) => p.startsWith("/consciousness-map") },
+// Secondary destinations — the reflective/guide surfaces. Grouped behind a single
+// "Discover" menu in the top bar so they stop outranking the core loop on mobile.
+// Each carries a blurb because all three names are opaque from the outside: nothing
+// about "The Nine" or "Map" tells you what you'd find there.
+export const SECONDARY_NAV: (Pick<NavItem, "label" | "href" | "match"> & { blurb: string })[] = [
+  // The Nine — Seán's missions, the "why" beneath the front door. Demoted from the
+  // primary spine so people navigate by need; the mission still rides each card as a badge.
+  {
+    label: "The Nine",
+    href: "/topics",
+    match: (p) => p.startsWith("/topics"),
+    blurb: "What this community is reclaiming",
+  },
+  {
+    label: "Seán",
+    href: "/sean",
+    match: (p) => p.startsWith("/sean"),
+    blurb: "Why this exists, in his words",
+  },
+  {
+    label: "Map",
+    href: "/consciousness-map",
+    match: (p) => p.startsWith("/consciousness-map"),
+    blurb: "The scale of consciousness",
+  },
 ];

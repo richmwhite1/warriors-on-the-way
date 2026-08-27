@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getTopics } from "@/lib/queries/topics";
 import { TopicIcon } from "@/components/topics/topic-icon";
+import { AppNav } from "@/components/app-nav";
 
 export const metadata = {
   title: "Topics — Warriors on the Way",
@@ -12,7 +13,12 @@ export default async function TopicsPage() {
   const topics = await getTopics();
 
   return (
-    <main style={{ background: "#ffffff", minHeight: "100vh" }}>
+    // Rendered without the nav until now, so this page was a room with no door: no way
+    // back to the app except the browser button. It matters more now that guests can
+    // reach it — the nav is how they find the circles and events this page is about.
+    <>
+      <AppNav />
+      <main style={{ background: "#ffffff", minHeight: "100vh" }}>
       <div style={{ maxWidth: 640, margin: "0 auto", padding: "2rem 1.25rem 3rem" }}>
         <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 28, fontWeight: 800, color: "var(--foreground)", margin: 0 }}>
           The Nine
@@ -54,7 +60,8 @@ export default async function TopicsPage() {
             </Link>
           ))}
         </div>
-      </div>
-    </main>
+        </div>
+      </main>
+    </>
   );
 }
