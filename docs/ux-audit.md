@@ -296,6 +296,33 @@ that hid real activity rather than copy that described it badly.
   **organizers are not vetted**, because they are not. Answering "how are organizers
   vetted?" with a comfortable half-truth would have been worse than the silence.
 
+### Correction — the Nine must be verbatim
+
+`topics.manifesto_objective` carries a hard constraint, stated at the top of
+`20260817000003_topics.sql`: *"manifesto text is Seán's, verbatim, never softened or
+paraphrased."* The Phase 2 glossing pass broke it. The `/topics` subtitle and the welcome
+overlay both paraphrased the objectives as "health, land, learning and six more" — which
+softened Seán's language and invented a domain (**land**) that is not one of the nine.
+
+Fixed:
+
+- `/topics` now renders each objective verbatim from `manifesto_objective` on the card,
+  as its own element above the editable `solution_statement` — never concatenated, matching
+  how `ObjectiveSheet` presents the pair on the topic page.
+- The subtitle introduces the Nine without speaking for them: "Nine objectives, in Seán's
+  words."
+- The overlay step names the nine domains rather than paraphrasing their content.
+
+Verified: the nine `MISSION_POINTS` on the public landing page match the seed
+character-for-character. The store-facing `solution_statement` column and the `/topics`
+`metadata.description` keep their product framing, which is the documented split — the two
+registers are deliberately separate and are never merged in code.
+
+**Consequence to be aware of:** `/topics` was opened to guests in Phase 3, so the verbatim
+objectives — deliberately strong language — are now publicly reachable and crawlable on
+that page. The OG/search snippet still uses solution framing, so previews stay
+product-safe, but the page body no longer requires an account to read.
+
 ### Known gaps left open
 
 - `/topics` is light-themed while Seán's portal and the Map are dark — the two-product

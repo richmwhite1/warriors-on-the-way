@@ -37,7 +37,7 @@ const STEPS: Step[] = [
   {
     eyebrow: "The Nine",
     title: "The why underneath",
-    body: "Nine things this community is trying to reclaim — health, land, learning and six more. Every gathering wears one as a badge. It's the meaning behind the meeting; you never need it to join.",
+    body: "Nine objectives, in Se\u00e1n's words — education, economics, healing, storytelling, entertainment, food, fire, democracy, spirituality. Every gathering wears one as a badge. It's the meaning behind the meeting; you never need it to join.",
   },
   {
     eyebrow: "Find your people",

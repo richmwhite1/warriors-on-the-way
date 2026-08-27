@@ -23,13 +23,13 @@ export default async function TopicsPage() {
         <h1 style={{ fontFamily: "var(--font-brand)", fontSize: 28, fontWeight: 800, color: "var(--foreground)", margin: 0 }}>
           The Nine
         </h1>
-        {/* "Choose a domain to reclaim" is three insider words in five. This page is
-            where most people meet The Nine for the first time, so it says what they are
-            before asking anyone to pick one. */}
+        {/* Introduces the Nine without speaking for them. An earlier pass paraphrased
+            the objectives into "health, land, learning" — which softened Seán's words and
+            invented a domain that isn't one of the nine. The objectives below are his,
+            verbatim, per the constraint on topics.manifesto_objective. */}
         <p style={{ fontFamily: "var(--font-body)", color: "var(--muted-foreground)", marginTop: 6, marginBottom: 24, lineHeight: 1.55 }}>
-          Nine things this community is working to take back — in health, land, learning and
-          six more. Every gathering carries one as a badge. Open any of them to read what it
-          stands for, and to find groups already working on it.
+          Nine objectives, in Seán&rsquo;s words. Every gathering carries one as a badge.
+          Open any of them to read what it stands for, and to find groups already working on it.
         </p>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
@@ -52,6 +52,12 @@ export default async function TopicsPage() {
             >
               <TopicIcon icon={t.icon} />
               <span style={{ fontFamily: "var(--font-brand)", fontWeight: 700, fontSize: 16 }}>{t.name}</span>
+              {/* Seán's objective, verbatim — never softened, never paraphrased, and never
+                  concatenated with the solution line (they stay separate elements, the same
+                  way ObjectiveSheet presents them on the topic page). */}
+              <span style={{ fontFamily: "var(--font-body)", fontSize: 13.5, fontWeight: 600, color: "var(--foreground)", lineHeight: 1.4 }}>
+                {t.manifesto_objective}
+              </span>
               {t.solution_statement && (
                 <span style={{ fontFamily: "var(--font-body)", fontSize: 12.5, color: "var(--muted-foreground)", lineHeight: 1.4 }}>
                   {t.solution_statement}
