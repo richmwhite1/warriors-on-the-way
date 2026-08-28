@@ -16,3 +16,39 @@ export function relativeTime(dateStr: string): string {
   if (days < 7) return `${days}d ago`;
   return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
+
+/**
+ * A null member_cap means the circle is uncapped (parent communities are).
+ * Rendering `{count} / {cap}` blindly produced a dangling "9 / " on those.
+ */
+export function formatMembership(count: number, cap: number | null | undefined): string {
+  const noun = count === 1 ? "member" : "members";
+  if (cap == null) return `${count} ${noun}`;
+  return `${count} / ${cap} ${noun}`;
+}
+
+/** Short form for tight spots (badges, pills): "9" or "9 / 150". */
+export function formatMembershipShort(count: number, cap: number | null | undefined): string {
+  return cap == null ? `${count}` : `${count} / ${cap}`;
+}
+
+/**
+ * Locations are stored as typed, so "salt lake city" and "Salt Lake City" sit
+ * next to each other in the same list. Normalise at render time.
+ */
+export function titleCasePlace(value: string | null | undefined): string {
+  if (!value) return "";
+  const small = new Set(["of", "the", "and", "de", "del", "la", "las", "los", "on", "in", "at", "by"]);
+  return value
+    .trim()
+    .split(/(\s+|,\s*|-)/)
+    .map((part, i) => {
+      if (/^(\s+|,\s*|-)$/.test(part)) return part;
+      const lower = part.toLowerCase();
+      // Keep deliberate acronyms and mixed case the author already chose.
+      if (part.length > 1 && part === part.toUpperCase() && /[A-Z]/.test(part)) return part;
+      if (i > 0 && small.has(lower)) return lower;
+      return lower.charAt(0).toUpperCase() + lower.slice(1);
+    })
+    .join("");
+}

@@ -268,3 +268,13 @@
     font-family: var(--font-brand);
   }
 }
+
+/* ─── Embedded media never escapes its column ───────────────────────────────
+   Provider iframes (Spotify in particular) ship their own intrinsic widths,
+   so a wrapper alone isn't always enough to stop horizontal overflow.        */
+iframe,
+video,
+embed,
+object {
+  max-width: 100%;
+}

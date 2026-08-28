@@ -10,7 +10,7 @@ import { PlacesAutocomplete } from "@/components/ui/places-autocomplete";
 import { updateEvent } from "@/lib/actions/events";
 import { NeedsPicker } from "@/components/needs/needs-picker";
 import type { Need } from "@/lib/queries/needs";
-import { TIMEZONES } from "@/lib/timezones";
+import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { toast } from "sonner";
 
 type Props = {
@@ -133,16 +133,11 @@ export function EditEventForm({ eventId, communitySlug, initialValues, needs, se
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="timezone">Timezone</Label>
-          <select
+          <TimezoneSelect
             id="timezone"
             name="timezone"
             defaultValue={initialValues.timezone}
-            className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            {TIMEZONES.map((tz) => (
-              <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>
-            ))}
-          </select>
+          />
         </div>
       </div>
 

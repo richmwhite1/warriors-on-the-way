@@ -10,20 +10,27 @@ import { PlacesAutocomplete } from "@/components/ui/places-autocomplete";
 import { createEvent } from "@/lib/actions/events";
 import { NeedsPicker } from "@/components/needs/needs-picker";
 import type { Need } from "@/lib/queries/needs";
-import { TIMEZONES, getDefaultTimezone } from "@/lib/timezones";
+import { getDefaultTimezone } from "@/lib/timezones";
+import { TimezoneSelect } from "@/components/ui/timezone-select";
 import { toast } from "sonner";
 
 type Props = { communityId: string; communitySlug: string; needs: Need[] };
 
-function SectionHeading({ step, title }: { step: number; title: string }) {
+function SectionHeading({ title }: { title: string }) {
   return (
     <div className="flex items-center gap-2.5 pt-1">
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-        {step}
-      </span>
       <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{title}</h2>
       <span className="h-px flex-1 bg-border" aria-hidden />
     </div>
+  );
+}
+
+/** Nothing in the app's forms marked which fields were mandatory. */
+function Required() {
+  return (
+    <span className="text-destructive" title="Required">
+      {" "}*
+    </span>
   );
 }
 
@@ -35,6 +42,8 @@ export function CreateEventForm({ communityId, communitySlug, needs }: Props) {
   const [tasksEnabled, setTasksEnabled] = useState(false);
   const [expensesEnabled, setExpensesEnabled] = useState(false);
   const [isPending, startTransition] = useTransition();
+  // Resolved once so the option list and the default agree.
+  const [deviceZone] = useState(getDefaultTimezone);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -57,10 +66,15 @@ export function CreateEventForm({ communityId, communitySlug, needs }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      <p className="text-xs text-muted-foreground">
+        Fields marked <span className="text-destructive">*</span> are required. Everything
+        else you can fill in later.
+      </p>
+
       {/* ── Basics ─────────────────────────────────────────────── */}
-      <SectionHeading step={1} title="Basics" />
+      <SectionHeading title="Basics" />
       <div className="space-y-1.5">
-        <Label htmlFor="title">Event title</Label>
+        <Label htmlFor="title">Event title<Required /></Label>
         <Input id="title" name="title" required maxLength={120} placeholder="Morning hike at Muir Woods" />
       </div>
 
@@ -83,7 +97,7 @@ export function CreateEventForm({ communityId, communitySlug, needs }: Props) {
       </div>
 
       {/* ── Location ───────────────────────────────────────────── */}
-      <SectionHeading step={2} title="Location" />
+      <SectionHeading title="Location" />
       <div className="space-y-1.5">
         <Label htmlFor="general_location">General location</Label>
         <Input id="general_location" name="general_location" maxLength={120} placeholder="e.g. Sugar House, Salt Lake City" />
@@ -114,7 +128,7 @@ export function CreateEventForm({ communityId, communitySlug, needs }: Props) {
       </div>
 
       {/* ── When ───────────────────────────────────────────────── */}
-      <SectionHeading step={3} title="When" />
+      <SectionHeading title="When" />
       {/* Date mode toggle — surfaced as two selectable cards so date-voting
           (a strong, easy-to-miss feature) reads as a first-class choice. */}
       <fieldset className="space-y-2">
@@ -183,19 +197,21 @@ export function CreateEventForm({ communityId, communitySlug, needs }: Props) {
 
       <div className="space-y-1.5">
         <Label htmlFor="timezone">Timezone</Label>
-        <select id="timezone" name="timezone" defaultValue={getDefaultTimezone()}
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          {TIMEZONES.map((tz) => <option key={tz} value={tz}>{tz.replace(/_/g, " ")}</option>)}
-        </select>
+        <TimezoneSelect
+          id="timezone"
+          name="timezone"
+          defaultValue={deviceZone}
+          deviceZone={deviceZone}
+        />
         <p className="text-xs text-muted-foreground">Defaulted to your device&apos;s timezone.</p>
       </div>
 
       {/* ── Who it's for ───────────────────────────────────────── */}
-      <SectionHeading step={4} title="Who it's for" />
+      <SectionHeading title="Who it's for" />
       <NeedsPicker needs={needs} />
 
       {/* ── Options ────────────────────────────────────────────── */}
-      <SectionHeading step={5} title="Options" />
+      <SectionHeading title="Options" />
 
       {/* Optional modules */}
       <fieldset className="space-y-3 rounded-xl border p-4">

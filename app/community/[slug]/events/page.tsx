@@ -93,7 +93,7 @@ export default async function EventsPage({ params }: Props) {
             </Link>
             <h1 className="text-2xl font-heading font-semibold mt-1">Events</h1>
           </div>
-          {canCreate && (
+          {canCreate && events.length > 0 && (
             <Link href={`/community/${slug}/events/new`} className={cn(buttonVariants({ size: "sm" }), "rounded-full")}>
               + New event
             </Link>
@@ -102,10 +102,17 @@ export default async function EventsPage({ params }: Props) {
 
         {events.length === 0 ? (
           <div className="rounded-2xl border border-dashed p-10 text-center space-y-3">
-            <p className="text-muted-foreground">No events yet.</p>
+            <p className="font-heading font-semibold text-foreground">
+              Be the first to call a gathering
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {canCreate
+                ? "Nothing on the calendar yet. Name a time and a place — that's all it takes to start one."
+                : "Nothing on the calendar yet. When someone here names a time and a place, it shows up here."}
+            </p>
             {canCreate && (
               <Link href={`/community/${slug}/events/new`} className={cn(buttonVariants(), "rounded-full")}>
-                Create first event
+                Create the first one
               </Link>
             )}
           </div>

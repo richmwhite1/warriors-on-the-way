@@ -11,9 +11,13 @@ type Identity = { provider: string };
 export function LinkAccounts({
   identities,
   phone,
+  smsEnabled = false,
 }: {
   identities: Identity[];
   phone: string | null;
+  /** The phone field itself is gated on Twilio config; without it there is no
+      "above" to point at, so the hint must stay hidden too. */
+  smsEnabled?: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const providers = new Set(identities.map((i) => i.provider));
@@ -21,8 +25,11 @@ export function LinkAccounts({
   const hasGoogle = providers.has("google");
   const hasPhone = !!phone;
 
-  // If user has all providers linked, don't show anything
-  if (hasGoogle && hasPhone) return null;
+  // Phone linking is only a real option when SMS is configured.
+  const phoneLinkable = smsEnabled;
+
+  // Nothing left to link — don't show the section at all.
+  if (hasGoogle && (hasPhone || !phoneLinkable)) return null;
 
   function handleLinkGoogle() {
     startTransition(async () => {
@@ -62,7 +69,7 @@ export function LinkAccounts({
           </Button>
         )}
 
-        {!hasPhone && (
+        {!hasPhone && phoneLinkable && (
           <p className="text-xs text-muted-foreground">
             Add a phone number above to link phone sign-in.
           </p>

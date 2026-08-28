@@ -1,23 +1,80 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CONSCIOUSNESS_SCALE } from "@/lib/consciousness-scale";
 
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
 export function ConsciousnessSidebar() {
   const [open, setOpen] = useState(false);
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
+  // Only pull focus back to the trigger for closes the user drove, never on
+  // first paint.
+  const wasOpen = useRef(false);
+
+  const close = useCallback(() => setOpen(false), []);
+
+  useEffect(() => {
+    if (!open) {
+      if (wasOpen.current) toggleRef.current?.focus();
+      wasOpen.current = false;
+      return;
+    }
+    wasOpen.current = true;
+
+    const first = drawerRef.current?.querySelector<HTMLElement>(FOCUSABLE);
+    (first ?? drawerRef.current)?.focus();
+
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        close();
+        return;
+      }
+      if (e.key !== "Tab") return;
+
+      // The toggle doubles as the close control and lives outside the drawer,
+      // so it has to be part of the cycle.
+      const nodes = [
+        ...(toggleRef.current ? [toggleRef.current] : []),
+        ...Array.from(drawerRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE) ?? []),
+      ];
+      if (nodes.length === 0) return;
+      const firstNode = nodes[0];
+      const lastNode = nodes[nodes.length - 1];
+      const active = document.activeElement as HTMLElement | null;
+
+      if (e.shiftKey && (active === firstNode || !nodes.includes(active as HTMLElement))) {
+        e.preventDefault();
+        lastNode.focus();
+      } else if (!e.shiftKey && active === lastNode) {
+        e.preventDefault();
+        firstNode.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown, true);
+    return () => document.removeEventListener("keydown", onKeyDown, true);
+  }, [open, close]);
 
   return (
     <>
       {/* Toggle pill */}
       <button
-        onClick={() => setOpen(!open)}
+        ref={toggleRef}
+        type="button"
+        onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close consciousness map" : "Open consciousness map"}
+        aria-expanded={open}
+        aria-controls="consciousness-drawer"
         style={{
           position: "fixed",
           bottom: "5.5rem",
           right: "1rem",
-          zIndex: 40,
+          zIndex: 46,
           fontFamily: "var(--font-brand)",
           fontSize: 9,
           letterSpacing: "0.22em",
@@ -30,15 +87,17 @@ export function ConsciousnessSidebar() {
           WebkitBackdropFilter: "blur(10px)",
           cursor: "pointer",
           lineHeight: 1,
+          boxShadow: "0 2px 12px rgba(0,0,0,0.45)",
         }}
       >
         {open ? "✕ Map" : "⊕ Map"}
       </button>
 
-      {/* Backdrop (mobile) */}
+      {/* Backdrop */}
       {open && (
         <div
-          onClick={() => setOpen(false)}
+          onClick={close}
+          aria-hidden="true"
           style={{
             position: "fixed",
             inset: 0,
@@ -50,6 +109,13 @@ export function ConsciousnessSidebar() {
 
       {/* Drawer */}
       <div
+        id="consciousness-drawer"
+        ref={drawerRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Map of Consciousness"
+        tabIndex={-1}
+        inert={!open}
         style={{
           position: "fixed",
           top: 0,
@@ -64,7 +130,8 @@ export function ConsciousnessSidebar() {
           overflowY: "auto",
           padding: "4.5rem 1.25rem 2.5rem",
           transform: open ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 0.22s ease",
+          transition: "transform 0.22s ease, visibility 0.22s ease",
+          visibility: open ? "visible" : "hidden",
         }}
       >
         <p
@@ -140,7 +207,7 @@ export function ConsciousnessSidebar() {
 
         <Link
           href="/consciousness-map"
-          onClick={() => setOpen(false)}
+          onClick={close}
           style={{
             display: "inline-block",
             marginTop: "2rem",

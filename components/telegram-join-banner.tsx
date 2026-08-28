@@ -2,8 +2,14 @@
 
 import { useState, useEffect } from "react";
 
-const DISMISS_MS = 30 * 24 * 60 * 60 * 1000;  // 30 days
-const JOINED_MS  = 365 * 24 * 60 * 60 * 1000; // 1 year
+const DISMISS_MS = 30 * 24 * 60 * 60 * 1000;  // 30 days — an explicit "no"
+const JOINED_MS  = 365 * 24 * 60 * 60 * 1000; // 1 year — they joined
+const IGNORED_MS = 24 * 60 * 60 * 1000;       // 1 day — it timed out on its own
+
+// It used to hold its slot under the header at every scroll position until
+// someone dismissed it, costing roughly a tenth of a phone screen the whole
+// time. It now behaves like a toast: it announces itself, then retires.
+const VISIBLE_MS = 12000;
 
 function storageKey(communityId: string) {
   return `tg_banner_${communityId}`;
@@ -34,27 +40,56 @@ export function TelegramJoinBanner({
   communityId: string;
 }) {
   const [visible, setVisible] = useState(false);
+  const [leaving, setLeaving] = useState(false);
 
   useEffect(() => {
     if (isDismissed(communityId)) return;
-    const t = setTimeout(() => setVisible(true), 4000);
-    return () => clearTimeout(t);
+    const show = setTimeout(() => setVisible(true), 4000);
+    return () => clearTimeout(show);
   }, [communityId]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const retire = setTimeout(() => {
+      // Timing out is not a "no" — ask again tomorrow, not in a month.
+      try {
+        dismiss(communityId, IGNORED_MS);
+      } catch {
+        // localStorage unavailable — hiding it is still the right move.
+      }
+      setLeaving(true);
+      setTimeout(() => setVisible(false), 300);
+    }, VISIBLE_MS);
+    return () => clearTimeout(retire);
+  }, [visible, communityId]);
 
   if (!visible) return null;
 
   function handleDismiss() {
-    dismiss(communityId, DISMISS_MS);
+    try {
+      dismiss(communityId, DISMISS_MS);
+    } catch {
+      // ignore
+    }
     setVisible(false);
   }
 
   function handleJoin() {
-    dismiss(communityId, JOINED_MS);
+    try {
+      dismiss(communityId, JOINED_MS);
+    } catch {
+      // ignore
+    }
     setVisible(false);
   }
 
   return (
-    <div className="fixed top-[3.75rem] inset-x-0 z-40 px-3 animate-in slide-in-from-top-2 duration-300">
+    <div
+      role="status"
+      className={`fixed top-[3.75rem] inset-x-0 z-40 px-3 transition-all duration-300 ${
+        leaving ? "-translate-y-2 opacity-0" : "animate-in slide-in-from-top-2"
+      }`}
+    >
       <div className="max-w-2xl mx-auto rounded-2xl border bg-background shadow-lg p-3.5 flex items-center gap-3">
         <div className="shrink-0 size-9 rounded-full bg-[#229ED9] flex items-center justify-center">
           <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white">

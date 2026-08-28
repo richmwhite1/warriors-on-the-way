@@ -52,7 +52,7 @@ export default async function ProfilePage({
               Welcome! Set up your profile
             </p>
             <p style={{ color: "var(--muted-foreground)", fontSize: "0.85rem", lineHeight: 1.4 }}>
-              Add your name{!user.phone ? " and phone number" : ""} so your group knows who you are.
+              Add your name{smsEnabled() && !user.phone ? " and phone number" : ""} so your group knows who you are.
               {nextUrl && " You'll be redirected after saving."}
             </p>
           </div>
@@ -103,7 +103,7 @@ export default async function ProfilePage({
 
         <OrnamentalDivider />
 
-        <LinkAccounts identities={identities} phone={user.phone} />
+        <LinkAccounts identities={identities} phone={user.phone} smsEnabled={smsEnabled()} />
 
         <OrnamentalDivider />
 

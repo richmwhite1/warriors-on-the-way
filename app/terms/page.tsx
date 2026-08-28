@@ -169,7 +169,7 @@ export default function TermsPage() {
             marginTop: "1rem",
           }}
         >
-          ← Back to home
+          ← Home
         </Link>
       </div>
 

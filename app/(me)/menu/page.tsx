@@ -52,9 +52,9 @@ export default async function MenuPage() {
     <>
       <AppNav />
 
-      <main className="animate-page-enter mx-auto max-w-[560px] pb-20">
+      <main className="animate-page-enter mx-auto max-w-[560px] pb-20 lg:max-w-[900px]">
         {/* ── Mission frame: Seán's why, wrapping everything ────────────────── */}
-        <section className="px-4 pb-2 pt-5">
+        <section className="px-4 pb-2 pt-5 lg:max-w-[620px]">
           <p className="font-heading text-[11px] font-bold uppercase tracking-[0.14em] text-primary">
             Salt Lake City &amp; Park City
           </p>
@@ -75,7 +75,7 @@ export default async function MenuPage() {
         </section>
 
         {/* ── The six doorways ─────────────────────────────────────────────── */}
-        <div className="grid gap-3 p-4">
+        <div className="grid gap-3 p-4 lg:grid-cols-2">
           {needs.map((need) => {
             const signal = signalLine(need);
             return (

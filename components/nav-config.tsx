@@ -9,6 +9,11 @@ export type NavItem = {
   icon: (active: boolean) => ReactNode;
 };
 
+// Event pages nested under a community (/community/<slug>/events...) are still
+// "Events" as far as the tab bar is concerned — the global Events tab links
+// straight into them to create one, and two tabs must never light at once.
+const COMMUNITY_EVENT_ROUTE = /^\/community\/[^/]+\/events(\/|$)/;
+
 const svg = (path: ReactNode, active: boolean) => (
   <svg
     className="w-6 h-6"
@@ -48,7 +53,7 @@ export const PRIMARY_NAV: NavItem[] = [
   {
     label: "Events",
     href: "/events",
-    match: (p) => p.startsWith("/events"),
+    match: (p) => p.startsWith("/events") || COMMUNITY_EVENT_ROUTE.test(p),
     icon: (active) =>
       svg(
         active ? (
@@ -62,7 +67,7 @@ export const PRIMARY_NAV: NavItem[] = [
   {
     label: "Communities",
     href: "/community",
-    match: (p) => p.startsWith("/community"),
+    match: (p) => p.startsWith("/community") && !COMMUNITY_EVENT_ROUTE.test(p),
     icon: (active) =>
       svg(
         active ? (

@@ -44,7 +44,7 @@ export default async function EditEventPage({ params }: Props) {
             href={`/community/${slug}/events/${eventId}`}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            ← Back to event
+            ← {event.title}
           </Link>
           <h1 className="text-2xl font-heading font-semibold mt-2">Edit event</h1>
         </div>

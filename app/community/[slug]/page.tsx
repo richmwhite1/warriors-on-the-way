@@ -13,7 +13,7 @@ import { OfferingCard } from "@/components/needs/offering-card";
 import { listOfferingsForCommunity } from "@/lib/queries/needs";
 import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
-import { cn } from "@/lib/utils";
+import { cn, formatMembership } from "@/lib/utils";
 import { getCommunityBySlug, getCommunityBySlugPublic, getCommunityAdminSecrets, getParentCommunity, listUserCommunities } from "@/lib/queries/communities";
 import { CommunityShareButton, RecruitProgress } from "@/components/community/community-share";
 import { getCommunityTopics } from "@/lib/queries/topics";
@@ -274,7 +274,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
                 fontSize: "0.9rem",
               }}
             >
-              {memberCount} / {community.member_cap} {memberCount === 1 ? "member" : "members"}
+              {formatMembership(memberCount, community.member_cap)}
               {isFull && <span style={{ marginLeft: "0.5rem", color: "var(--primary)" }}>· Full</span>}
               {community.is_private && <span style={{ marginLeft: "0.5rem" }}>· Private</span>}
               {/* The cap is the one number here that reads as arbitrary pressure unless

@@ -51,7 +51,7 @@ export default async function CommunitySettingsPage({ params }: Props) {
           href={`/community/${slug}`}
           className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "-ml-2 text-muted-foreground")}
         >
-          ← Back to {community.name}
+          ← {community.name}
         </Link>
 
         <div className="space-y-1">

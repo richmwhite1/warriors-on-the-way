@@ -100,8 +100,8 @@ function MemberRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 py-2">
-      <div className="flex items-center gap-3 min-w-0">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
         <Avatar className="size-8 shrink-0">
           <AvatarImage src={member.user.avatar_url ?? undefined} />
           <AvatarFallback className="text-xs bg-primary/10 text-primary">
@@ -117,7 +117,7 @@ function MemberRow({
           ) : (
             <Link
               href={`/profile/${member.user.id}`}
-              className="text-sm font-medium truncate hover:underline"
+              className="block text-sm font-medium truncate hover:underline"
             >
               {member.user.display_name}
             </Link>
@@ -125,50 +125,48 @@ function MemberRow({
         </div>
       </div>
 
-      <div className="flex items-center gap-2 shrink-0">
-        <Badge
-          variant={member.role === "organizer" ? "default" : member.role === "admin" ? "secondary" : "outline"}
-          className="text-xs capitalize"
-        >
-          {member.role}
-        </Badge>
+      <Badge
+        variant={member.role === "organizer" ? "default" : member.role === "admin" ? "secondary" : "outline"}
+        className="text-xs capitalize shrink-0"
+      >
+        {member.role}
+      </Badge>
 
-        {canManage && (
-          <div className="flex gap-1">
-            {member.role === "member" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => handlePromote("admin")}
-                disabled={isPending}
-              >
-                Make admin
-              </Button>
-            )}
-            {member.role === "admin" && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs"
-                onClick={() => handlePromote("member")}
-                disabled={isPending}
-              >
-                Demote
-              </Button>
-            )}
+      {canManage && (
+        <div className="flex w-full justify-end gap-1 sm:w-auto">
+          {member.role === "member" && (
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 text-xs text-destructive hover:text-destructive"
-              onClick={handleRemove}
+              className="h-8 text-xs sm:h-7"
+              onClick={() => handlePromote("admin")}
               disabled={isPending}
             >
-              Remove
+              Make admin
             </Button>
-          </div>
-        )}
-      </div>
+          )}
+          {member.role === "admin" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 text-xs sm:h-7"
+              onClick={() => handlePromote("member")}
+              disabled={isPending}
+            >
+              Demote
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 text-xs text-destructive hover:text-destructive sm:h-7"
+            onClick={handleRemove}
+            disabled={isPending}
+          >
+            Remove
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
@@ -205,17 +203,17 @@ function PendingRow({
   }
 
   return (
-    <div className="flex items-center justify-between gap-3 py-2 px-3 rounded-lg bg-muted/50">
-      <div className="flex items-center gap-3">
-        <Avatar className="size-8">
+    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 py-2 px-3 rounded-lg bg-muted/50">
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <Avatar className="size-8 shrink-0">
           <AvatarImage src={member.user.avatar_url ?? undefined} />
           <AvatarFallback className="text-xs bg-primary/10 text-primary">
             {member.user.display_name.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
-        <p className="text-sm font-medium">{member.user.display_name}</p>
+        <p className="text-sm font-medium truncate">{member.user.display_name}</p>
       </div>
-      <div className="flex gap-2">
+      <div className="flex shrink-0 gap-2">
         <Button size="sm" className="h-7" onClick={handleApprove} disabled={isPending}>
           Approve
         </Button>

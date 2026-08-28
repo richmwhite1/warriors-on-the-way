@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { AppNav } from "@/components/app-nav";
-import { BackButton } from "@/components/ui/back-button";
+import Link from "next/link";
 import { AskBoard } from "@/components/asks/ask-board";
 import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership } from "@/lib/queries/members";
@@ -32,7 +32,12 @@ export default async function AsksPage({ params }: { params: Promise<{ slug: str
     <>
       <AppNav />
       <main style={{ maxWidth: 640, margin: "0 auto", padding: "1.25rem 1.25rem 3rem" }}>
-        <BackButton />
+        <Link
+          href={`/community/${slug}`}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          ← {community.name}
+        </Link>
         <div style={{ marginTop: 8 }}>
           <AskBoard
             communityId={community.id}

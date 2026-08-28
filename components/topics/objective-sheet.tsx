@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useDismissable } from "@/lib/use-dismissable";
 import { Info, X } from "lucide-react";
 
 // The emotional payload of the project. On first contact with a topic the objective
@@ -18,6 +19,10 @@ export function ObjectiveSheet({
   firstVisit: boolean;
 }) {
   const [open, setOpen] = useState(firstVisit);
+  const { panelRef, triggerRef } = useDismissable<HTMLDivElement, HTMLButtonElement>({
+    open,
+    onClose: () => setOpen(false),
+  });
 
   return (
     <>
@@ -26,8 +31,11 @@ export function ObjectiveSheet({
           {name}
         </h1>
         <button
+          ref={triggerRef}
+          type="button"
           onClick={() => setOpen(true)}
           aria-label="Show the objective"
+          aria-expanded={open}
           style={{
             marginLeft: "auto", display: "inline-flex", alignItems: "center", justifyContent: "center",
             width: 36, height: 36, borderRadius: 999, border: "1px solid var(--border)",
@@ -49,6 +57,8 @@ export function ObjectiveSheet({
           }}
         >
           <div
+            ref={panelRef}
+            tabIndex={-1}
             onClick={(e) => e.stopPropagation()}
             style={{
               width: "100%", maxWidth: 640, background: "#ffffff",

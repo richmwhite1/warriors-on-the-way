@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { useDismissable } from "@/lib/use-dismissable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,7 @@ export function InviteModal({ eventTitle, eventUrl, hostName, trigger }: Props) 
   const [note, setNote] = useState("");
   const [copied, setCopied] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { panelRef } = useDismissable<HTMLDivElement>({ open, onClose: () => setOpen(false) });
 
   function buildUrl() {
     const url = new URL(
@@ -90,10 +92,18 @@ export function InviteModal({ eventTitle, eventUrl, hostName, trigger }: Props) 
       <div
         className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
         onClick={() => setOpen(false)}
+        aria-hidden="true"
       />
 
       {/* Modal */}
-      <div className="fixed inset-x-4 top-[15%] z-50 mx-auto max-w-md rounded-2xl border bg-card shadow-2xl">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Invite someone"
+        tabIndex={-1}
+        className="fixed inset-x-4 top-[15%] z-50 mx-auto max-w-md rounded-2xl border bg-card shadow-2xl"
+      >
         <div className="p-6 space-y-5">
           {/* Header */}
           <div className="space-y-1">

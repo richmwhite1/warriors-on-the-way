@@ -68,9 +68,9 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
     <>
       <AppNav />
 
-      <main className="animate-page-enter mx-auto max-w-[560px] pb-20">
+      <main className="animate-page-enter mx-auto max-w-[560px] pb-20 lg:max-w-[900px]">
         {/* ── Need header ──────────────────────────────────────────────────── */}
-        <header className="px-4 pb-1 pt-5">
+        <header className="px-4 pb-1 pt-5 lg:max-w-[620px]">
           <Link href="/menu" className="font-heading text-[13px] font-bold text-primary no-underline">
             ← Home
           </Link>
@@ -96,7 +96,7 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
             came here because life feels heavy. */}
         {empty ? (
           <div className="px-4">
-            <div className="mt-7 rounded-[20px] border border-border bg-card px-[1.35rem] py-6">
+            <div className="mt-7 rounded-[20px] border border-border bg-card px-[1.35rem] py-6 lg:max-w-[620px]">
               <p className="font-heading text-[1.15rem] font-extrabold leading-[1.25] text-foreground">
                 You&rsquo;re first through this door
               </p>

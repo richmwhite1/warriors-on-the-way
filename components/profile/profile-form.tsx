@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,29 +8,27 @@ import { Label } from "@/components/ui/label";
 import { updateProfile } from "@/lib/actions/profile";
 import { toast } from "sonner";
 import type { UserProfile } from "@/lib/queries/users";
-
-const TIMEZONES = [
-  "UTC",
-  "America/New_York",
-  "America/Chicago",
-  "America/Denver",
-  "America/Los_Angeles",
-  "America/Anchorage",
-  "Pacific/Honolulu",
-  "Europe/London",
-  "Europe/Paris",
-  "Europe/Berlin",
-  "Asia/Dubai",
-  "Asia/Kolkata",
-  "Asia/Tokyo",
-  "Asia/Shanghai",
-  "Australia/Sydney",
-];
+import { TimezoneSelect } from "@/components/ui/timezone-select";
+import { getDefaultTimezone } from "@/lib/timezones";
 
 export function ProfileForm({ user, redirectAfterSave, smsEnabled = false }: { user: UserProfile; redirectAfterSave?: string; smsEnabled?: boolean }) {
   const [isPending, startTransition] = useTransition();
   const [phoneValue, setPhoneValue] = useState(user.phone ?? "");
+  const [deviceZone, setDeviceZone] = useState<string | undefined>(undefined);
+  const [timezone, setTimezone] = useState(user.timezone || "UTC");
   const router = useRouter();
+
+  // "UTC" is the column default, not a choice anyone made. The event form
+  // already defaults to the device zone; the profile should agree.
+  const [autoDetected, setAutoDetected] = useState(false);
+  useEffect(() => {
+    const zone = getDefaultTimezone();
+    setDeviceZone(zone);
+    if ((!user.timezone || user.timezone === "UTC") && zone !== "UTC") {
+      setTimezone(zone);
+      setAutoDetected(true);
+    }
+  }, [user.timezone]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -70,7 +68,7 @@ export function ProfileForm({ user, redirectAfterSave, smsEnabled = false }: { u
             defaultValue={user.last_initial ?? ""}
             required
             maxLength={1}
-            placeholder="D"
+            placeholder="e.g. D"
           />
         </div>
       </div>
@@ -88,7 +86,7 @@ export function ProfileForm({ user, redirectAfterSave, smsEnabled = false }: { u
           required
         />
         <p className="text-xs text-muted-foreground">
-          You must be 18 or older. This is a spiritual community with in-person events and real addresses.
+          You must be 18 or older to join.
         </p>
       </div>
 
@@ -107,18 +105,18 @@ export function ProfileForm({ user, redirectAfterSave, smsEnabled = false }: { u
 
       <div className="space-y-1.5">
         <Label htmlFor="timezone">Timezone</Label>
-        <select
+        <TimezoneSelect
           id="timezone"
           name="timezone"
-          defaultValue={user.timezone}
-          className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-        >
-          {TIMEZONES.map((tz) => (
-            <option key={tz} value={tz}>
-              {tz.replace(/_/g, " ")}
-            </option>
-          ))}
-        </select>
+          value={timezone}
+          onChange={setTimezone}
+          deviceZone={deviceZone}
+        />
+        {autoDetected && (
+          <p className="text-xs text-muted-foreground">
+            Detected from your device. Change it if that&apos;s not where you are.
+          </p>
+        )}
       </div>
 
       {/* Phone/SMS — hidden when Twilio isn't configured: never promise

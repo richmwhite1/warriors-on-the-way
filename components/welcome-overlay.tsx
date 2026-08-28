@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useDismissable } from "@/lib/use-dismissable";
 
 const STORAGE_KEY = "wow_welcome_seen_v1";
 
@@ -50,6 +51,11 @@ export function WelcomeOverlay() {
   const [visible, setVisible] = useState(false);
   const [step, setStep] = useState(0);
   const pathname = usePathname();
+  // No trigger element to return focus to — this opens on its own.
+  const { panelRef } = useDismissable<HTMLDivElement>({
+    open: visible,
+    onClose: () => dismiss(),
+  });
 
   useEffect(() => {
     if (!FRONT_DOORS.has(pathname)) return;
@@ -94,6 +100,8 @@ export function WelcomeOverlay() {
       onClick={dismiss}
     >
       <div
+        ref={panelRef}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
         style={{
           width: "100%",

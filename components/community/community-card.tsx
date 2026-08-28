@@ -169,7 +169,9 @@ export function CommunityCard({
                   </span>
                 )}
               </span>
-              {!isParent && (
+              {isParent ? (
+                <span className="font-medium">Open — no member limit</span>
+              ) : (
                 isForming ? (
                   <span className="font-medium text-emerald-700 dark:text-emerald-400">
                     {needed === 0 ? "Opening now" : `${needed} more to open`}

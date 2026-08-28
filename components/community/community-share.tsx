@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useDismissable } from "@/lib/use-dismissable";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
@@ -40,6 +41,7 @@ function ShareModal({
 }) {
   const [note, setNote] = useState("");
   const [copied, setCopied] = useState(false);
+  const { panelRef } = useDismissable<HTMLDivElement>({ open, onClose });
 
   async function handleCopy() {
     try {
@@ -84,8 +86,16 @@ function ShareModal({
       <div
         className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
         onClick={onClose}
+        aria-hidden="true"
       />
-      <div className="fixed inset-x-4 top-[15%] z-50 mx-auto max-w-md rounded-2xl border bg-card shadow-2xl">
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Invite someone to ${core.communityName}`}
+        tabIndex={-1}
+        className="fixed inset-x-4 top-[15%] z-50 mx-auto max-w-md rounded-2xl border bg-card shadow-2xl"
+      >
         <div className="p-6 space-y-5">
           <div className="space-y-1">
             <h2 className="text-lg font-heading font-semibold">Invite someone</h2>

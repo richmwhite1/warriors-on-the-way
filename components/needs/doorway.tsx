@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { titleCasePlace } from "@/lib/utils";
 import Link from "next/link";
 import { MissionBadge } from "@/components/needs/mission-badge";
 import { FormatBadge } from "@/components/needs/format-badge";
@@ -213,7 +214,7 @@ export function Doorway({
           <p className="-mt-1 mb-2.5 font-sans text-[13px] leading-snug text-muted-foreground">
             Small groups that meet regularly, in person.
           </p>
-          <div className="grid gap-2.5">
+          <div className="grid gap-2.5 lg:grid-cols-2">
             {filtered.circles.map((c) => (
               <Link key={c.id} href={`/community/${c.slug}`} className={cardBase}>
                 <div className="flex flex-wrap items-center gap-2">
@@ -232,7 +233,7 @@ export function Doorway({
                 )}
                 <p className={cardMeta}>
                   {[
-                    c.location,
+                    titleCasePlace(c.location),
                     c.is_forming
                       ? `${c.member_count} so far — be one of the first`
                       : `${c.member_count} member${c.member_count === 1 ? "" : "s"}`,
@@ -253,7 +254,7 @@ export function Doorway({
           <p className="-mt-1 mb-2.5 font-sans text-[13px] leading-snug text-muted-foreground">
             Things people here run on a regular rhythm — always free to attend.
           </p>
-          <div className="grid gap-2.5">
+          <div className="grid gap-2.5 lg:grid-cols-2">
             {filtered.offerings.map((o) => (
               <OfferingCard key={o.id} offering={o} showCommunity />
             ))}
@@ -265,7 +266,7 @@ export function Doorway({
       {filtered.events.length > 0 && (
         <>
           <h2 className={sectionTitle}>Upcoming gatherings</h2>
-          <div className="grid gap-2.5">
+          <div className="grid gap-2.5 lg:grid-cols-2">
             {filtered.events.map((e) => (
               <Link
                 key={e.id}
@@ -290,7 +291,7 @@ export function Doorway({
       {filtered.practitioners.length > 0 && (
         <>
           <h2 className={sectionTitle}>People &amp; practitioners</h2>
-          <div className="grid gap-2.5">
+          <div className="grid gap-2.5 lg:grid-cols-2">
             {filtered.practitioners.map((p) => {
               const inner = (
                 <>
