@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { buildMapsUrl } from "@/lib/maps";
 import type { EventRow } from "@/lib/queries/events";
 
 type Props = { event: EventRow; communitySlug: string };
@@ -64,7 +65,7 @@ export function EventCard({ event, communitySlug }: Props) {
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             <span>📍</span>
             <a
-              href={event.location_url || `https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+              href={buildMapsUrl(event.location_url, event.location) ?? undefined}
               target="_blank"
               rel="noopener noreferrer"
               className="relative z-10 hover:text-primary hover:underline underline-offset-2 transition-colors truncate"

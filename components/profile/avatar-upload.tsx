@@ -5,12 +5,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { createClient } from "@/lib/supabase/client";
 import { updateAvatarUrl } from "@/lib/actions/profile";
 import { toast } from "sonner";
+import {
+  ACCEPT_IMAGES,
+  formatMb,
+  isHeic,
+  looksLikeImage,
+  prepareImage,
+} from "@/lib/image-file";
 
 type Props = {
   userId: string;
   displayName: string;
   avatarUrl: string | null;
 };
+
+const MAX_BYTES = 2 * 1024 * 1024;
 
 export function AvatarUpload({ userId, displayName, avatarUrl }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -20,20 +29,39 @@ export function AvatarUpload({ userId, displayName, avatarUrl }: Props) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image must be under 2 MB");
+    if (!looksLikeImage(file)) {
+      toast.error("That file isn't an image. Pick a photo instead.");
       return;
     }
 
     startTransition(async () => {
       try {
+        // An avatar renders at 64px, so a straight iPhone photo is orders of
+        // magnitude bigger than it needs to be. Re-encode instead of rejecting
+        // — and always transcode HEIC, because Supabase storage serves the
+        // bytes back verbatim and only Safari can render a .heic.
+        const toSend = await prepareImage(file, {
+          maxBytes: MAX_BYTES,
+          maxEdge: 512,
+          transcodeHeic: true,
+        });
+
+        if (isHeic(toSend)) {
+          toast.error("This browser can't read iPhone HEIC photos — upload from your phone, or save the photo as JPEG first.");
+          return;
+        }
+        if (toSend.size > MAX_BYTES) {
+          toast.error(`That image is ${formatMb(toSend.size)} and the limit is 2 MB`);
+          return;
+        }
+
         const supabase = createClient();
-        const ext = file.name.split(".").pop();
+        const ext = toSend.name.split(".").pop();
         const path = `${userId}/avatar.${ext}`;
 
         const { error: uploadError } = await supabase.storage
           .from("avatars")
-          .upload(path, file, { upsert: true });
+          .upload(path, toSend, { upsert: true, contentType: toSend.type });
 
         if (uploadError) throw uploadError;
 
@@ -69,13 +97,13 @@ export function AvatarUpload({ userId, displayName, avatarUrl }: Props) {
       </button>
 
       <div className="text-sm text-muted-foreground">
-        {isPending ? "Uploading…" : "Click avatar to change · Max 2 MB"}
+        {isPending ? "Uploading…" : "Click avatar to change · any photo, iPhone HEIC included"}
       </div>
 
       <input
         ref={inputRef}
         type="file"
-        accept="image/png,image/jpeg,image/webp"
+        accept={ACCEPT_IMAGES}
         className="hidden"
         onChange={handleFileChange}
       />

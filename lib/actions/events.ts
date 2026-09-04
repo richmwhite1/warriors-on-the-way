@@ -11,6 +11,7 @@ function readFormat(formData: FormData): "in_person" | "online" | "hybrid" {
   return raw === "online" || raw === "hybrid" ? raw : "in_person";
 }
 import { createAdminClient } from "@/lib/supabase/admin";
+import { resolveMapUrl } from "@/lib/maps-server";
 import { sendEventNotification } from "@/lib/integrations/telegram";
 import { sendEventAnnouncements } from "@/lib/integrations/email";
 import { notifyCommunityMembers } from "@/lib/actions/notifications";
@@ -29,7 +30,9 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
   // the event_exact_address RPC after RSVP). general_location is shown to everyone.
   const exact_address = (formData.get("location") as string)?.trim() || null;
   const general_location = (formData.get("general_location") as string)?.trim() || null;
-  const location_url = (formData.get("location_url") as string)?.trim() || null;
+  // Hosts paste the share link the Maps app gives them; expand it now so the
+  // stored URL is one an iPhone can actually open. See lib/maps-server.ts.
+  const location_url = await resolveMapUrl(formData.get("location_url") as string);
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
   const image_url = (formData.get("image_url") as string)?.trim() || null;
   const timezone = (formData.get("timezone") as string) || "UTC";
@@ -197,7 +200,9 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const description = (formData.get("description") as string)?.trim() || null;
   const exact_address = (formData.get("location") as string)?.trim() || null;
   const general_location = (formData.get("general_location") as string)?.trim() || null;
-  const location_url = (formData.get("location_url") as string)?.trim() || null;
+  // Hosts paste the share link the Maps app gives them; expand it now so the
+  // stored URL is one an iPhone can actually open. See lib/maps-server.ts.
+  const location_url = await resolveMapUrl(formData.get("location_url") as string);
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
   const image_url = (formData.get("image_url") as string)?.trim() || null;
   const dateStr = formData.get("starts_at") as string;

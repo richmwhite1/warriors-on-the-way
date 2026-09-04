@@ -17,6 +17,7 @@ import { Separator } from "@/components/ui/separator";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { smsEnabled } from "@/lib/phone";
+import { buildMapsUrl, displayAddress } from "@/lib/maps";
 import { getCommunityBySlug, getCommunityBySlugPublic } from "@/lib/queries/communities";
 import { getMembership, getActiveMemberCount, listActiveMembers } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
@@ -144,8 +145,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
     const weekday = dateObj?.toLocaleDateString("en-US", { weekday: "long" });
 
     // Google Maps link for tappable location — prefer stored URL from Places API
-    const mapsUrl = event.location_url
-      || (event.location ? `https://maps.google.com/?q=${encodeURIComponent(event.location)}` : null);
+    const mapsUrl = buildMapsUrl(event.location_url, event.location);
 
     return (
       <main className="min-h-screen bg-gradient-to-b from-background via-background to-muted/30">
@@ -491,8 +491,11 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
   // Exact address is revealed only once the member has RSVP'd (gate enforced in the RPC).
   const exactAddress = await getEventExactAddress(eventId);
 
-  const memberMapsUrl = event.location_url
-    || (exactAddress ? `https://maps.google.com/?q=${encodeURIComponent(exactAddress)}` : null);
+  // The exact address is the most precise thing we have, so it leads. Hosts often
+  // paste a Maps share link there; buildMapsUrl passes that straight through
+  // rather than searching for the URL as if it were street text.
+  const memberMapsUrl = buildMapsUrl(exactAddress, event.location_url, event.location);
+  const exactAddressText = displayAddress(exactAddress, event.location);
 
   return (
     <>
@@ -575,7 +578,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
           exactAddress ? (
             <div className="rounded-xl border p-4" style={{ background: "#f5f7f5" }}>
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-1">Exact address</p>
-              <p className="text-sm font-medium">{exactAddress}</p>
+              <p className="text-sm font-medium">{exactAddressText ?? "Tap below for directions"}</p>
               {memberMapsUrl && (
                 <a href={memberMapsUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-primary underline mt-1 inline-block">
                   Open in Maps

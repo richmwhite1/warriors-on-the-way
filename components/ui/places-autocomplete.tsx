@@ -62,13 +62,18 @@ export function PlacesAutocomplete({
   const [mapsUrl, setMapsUrl] = useState(defaultUrl);
   const [loaded, setLoaded] = useState(false);
 
+  // Google's documented cross-platform URL: it opens the Maps app on iOS and
+  // Android rather than bouncing through a web redirect. Pairing the query text
+  // with query_place_id pins the exact place instead of a fuzzy search, which is
+  // what makes lakes, trailheads and other non-street locations resolve at all.
   const updateMapsUrl = useCallback((place?: google.maps.places.PlaceResult) => {
-    if (place?.url) {
+    const query = place?.formatted_address || place?.name;
+    if (query) {
+      const params = new URLSearchParams({ api: "1", query });
+      if (place?.place_id) params.set("query_place_id", place.place_id);
+      setMapsUrl(`https://www.google.com/maps/search/?${params.toString()}`);
+    } else if (place?.url) {
       setMapsUrl(place.url);
-    } else if (place?.formatted_address) {
-      setMapsUrl(
-        `https://maps.google.com/?q=${encodeURIComponent(place.formatted_address)}`
-      );
     }
   }, []);
 
@@ -84,7 +89,7 @@ export function PlacesAutocomplete({
     if (!loaded || !inputRef.current || autocompleteRef.current) return;
 
     const ac = new google.maps.places.Autocomplete(inputRef.current, {
-      fields: ["formatted_address", "name", "url", "geometry"],
+      fields: ["formatted_address", "name", "url", "place_id", "geometry"],
     });
 
     ac.addListener("place_changed", () => {
