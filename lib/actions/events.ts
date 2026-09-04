@@ -12,6 +12,7 @@ function readFormat(formData: FormData): "in_person" | "online" | "hybrid" {
 }
 import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveMapUrl } from "@/lib/maps-server";
+import { zonedInputToUtcIso } from "@/lib/event-time";
 import { sendEventNotification } from "@/lib/integrations/telegram";
 import { sendEventAnnouncements } from "@/lib/integrations/email";
 import { notifyCommunityMembers } from "@/lib/actions/notifications";
@@ -50,10 +51,12 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
   if (mode === "voting") {
     status = "voting";
   } else {
+    // The datetime-local input carries no offset, so it must be read against the
+    // timezone the host picked — not the server's (UTC on Vercel). See lib/event-time.ts.
     const dateStr = formData.get("starts_at") as string;
     const endsStr = formData.get("ends_at") as string;
-    if (dateStr) starts_at = new Date(dateStr).toISOString();
-    if (endsStr) ends_at = new Date(endsStr).toISOString();
+    starts_at = zonedInputToUtcIso(dateStr, timezone);
+    ends_at = zonedInputToUtcIso(endsStr, timezone);
   }
 
   const { data: event, error } = await supabase
@@ -90,8 +93,8 @@ export async function createEvent(formData: FormData): Promise<{ eventId: string
       await supabase.from("event_date_options").insert(
         optionDates.map((d, i) => ({
           event_id: event.id,
-          starts_at: new Date(d).toISOString(),
-          ends_at: optionEnds[i] ? new Date(optionEnds[i]).toISOString() : null,
+          starts_at: zonedInputToUtcIso(d, timezone),
+          ends_at: zonedInputToUtcIso(optionEnds[i], timezone),
         }))
       );
     }
@@ -205,11 +208,10 @@ export async function updateEvent(eventId: string, formData: FormData) {
   const location_url = await resolveMapUrl(formData.get("location_url") as string);
   const virtual_url = (formData.get("virtual_url") as string)?.trim() || null;
   const image_url = (formData.get("image_url") as string)?.trim() || null;
-  const dateStr = formData.get("starts_at") as string;
-  const endsStr = formData.get("ends_at") as string;
-  const starts_at = dateStr ? new Date(dateStr).toISOString() : null;
-  const ends_at = endsStr ? new Date(endsStr).toISOString() : null;
   const timezone = (formData.get("timezone") as string)?.trim() || "America/Los_Angeles";
+  // Read the wall-clock input against the event's timezone (see lib/event-time.ts).
+  const starts_at = zonedInputToUtcIso(formData.get("starts_at") as string, timezone);
+  const ends_at = zonedInputToUtcIso(formData.get("ends_at") as string, timezone);
   const need_ids = (formData.getAll("need_ids") as string[]).filter(Boolean);
 
   const { data: event, error } = await supabase

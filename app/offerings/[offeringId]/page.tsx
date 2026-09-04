@@ -8,6 +8,7 @@ import { OfferingInterestButton } from "@/components/needs/offering-interest-but
 import { getOfferingById, isInterestedInOffering } from "@/lib/queries/needs";
 import { getMembership } from "@/lib/queries/members";
 import { getAuthUser } from "@/lib/queries/users";
+import { formatEventDate } from "@/lib/event-time";
 
 type Props = { params: Promise<{ offeringId: string }> };
 
@@ -21,11 +22,10 @@ export async function generateMetadata({ params }: Props) {
   };
 }
 
-function nextSession(iso: string | null): string | null {
+function nextSession(iso: string | null, timezone: string): string | null {
   if (!iso) return null;
-  const d = new Date(iso);
-  if (d.getTime() < Date.now()) return null;
-  return d.toLocaleDateString("en-US", {
+  if (new Date(iso).getTime() < Date.now()) return null;
+  return formatEventDate(iso, timezone, {
     weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit",
   });
 }
@@ -64,7 +64,7 @@ export default async function OfferingPage({ params }: Props) {
     (offering.created_by === user!.id ||
       (membership?.status === "active" && ["admin", "organizer"].includes(membership.role)));
 
-  const next = nextSession(offering.next_starts_at);
+  const next = nextSession(offering.next_starts_at, offering.timezone);
 
   return (
     <>

@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getEventForGuest } from "@/lib/queries/events";
 import { fetchOgBackground } from "@/lib/og-image";
+import { formatEventDate } from "@/lib/event-time";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -20,7 +21,7 @@ export default async function Image({
 
   const title = event?.title ?? "Warriors on the Way";
   const formattedDate = event?.starts_at
-    ? new Date(event.starts_at).toLocaleDateString("en-US", {
+    ? formatEventDate(event.starts_at, event.timezone, {
         weekday: "long",
         month: "long",
         day: "numeric",

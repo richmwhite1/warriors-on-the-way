@@ -6,6 +6,7 @@ import { castDateVote, removeDateVote } from "@/lib/actions/rsvp";
 import { lockEventToDate } from "@/lib/actions/events";
 import { toast } from "sonner";
 import type { EventDateOption } from "@/lib/queries/events";
+import { formatEventDate, formatEventTime } from "@/lib/event-time";
 
 type Props = {
   eventId: string;
@@ -14,9 +15,11 @@ type Props = {
   threshold: number;
   totalMembers: number;
   isAdmin: boolean;
+  /** The event's timezone — proposed dates read on the gathering's clock, not the voter's. */
+  timezone: string;
 };
 
-export function VotingPanel({ eventId, communitySlug, options, threshold, totalMembers, isAdmin }: Props) {
+export function VotingPanel({ eventId, communitySlug, options, threshold, totalMembers, isAdmin, timezone }: Props) {
   const [isPending, startTransition] = useTransition();
 
   function handleVote(option: EventDateOption) {
@@ -64,14 +67,14 @@ export function VotingPanel({ eventId, communitySlug, options, threshold, totalM
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-medium">
-                  {new Date(opt.starts_at).toLocaleDateString("en-US", {
+                  {formatEventDate(opt.starts_at, timezone, {
                     weekday: "short", month: "short", day: "numeric",
                     hour: "numeric", minute: "2-digit",
                   })}
                 </p>
                 {opt.ends_at && (
                   <p className="text-xs text-muted-foreground">
-                    until {new Date(opt.ends_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+                    until {formatEventTime(opt.ends_at, timezone)}
                   </p>
                 )}
               </div>

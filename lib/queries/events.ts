@@ -371,6 +371,7 @@ export type PublicEvent = {
   id: string;
   title: string;
   starts_at: string | null;
+  timezone: string;
   location: string | null; // general location — public-safe (never the exact address)
   image_url: string | null;
   community_slug: string;
@@ -388,7 +389,7 @@ export async function listUpcomingPublicEvents(limit = 60): Promise<PublicEvent[
   const { data } = await admin
     .from("events")
     .select(`
-      id, title, starts_at, location, image_url, status,
+      id, title, starts_at, timezone, location, image_url, status,
       community:communities!community_id(slug, name, is_private, status, is_parent),
       rsvps(status)
     `)
@@ -410,6 +411,7 @@ export async function listUpcomingPublicEvents(limit = 60): Promise<PublicEvent[
       id: e.id,
       title: e.title,
       starts_at: e.starts_at,
+      timezone: e.timezone ?? "UTC",
       location: e.location,
       image_url: e.image_url,
       community_slug: e.community.slug,

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getNeedsWithSignal, getMyNeedIds, type NeedSignal } from "@/lib/queries/needs";
 import { AppNav } from "@/components/app-nav";
 import { NeedIcon } from "@/components/needs/need-icon";
+import { daysUntilEvent, formatEventDate } from "@/lib/event-time";
 
 // What's actually behind this door, in the fewest words that are still true.
 //
@@ -25,12 +26,14 @@ function signalLine(n: NeedSignal): { text: string; live: boolean } {
   }
 
   if (n.next_at) {
-    const d = new Date(n.next_at);
-    const days = Math.round((d.getTime() - Date.now()) / 86_400_000);
+    // Calendar days on the gathering's own clock. Dividing elapsed milliseconds and
+    // rounding called anything 12–36 hours out "tomorrow", so a Saturday event read as
+    // "next tomorrow" on Thursday.
+    const days = daysUntilEvent(n.next_at, n.next_tz) ?? 0;
     const when =
       days <= 0 ? "today" : days === 1 ? "tomorrow" : days <= 6
-        ? d.toLocaleDateString("en-US", { weekday: "long" })
-        : d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+        ? formatEventDate(n.next_at, n.next_tz, { weekday: "long" })
+        : formatEventDate(n.next_at, n.next_tz, { month: "short", day: "numeric" });
     parts.push(`next ${when}`);
   }
 

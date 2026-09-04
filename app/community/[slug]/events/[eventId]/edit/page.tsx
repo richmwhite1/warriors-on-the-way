@@ -7,6 +7,7 @@ import { getCommunityBySlug } from "@/lib/queries/communities";
 import { getMembership } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
 import { getEventWithDetails, getEventExactAddress } from "@/lib/queries/events";
+import { utcIsoToZonedInput } from "@/lib/event-time";
 
 type Props = { params: Promise<{ slug: string; eventId: string }> };
 
@@ -59,8 +60,8 @@ export default async function EditEventPage({ params }: Props) {
             location: exactAddress ?? "",
             location_url: (event as unknown as { location_url?: string | null }).location_url ?? "",
             virtual_url: event.virtual_url ?? "",
-            starts_at: event.starts_at ? toDatetimeLocal(event.starts_at) : "",
-            ends_at: event.ends_at ? toDatetimeLocal(event.ends_at) : "",
+            starts_at: utcIsoToZonedInput(event.starts_at, event.timezone),
+            ends_at: utcIsoToZonedInput(event.ends_at, event.timezone),
             image_url: (event as unknown as { image_url?: string | null }).image_url ?? null,
             timezone: event.timezone,
             format: (event as unknown as { format?: "in_person" | "online" | "hybrid" | null }).format ?? "in_person",
@@ -71,9 +72,4 @@ export default async function EditEventPage({ params }: Props) {
       </main>
     </>
   );
-}
-
-function toDatetimeLocal(iso: string) {
-  // Convert ISO string to datetime-local format (YYYY-MM-DDTHH:MM)
-  return iso.slice(0, 16);
 }

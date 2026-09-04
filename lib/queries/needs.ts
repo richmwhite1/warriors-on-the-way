@@ -27,6 +27,9 @@ export type NeedOffering = {
   facilitator_name: string | null;
   cadence_text: string | null;
   next_starts_at: string | null;
+  // The zone next_starts_at was entered in — an appointment is read on the clock
+  // of the place it happens at, not the viewer's or the server's.
+  timezone: string;
   location: string | null;
   cost_note: string | null;
   format: GatheringFormat;
@@ -40,6 +43,7 @@ export type NeedEvent = {
   id: string;
   title: string;
   starts_at: string | null;
+  timezone: string;
   format: GatheringFormat;
   community_slug: string;
   community_name: string;
@@ -98,6 +102,7 @@ function toNeedOffering(o: any): NeedOffering {
     facilitator_name: o.facilitator_name,
     cadence_text: o.cadence_text,
     next_starts_at: o.next_starts_at,
+    timezone: o.timezone ?? "America/Denver",
     location: o.location,
     cost_note: o.cost_note,
     format: formatFrom(o.format),
@@ -115,7 +120,7 @@ export async function listOfferingsForNeed(needId: string): Promise<NeedOffering
     .from("offering_needs")
     .select(`
       offering:offerings!inner(
-        id, title, description, facilitator_name, cadence_text, next_starts_at,
+        id, title, description, facilitator_name, cadence_text, next_starts_at, timezone,
         location, cost_note, status, deleted_at, format, interest_count,
         community:communities!community_id(slug, name),
         mission:topics!topic_id(slug, name)
@@ -138,7 +143,7 @@ export async function listEventsForNeed(needId: string, limit = 12): Promise<Nee
     .from("event_needs")
     .select(`
       event:events!inner(
-        id, title, starts_at, status, deleted_at, format,
+        id, title, starts_at, timezone, status, deleted_at, format,
         community:communities!community_id(slug, name),
         mission:topics!topic_id(slug, name)
       )
@@ -155,6 +160,7 @@ export async function listEventsForNeed(needId: string, limit = 12): Promise<Nee
       id: e.id,
       title: e.title,
       starts_at: e.starts_at,
+      timezone: e.timezone ?? "UTC",
       format: formatFrom(e.format),
       community_slug: e.community?.slug ?? "",
       community_name: e.community?.name ?? "",
@@ -220,7 +226,7 @@ export async function listOfferingsForCommunity(communityId: string): Promise<Ne
   const { data } = await supabase
     .from("offerings")
     .select(`
-      id, title, description, facilitator_name, cadence_text, next_starts_at,
+      id, title, description, facilitator_name, cadence_text, next_starts_at, timezone,
       location, cost_note, format, interest_count,
       community:communities!community_id(slug, name),
       mission:topics!topic_id(slug, name)
@@ -239,7 +245,7 @@ export async function getOfferingById(offeringId: string): Promise<Offering | nu
   const { data } = await supabase
     .from("offerings")
     .select(`
-      id, title, description, facilitator_name, cadence_text, next_starts_at,
+      id, title, description, facilitator_name, cadence_text, next_starts_at, timezone,
       location, cost_note, created_by, deleted_at, status, format, interest_count,
       community_id, topic_id,
       community:communities!community_id(slug, name),
@@ -288,6 +294,7 @@ export type WeekItem = {
   href: string;
   title: string;
   when: string;           // ISO
+  timezone: string;       // the zone `when` should be read in
   community_name: string;
   format: GatheringFormat;
 };
@@ -314,6 +321,7 @@ export function thisWeek(offerings: NeedOffering[], events: NeedEvent[]): WeekIt
       href: `/offerings/${o.id}`,
       title: o.title,
       when: o.next_starts_at,
+      timezone: o.timezone,
       community_name: o.community_name,
       format: o.format,
     });
@@ -329,6 +337,7 @@ export function thisWeek(offerings: NeedOffering[], events: NeedEvent[]): WeekIt
       href: `/community/${e.community_slug}/events/${e.id}`,
       title: e.title,
       when: e.starts_at,
+      timezone: e.timezone,
       community_name: e.community_name,
       format: e.format,
     });
@@ -433,6 +442,8 @@ export type NeedSignal = Need & {
   events: number;
   /** ISO date of the soonest dated thing behind this doorway, if any. */
   next_at: string | null;
+  /** The zone next_at should be read in — the gathering's, not the viewer's. */
+  next_tz: string;
 };
 
 // The six doors used to look identically promising, so choosing between them was a
@@ -456,20 +467,29 @@ export async function getNeedsWithSignal(): Promise<NeedSignal[]> {
       .select("need_id, community:communities!community_id(status, is_private)"),
     supabase
       .from("offering_needs")
-      .select("need_id, offering:offerings!inner(status, deleted_at, next_starts_at)"),
+      .select("need_id, offering:offerings!inner(status, deleted_at, next_starts_at, timezone)"),
     supabase
       .from("event_needs")
-      .select("need_id, event:events!inner(status, deleted_at, starts_at)"),
+      .select("need_id, event:events!inner(status, deleted_at, starts_at, timezone)"),
   ]);
 
-  const signal = new Map<string, { circles: number; offerings: number; events: number; next_at: string | null }>();
-  for (const n of needs) signal.set(n.id, { circles: 0, offerings: 0, events: 0, next_at: null });
+  const signal = new Map<
+    string,
+    { circles: number; offerings: number; events: number; next_at: string | null; next_tz: string }
+  >();
+  for (const n of needs)
+    signal.set(n.id, { circles: 0, offerings: 0, events: 0, next_at: null, next_tz: "UTC" });
 
-  const soonest = (needId: string, when: string | null) => {
+  // The soonest thing's own timezone travels with it: "next tomorrow" is a date change
+  // on the gathering's calendar, and the front door can't say that without the zone.
+  const soonest = (needId: string, when: string | null, timezone: string | null) => {
     if (!when || when < now) return;
     const s = signal.get(needId);
     if (!s) return;
-    if (!s.next_at || when < s.next_at) s.next_at = when;
+    if (!s.next_at || when < s.next_at) {
+      s.next_at = when;
+      s.next_tz = timezone || "UTC";
+    }
   };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -488,7 +508,7 @@ export async function getNeedsWithSignal(): Promise<NeedSignal[]> {
     if (!o || o.status !== "active" || o.deleted_at) continue;
     const s = signal.get(r.need_id);
     if (s) s.offerings += 1;
-    soonest(r.need_id, o.next_starts_at);
+    soonest(r.need_id, o.next_starts_at, o.timezone);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -498,11 +518,11 @@ export async function getNeedsWithSignal(): Promise<NeedSignal[]> {
     if (e.starts_at && e.starts_at < now) continue;
     const s = signal.get(r.need_id);
     if (s) s.events += 1;
-    soonest(r.need_id, e.starts_at);
+    soonest(r.need_id, e.starts_at, e.timezone);
   }
 
   return needs.map((n) => ({
     ...n,
-    ...(signal.get(n.id) ?? { circles: 0, offerings: 0, events: 0, next_at: null }),
+    ...(signal.get(n.id) ?? { circles: 0, offerings: 0, events: 0, next_at: null, next_tz: "UTC" }),
   }));
 }

@@ -13,10 +13,11 @@ import { AppNav } from "@/components/app-nav";
 import { NeedIcon } from "@/components/needs/need-icon";
 import { Doorway, type WeekCard } from "@/components/needs/doorway";
 import { NeedSignupForm } from "@/components/needs/need-signup-form";
+import { formatEventDate, formatEventTime, daysUntilEvent } from "@/lib/event-time";
 
-function eventDate(iso: string | null): string {
+function eventDate(iso: string | null, timezone: string): string {
   if (!iso) return "Date TBD";
-  return new Date(iso).toLocaleDateString("en-US", {
+  return formatEventDate(iso, timezone, {
     weekday: "short",
     month: "short",
     day: "numeric",
@@ -24,14 +25,14 @@ function eventDate(iso: string | null): string {
 }
 
 // "Tomorrow 6:00 PM" reads faster than a date does when the whole point of the strip
-// is how soon a thing is.
-function weekLabel(iso: string): string {
-  const d = new Date(iso);
-  const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-  const days = Math.round((d.getTime() - Date.now()) / 86_400_000);
+// is how soon a thing is. Both halves are read on the gathering's own clock — dividing
+// elapsed milliseconds by 86,400,000 also called an event 23 hours out "today".
+function weekLabel(iso: string, timezone: string): string {
+  const time = formatEventTime(iso, timezone);
+  const days = daysUntilEvent(iso, timezone) ?? 0;
   if (days <= 0) return `Today · ${time}`;
   if (days === 1) return `Tomorrow · ${time}`;
-  return `${d.toLocaleDateString("en-US", { weekday: "long" })} · ${time}`;
+  return `${formatEventDate(iso, timezone, { weekday: "long" })} · ${time}`;
 }
 
 export default async function NeedPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -57,12 +58,12 @@ export default async function NeedPage({ params }: { params: Promise<{ slug: str
     id: w.id,
     href: w.href,
     title: w.title,
-    whenLabel: weekLabel(w.when),
+    whenLabel: weekLabel(w.when, w.timezone),
     community_name: w.community_name,
     format: w.format,
   }));
 
-  const eventDates = Object.fromEntries(events.map((e) => [e.id, eventDate(e.starts_at)]));
+  const eventDates = Object.fromEntries(events.map((e) => [e.id, eventDate(e.starts_at, e.timezone)]));
 
   return (
     <>

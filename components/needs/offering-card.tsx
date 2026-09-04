@@ -2,18 +2,20 @@ import Link from "next/link";
 import { MissionBadge } from "@/components/needs/mission-badge";
 import { FormatBadge } from "@/components/needs/format-badge";
 import type { NeedOffering } from "@/lib/queries/needs";
+import { formatEventDate } from "@/lib/event-time";
 
-function nextSession(iso: string | null): string | null {
+function nextSession(iso: string | null, timezone: string): string | null {
   if (!iso) return null;
-  const d = new Date(iso);
-  if (d.getTime() < Date.now()) return null;
-  return d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  if (new Date(iso).getTime() < Date.now()) return null;
+  return formatEventDate(iso, timezone, {
+    weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+  });
 }
 
 // One standing offering. Shared by the need pages and the community page so a
 // recurring gathering looks the same wherever you meet it.
 export function OfferingCard({ offering, showCommunity = false }: { offering: NeedOffering; showCommunity?: boolean }) {
-  const next = nextSession(offering.next_starts_at);
+  const next = nextSession(offering.next_starts_at, offering.timezone);
   // Cadence is the headline fact for a recurring thing — "Tuesdays 6pm" tells you
   // more about whether you can come than any single date does.
   const meta = [offering.cadence_text, offering.facilitator_name && `with ${offering.facilitator_name}`, offering.location]

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { PublicEvent } from "@/lib/queries/events";
+import { formatEventDate, formatEventTime, eventDayOfMonth } from "@/lib/event-time";
 
 export function EventDiscovery({ events }: { events: PublicEvent[] }) {
   const [query, setQuery] = useState("");
@@ -53,10 +54,10 @@ export function EventDiscovery({ events }: { events: PublicEvent[] }) {
               {startsAt && (
                 <div style={{ flexShrink: 0, width: 52, textAlign: "center", background: "#eef2ea", borderRadius: "0.75rem", padding: "0.5rem 0.25rem" }}>
                   <p style={{ fontFamily: "var(--font-brand)", fontSize: 11, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", lineHeight: 1 }}>
-                    {startsAt.toLocaleDateString("en-US", { month: "short" })}
+                    {formatEventDate(event.starts_at, event.timezone, { month: "short" })}
                   </p>
                   <p style={{ fontFamily: "var(--font-brand)", fontSize: 22, fontWeight: 800, color: "var(--foreground)", lineHeight: 1.2 }}>
-                    {startsAt.getDate()}
+                    {eventDayOfMonth(event.starts_at, event.timezone)}
                   </p>
                 </div>
               )}
@@ -66,7 +67,7 @@ export function EventDiscovery({ events }: { events: PublicEvent[] }) {
                 </p>
                 <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)", lineHeight: 1.4 }}>
                   {startsAt
-                    ? startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                    ? formatEventTime(event.starts_at, event.timezone)
                     : "Date TBD"}
                   {event.location && ` · ${event.location}`}
                   {event.going > 0 && ` · ${event.going} going`}

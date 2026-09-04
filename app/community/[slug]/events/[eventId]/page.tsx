@@ -18,6 +18,7 @@ import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
 import { smsEnabled } from "@/lib/phone";
 import { buildMapsUrl, displayAddress } from "@/lib/maps";
+import { formatEventDate, formatEventTime, eventDayOfMonth, daysUntilEvent } from "@/lib/event-time";
 import { getCommunityBySlug, getCommunityBySlugPublic } from "@/lib/queries/communities";
 import { getMembership, getActiveMemberCount, listActiveMembers } from "@/lib/queries/members";
 import { requireUserProfile } from "@/lib/queries/users";
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: Props) {
   const parts: string[] = [];
   if (event.starts_at) {
     parts.push(
-      new Date(event.starts_at).toLocaleDateString("en-US", {
+      formatEventDate(event.starts_at, event.timezone, {
         weekday: "short",
         month: "short",
         day: "numeric",
@@ -128,9 +129,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
     const hostDisplay = inviterName || event.creator.display_name;
 
     // Countdown calculation
-    const daysUntil = event.starts_at
-      ? Math.ceil((new Date(event.starts_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
-      : null;
+    const daysUntil = daysUntilEvent(event.starts_at, event.timezone);
     const countdownLabel =
       daysUntil === null ? null :
       daysUntil <= 0 ? "Today" :
@@ -139,10 +138,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
       null;
 
     // Date parts for the calendar-page date card
-    const dateObj = event.starts_at ? new Date(event.starts_at) : null;
-    const monthShort = dateObj?.toLocaleDateString("en-US", { month: "short" }).toUpperCase();
-    const dayNum = dateObj?.getDate();
-    const weekday = dateObj?.toLocaleDateString("en-US", { weekday: "long" });
+    const monthShort = formatEventDate(event.starts_at, event.timezone, { month: "short" }).toUpperCase() || undefined;
+    const dayNum = eventDayOfMonth(event.starts_at, event.timezone) || undefined;
+    const weekday = formatEventDate(event.starts_at, event.timezone, { weekday: "long" }) || undefined;
 
     // Google Maps link for tappable location — prefer stored URL from Places API
     const mapsUrl = buildMapsUrl(event.location_url, event.location);
@@ -258,7 +256,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
             <div className="mt-6 rounded-2xl border bg-card/80 backdrop-blur-sm shadow-sm p-4">
               <div className="flex gap-4">
                 {/* Calendar page */}
-                {dateObj && (
+                {event.starts_at && (
                   <div className="shrink-0 w-16 h-[72px] rounded-xl border bg-background shadow-sm overflow-hidden text-center">
                     <div className="bg-primary text-primary-foreground text-[10px] font-bold tracking-widest py-0.5">
                       {monthShort}
@@ -282,15 +280,9 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
                       </div>
                       <div>
                         <p className="text-sm font-medium leading-tight">
-                          {new Date(event.starts_at).toLocaleTimeString("en-US", {
-                            hour: "numeric",
-                            minute: "2-digit",
-                          })}
+                          {formatEventTime(event.starts_at, event.timezone)}
                           {event.ends_at &&
-                            ` — ${new Date(event.ends_at).toLocaleTimeString("en-US", {
-                              hour: "numeric",
-                              minute: "2-digit",
-                            })}`}
+                            ` — ${formatEventTime(event.ends_at, event.timezone)}`}
                         </p>
                         <p className="text-xs text-muted-foreground">{event.timezone.replace(/_/g, " ")}</p>
                       </div>
@@ -554,6 +546,7 @@ export default async function EventDetailPage({ params, searchParams }: Props) {
             threshold={event.vote_threshold}
             totalMembers={memberCount}
             isAdmin={isAdmin}
+            timezone={event.timezone}
           />
         )}
 
@@ -776,7 +769,7 @@ function EventMeta({
       {event.starts_at && (
         <div className="text-muted-foreground space-y-0.5">
           <p className="font-medium text-foreground">
-            {new Date(event.starts_at).toLocaleDateString("en-US", {
+            {formatEventDate(event.starts_at, event.timezone, {
               weekday: "long",
               year: "numeric",
               month: "long",
@@ -784,15 +777,8 @@ function EventMeta({
             })}
           </p>
           <p className="text-sm">
-            {new Date(event.starts_at).toLocaleTimeString("en-US", {
-              hour: "numeric",
-              minute: "2-digit",
-            })}
-            {event.ends_at &&
-              ` — ${new Date(event.ends_at).toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-              })}`}
+            {formatEventTime(event.starts_at, event.timezone)}
+            {event.ends_at && ` — ${formatEventTime(event.ends_at, event.timezone)}`}
             {" "}&middot; {event.timezone.replace(/_/g, " ")}
           </p>
         </div>

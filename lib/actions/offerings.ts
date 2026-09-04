@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { zonedInputToUtcIso } from "@/lib/event-time";
 
 type Format = "in_person" | "online" | "hybrid";
 
@@ -14,7 +15,11 @@ function readFormat(formData: FormData): Format {
 // The fields an offering form posts, in both create and edit. Kept in one place so
 // the two forms can't drift into saving different subsets of the same thing.
 function readOfferingFields(formData: FormData) {
+  // A datetime-local input posts a bare wall clock. Read it against the zone the
+  // steward picked, not the server's — see lib/event-time.ts.
+  const timezone = (formData.get("timezone") as string)?.trim() || "America/Denver";
   return {
+    timezone,
     title: (formData.get("title") as string)?.trim(),
     description: (formData.get("description") as string)?.trim() || null,
     facilitator_name: (formData.get("facilitator_name") as string)?.trim() || null,
@@ -23,10 +28,7 @@ function readOfferingFields(formData: FormData) {
     cost_note: (formData.get("cost_note") as string)?.trim() || null,
     topic_id: ((formData.get("topic_id") as string) || null) || null,
     format: readFormat(formData),
-    next_starts_at: (() => {
-      const s = formData.get("next_starts_at") as string;
-      return s ? new Date(s).toISOString() : null;
-    })(),
+    next_starts_at: zonedInputToUtcIso(formData.get("next_starts_at") as string, timezone),
   };
 }
 

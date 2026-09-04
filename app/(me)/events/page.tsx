@@ -5,6 +5,7 @@ import { requireUserProfile } from "@/lib/queries/users";
 import { listUpcomingEventsForUser, listUpcomingPublicEvents } from "@/lib/queries/events";
 import { listUserCommunities } from "@/lib/queries/communities";
 import { EventDiscovery } from "@/components/events/event-discovery";
+import { formatEventDate, formatEventTime, eventDayOfMonth } from "@/lib/event-time";
 
 export default async function EventsPage() {
   const user = await requireUserProfile().catch(() => null);
@@ -113,10 +114,10 @@ export default async function EventsPage() {
                 {startsAt && (
                   <div style={{ flexShrink: 0, width: 52, textAlign: "center", background: "#eef2ea", borderRadius: "0.75rem", padding: "0.5rem 0.25rem" }}>
                     <p style={{ fontFamily: "var(--font-brand)", fontSize: 11, fontWeight: 700, color: "var(--primary)", textTransform: "uppercase", lineHeight: 1 }}>
-                      {startsAt.toLocaleDateString("en-US", { month: "short" })}
+                      {formatEventDate(event.starts_at, event.timezone, { month: "short" })}
                     </p>
                     <p style={{ fontFamily: "var(--font-brand)", fontSize: 22, fontWeight: 800, color: "var(--foreground)", lineHeight: 1.2 }}>
-                      {startsAt.getDate()}
+                      {eventDayOfMonth(event.starts_at, event.timezone)}
                     </p>
                   </div>
                 )}
@@ -126,7 +127,7 @@ export default async function EventsPage() {
                   </p>
                   <p style={{ fontFamily: "var(--font-body)", fontSize: 13, color: "var(--muted-foreground)", lineHeight: 1.4 }}>
                     {startsAt
-                      ? startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })
+                      ? formatEventTime(event.starts_at, event.timezone)
                       : "Date TBD"}
                     {event.location && ` · ${event.location}`}
                   </p>

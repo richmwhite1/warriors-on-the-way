@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { buildMapsUrl } from "@/lib/maps";
+import { formatEventDate, formatEventTime, eventDayOfMonth } from "@/lib/event-time";
 import type { EventRow } from "@/lib/queries/events";
 
 type Props = { event: EventRow; communitySlug: string };
@@ -37,10 +38,10 @@ export function EventCard({ event, communitySlug }: Props) {
           style={{ background: "#eef2ea" }}
         >
           <p className="text-[11px] font-bold text-primary uppercase leading-none">
-            {startsAt.toLocaleDateString("en-US", { month: "short" })}
+            {formatEventDate(event.starts_at, event.timezone, { month: "short" })}
           </p>
           <p className="text-xl font-extrabold text-foreground leading-tight">
-            {startsAt.getDate()}
+            {eventDayOfMonth(event.starts_at, event.timezone)}
           </p>
         </div>
       )}
@@ -55,7 +56,7 @@ export function EventCard({ event, communitySlug }: Props) {
 
         {startsAt ? (
           <p className="text-sm text-muted-foreground">
-            {startsAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+            {formatEventTime(event.starts_at, event.timezone)}
           </p>
         ) : (
           <p className="text-sm text-muted-foreground italic">Date TBD</p>

@@ -1,20 +1,17 @@
 import { NeedsPicker } from "@/components/needs/needs-picker";
 import type { Need, Offering } from "@/lib/queries/needs";
+import { OfferingTimezoneField } from "@/components/offerings/offering-timezone-field";
+import { utcIsoToZonedInput } from "@/lib/event-time";
 
 type Topic = { id: string; name: string };
 
 const inputClass =
   "w-full rounded-lg border bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
-// `datetime-local` wants "YYYY-MM-DDTHH:mm" in *local* time; an ISO string with a Z
-// suffix silently leaves the field blank, which reads as "no next session" and quietly
-// erases the one the steward set.
-function toLocalInput(iso: string | null): string {
-  if (!iso) return "";
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
+// `datetime-local` wants "YYYY-MM-DDTHH:mm" with no offset. It has to be rendered in
+// the offering's own timezone: this used to render in the *browser's* zone while the
+// server saved it in the server's, so every open-and-save shifted a standing session
+// by the steward's UTC offset.
 
 // One form for creating and editing an offering.
 //
@@ -109,13 +106,19 @@ export function OfferingForm({
             id="next_starts_at"
             name="next_starts_at"
             type="datetime-local"
-            defaultValue={toLocalInput(offering?.next_starts_at ?? null)}
+            defaultValue={utcIsoToZonedInput(offering?.next_starts_at ?? null, offering?.timezone)}
             className={inputClass}
           />
           <p className="text-xs text-muted-foreground">
             Adding one puts this in &ldquo;This week&rdquo; on the doorway when it&rsquo;s close.
           </p>
         </div>
+      </div>
+
+      {/* The clock the session is read on — everyone sees this zone, not their own. */}
+      <div className="space-y-1.5">
+        <label htmlFor="timezone" className="text-sm font-medium">Timezone</label>
+        <OfferingTimezoneField initial={offering?.timezone} />
       </div>
 
       {/* ── In person, online, or both ─────────────────────────────────────── */}
