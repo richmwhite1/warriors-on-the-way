@@ -30,10 +30,17 @@ export function CommunitySettingsForm({
   community,
   needs = [],
   selectedNeedIds = [],
+  telegramLinkToken,
 }: {
   community: Community;
   needs?: Need[];
   selectedNeedIds?: string[];
+  /**
+   * The secret the deep link carries. It used to carry community.id, which is
+   * readable with the anon key — so anyone could point this community's posts and
+   * events at a Telegram group of their own. Only stewards can read this.
+   */
+  telegramLinkToken?: string | null;
 }) {
   const [bannerUrl, setBannerUrl] = useState<string | null>(community.banner_url);
   const [isPending, startTransition] = useTransition();
@@ -323,7 +330,7 @@ export function CommunitySettingsForm({
                 {/* Primary deep link — opens native Telegram */}
                 <div className="space-y-2">
                   <a
-                    href={`tg://resolve?domain=${BOT_USERNAME}&startgroup=${community.id}`}
+                    href={`tg://resolve?domain=${BOT_USERNAME}&startgroup=${telegramLinkToken ?? ""}`}
                     onClick={startPolling}
                     className="inline-flex items-center gap-2 rounded-lg bg-[#229ED9] text-white text-sm font-medium px-4 py-2 hover:opacity-90 transition-opacity"
                   >
@@ -335,7 +342,7 @@ export function CommunitySettingsForm({
                   <p className="text-xs text-muted-foreground">
                     If Telegram doesn&apos;t open,{" "}
                     <a
-                      href={`https://t.me/${BOT_USERNAME}?startgroup=${community.id}`}
+                      href={`https://t.me/${BOT_USERNAME}?startgroup=${telegramLinkToken ?? ""}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline underline-offset-2 hover:text-foreground transition-colors"

@@ -83,6 +83,7 @@ export default async function CommunitySettingsPage({ params }: Props) {
           community={{ ...community, telegram_chat_id: secrets.telegram_chat_id }}
           needs={needs}
           selectedNeedIds={selectedNeedIds}
+          telegramLinkToken={secrets.telegram_link_token}
         />
 
         {community.is_parent && (

@@ -14,7 +14,51 @@ export async function actionReport(
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error("Not authenticated");
 
+  // This runs on the service role, so RLS is not the perimeter here — and the
+  // page-level steward gate does not protect a server action, which any signed-in
+  // user can invoke directly. Without this check, "actioned" let anyone soft-delete
+  // any post or comment and suspend any account. Authorization has to happen in the
+  // action itself.
   const admin = createAdminClient();
+  const { data: pending } = await admin
+    .from("reports")
+    .select("community_id")
+    .eq("id", reportId)
+    .single();
+  if (!pending) throw new Error("Report not found");
+
+  let authorized = false;
+  if (pending.community_id) {
+    const { data: membership } = await admin
+      .from("community_members")
+      .select("role")
+      .eq("community_id", pending.community_id)
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle();
+    authorized = !!membership && ["admin", "organizer"].includes(membership.role);
+  }
+  if (!authorized) {
+    // Platform-wide reports (no community) and anything else fall to a parent-community
+    // organizer, which is the same bar RLS uses for reading reports at all.
+    const { data: parent } = await admin
+      .from("communities")
+      .select("id")
+      .eq("is_parent", true)
+      .maybeSingle();
+    if (parent) {
+      const { data: parentMembership } = await admin
+        .from("community_members")
+        .select("role")
+        .eq("community_id", parent.id)
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .maybeSingle();
+      authorized = parentMembership?.role === "organizer";
+    }
+  }
+  if (!authorized) throw new Error("Not authorized");
+
   const { data: report } = await admin
     .from("reports")
     .update({

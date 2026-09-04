@@ -271,15 +271,20 @@ export async function connectTelegramChannel(communityId: string, communitySlug:
   const { createAdminClient } = await import("@/lib/supabase/admin");
   const { data: community } = await createAdminClient()
     .from("communities")
-    .select("telegram_chat_id")
+    .select("telegram_chat_id, telegram_link_token")
     .eq("id", communityId)
     .single();
 
-  let chatId = (community as { telegram_chat_id?: string | null } | null)?.telegram_chat_id;
+  const secrets = community as {
+    telegram_chat_id?: string | null;
+    telegram_link_token?: string | null;
+  } | null;
+  let chatId = secrets?.telegram_chat_id;
 
-  // 2. Fallback: use getUpdates (works locally without HTTPS webhook)
+  // 2. Fallback: use getUpdates (works locally without HTTPS webhook). Matches the
+  // same link token the deep link carries — see the webhook route.
   if (!chatId) {
-    const result = await detectNewGroupChatId(communityId);
+    const result = await detectNewGroupChatId(secrets?.telegram_link_token ?? "");
     if (!result) {
       throw new Error(
         "Bot not found in any Telegram group yet. Make sure you added it using the link above, then try again."

@@ -33,7 +33,8 @@ type TelegramUpdate = {
  * message is found (e.g., organizer added the bot manually).
  */
 export async function detectNewGroupChatId(
-  communityId: string
+  /** communities.telegram_link_token — the payload the deep link carries. */
+  linkToken: string
 ): Promise<{ chatId: string; chatTitle: string } | null> {
   // Request both update types: join events + messages (for the /start payload)
   const qs = "?limit=100&allowed_updates=%5B%22my_chat_member%22%2C%22message%22%5D";
@@ -44,13 +45,14 @@ export async function detectNewGroupChatId(
 
   const updates = json.result;
 
-  // Primary: look for /start COMMUNITY_ID message sent in a group
-  // Telegram sends this automatically when an organizer uses the ?startgroup=PAYLOAD deep link.
-  const startMsg = [...updates].reverse().find(
-    (u) =>
-      u.message?.text?.includes(communityId) &&
-      u.message.chat.type !== "private"
-  );
+  // Primary: look for the /start LINK_TOKEN message sent in a group. Telegram sends
+  // this automatically when a steward uses the ?startgroup=PAYLOAD deep link.
+  // An empty token would make .includes() match every group message.
+  const startMsg = linkToken
+    ? [...updates].reverse().find(
+        (u) => u.message?.text?.includes(linkToken) && u.message.chat.type !== "private"
+      )
+    : undefined;
   if (startMsg?.message) {
     return {
       chatId: String(startMsg.message.chat.id),

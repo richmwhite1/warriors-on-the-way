@@ -1,5 +1,21 @@
 import { Resend } from "resend";
 
+/**
+ * Email is feature-gated on Resend configuration, the same way SMS is gated on
+ * Twilio (lib/phone.ts).
+ *
+ * `new Resend(undefined)` throws "Missing API key" the first time a send is
+ * attempted, and every call site wraps sends in a bare `catch {}` so delivery
+ * never blocks an event being created. The two together meant that with
+ * RESEND_API_KEY unset — which is how production was configured — every
+ * announcement and every reminder was silently dropped, with nothing in the logs
+ * to say so. Announcing an event to a community that never hears about it is a
+ * worse failure than a visible one.
+ */
+export function emailEnabled(): boolean {
+  return !!process.env.RESEND_API_KEY;
+}
+
 let _resend: Resend | null = null;
 function getResend() {
   if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY);
@@ -34,7 +50,21 @@ export async function sendEventReminder({
   eventUrl: string;
   whenLabel?: string;
 }) {
-  const locationLine = location ? `<p style="margin:0 0 4px;color:#666;">📍 ${location}</p>` : "";
+  if (!emailEnabled()) {
+    console.warn("[email] RESEND_API_KEY is not set — reminder not sent to", to);
+    return;
+  }
+
+  // Titles, names and locations are member-entered. sendEventAnnouncements below
+  // already escapes them; this one interpolated them raw, so an apostrophe-and-angle
+  // bracket in an event title broke the layout (and worse was possible).
+  const safeTitle = escapeHtml(eventTitle);
+  const safeName = escapeHtml(guestName);
+  const safeWhen = escapeHtml(whenLabel);
+
+  const locationLine = location
+    ? `<p style="margin:0 0 4px;color:#666;">📍 ${escapeHtml(location)}</p>`
+    : "";
 
   await getResend().emails.send({
     from: FROM,
@@ -43,16 +73,16 @@ export async function sendEventReminder({
     html: `
       <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:480px;margin:0 auto;padding:32px 0;">
         <p style="margin:0 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:0.15em;color:#a07828;">Warriors on the Way</p>
-        <h1 style="margin:0 0 20px;font-size:24px;font-weight:700;line-height:1.2;">${eventTitle}</h1>
+        <h1 style="margin:0 0 20px;font-size:24px;font-weight:700;line-height:1.2;">${safeTitle}</h1>
 
         <div style="background:#f8f7f5;border-radius:12px;padding:20px;margin-bottom:20px;">
-          <p style="margin:0 0 4px;font-weight:600;">${eventDate}</p>
-          <p style="margin:0 0 4px;color:#666;">${eventTime}</p>
+          <p style="margin:0 0 4px;font-weight:600;">${escapeHtml(eventDate)}</p>
+          <p style="margin:0 0 4px;color:#666;">${escapeHtml(eventTime)}</p>
           ${locationLine}
         </div>
 
         <p style="margin:0 0 20px;color:#444;line-height:1.5;">
-          Hey ${guestName}, just a friendly reminder that this event is ${whenLabel}. We're looking forward to seeing you!
+          Hey ${safeName}, just a friendly reminder that this event is ${safeWhen}. We're looking forward to seeing you!
         </p>
 
         <a href="${eventUrl}" style="display:inline-block;background:#1a1610;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">
@@ -85,6 +115,12 @@ export async function sendEventAnnouncements({
   eventUrl: string;
 }) {
   if (recipients.length === 0) return;
+  if (!emailEnabled()) {
+    console.warn(
+      `[email] RESEND_API_KEY is not set — ${recipients.length} announcement(s) for "${eventTitle}" not sent`
+    );
+    return;
+  }
 
   const safeTitle = escapeHtml(eventTitle);
   const safeCommunity = escapeHtml(communityName);

@@ -139,17 +139,23 @@ export async function getParentCommunity(): Promise<Community | null> {
  */
 export async function getCommunityAdminSecrets(
   communityId: string
-): Promise<{ invite_token: string | null; telegram_chat_id: string | null }> {
+): Promise<{
+  invite_token: string | null;
+  telegram_chat_id: string | null;
+  telegram_link_token: string | null;
+}> {
   const { createAdminClient } = await import("@/lib/supabase/admin");
   const admin = createAdminClient();
   const { data } = await admin
     .from("communities")
-    .select("invite_token, telegram_chat_id")
+    .select("invite_token, telegram_chat_id, telegram_link_token")
     .eq("id", communityId)
     .single();
   return {
     invite_token: (data as { invite_token?: string | null } | null)?.invite_token ?? null,
     telegram_chat_id: (data as { telegram_chat_id?: string | null } | null)?.telegram_chat_id ?? null,
+    telegram_link_token:
+      (data as { telegram_link_token?: string | null } | null)?.telegram_link_token ?? null,
   };
 }
 

@@ -21,10 +21,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  // ── Handle /start COMMUNITY_UUID in a group chat ─────────────────────────
-  // Telegram fires this when an organizer uses the deep link:
-  //   tg://resolve?domain=BOT_USERNAME&startgroup=COMMUNITY_ID
-  // The bot receives /start <COMMUNITY_ID> in the group so we can match exactly.
+  // ── Handle /start LINK_TOKEN in a group chat ─────────────────────────────
+  // Telegram fires this when a steward uses the deep link:
+  //   tg://resolve?domain=BOT_USERNAME&startgroup=LINK_TOKEN
+  //
+  // The argument is communities.telegram_link_token, not the community id. The id is
+  // readable with the anon key, so anyone could have pointed any community's posts and
+  // events at a group chat of their own; the link token is a steward-only secret, so
+  // holding it is what proves the sender is entitled to connect the group.
   const msg = update.message as
     | { text?: string; chat: { id: number; type: string; title?: string } }
     | undefined;
@@ -32,19 +36,23 @@ export async function POST(request: NextRequest) {
   if (msg?.text && msg.chat.type !== "private") {
     // Matches "/start UUID" or "/start@BotName UUID"
     const match = msg.text.match(/^\/start(?:@\w+)?\s+(\S+)$/i);
-    const communityId = match?.[1];
+    const linkToken = match?.[1];
 
-    if (communityId && UUID_RE.test(communityId)) {
+    if (linkToken && UUID_RE.test(linkToken)) {
       const chatId = String(msg.chat.id);
       const chatTitle = msg.chat.title ?? "Telegram Group";
 
       const admin = createAdminClient();
-      const { error } = await admin
+      // .select() so a token that matches nothing is distinguishable from a
+      // successful link — an UPDATE affecting zero rows is not an error.
+      const { data: linked, error } = await admin
         .from("communities")
         .update({ telegram_chat_id: chatId })
-        .eq("id", communityId);
+        .eq("telegram_link_token", linkToken)
+        .select("id")
+        .maybeSingle();
 
-      if (!error) {
+      if (!error && linked) {
         await sendMessage(
           chatId,
           `✅ <b>Connected!</b>\n\nThis group is now linked to your Warriors on the Way community. New posts and events will appear here automatically.`
@@ -54,7 +62,7 @@ export async function POST(request: NextRequest) {
       }
 
       console.log(
-        `[telegram-webhook] Community ${communityId} → chat ${chatId} (${chatTitle}) — error: ${error?.message ?? "none"}`
+        `[telegram-webhook] link token → community ${linked?.id ?? "no match"} → chat ${chatId} (${chatTitle}) — error: ${error?.message ?? "none"}`
       );
     }
   }

@@ -17,8 +17,10 @@ type Recipient = {
 };
 
 export async function GET(request: Request) {
+  // Fail closed. `CRON_SECRET &&` meant a missing secret left this endpoint open
+  // to anyone — and it sends SMS and email, and runs the membership sweeps.
   const authHeader = request.headers.get("authorization");
-  if (CRON_SECRET && authHeader !== `Bearer ${CRON_SECRET}`) {
+  if (!CRON_SECRET || authHeader !== `Bearer ${CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

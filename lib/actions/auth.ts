@@ -5,6 +5,14 @@ import { createClient } from "@/lib/supabase/server";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
+// `next` arrives from a query string, so it is attacker-controlled. Only same-site
+// paths may be redirected to — "//evil.example" is a protocol-relative URL that the
+// browser treats as another origin, which would turn our sign-in into an open redirect.
+function safeNext(next?: string | null): string | null {
+  if (!next) return null;
+  return next.startsWith("/") && !next.startsWith("//") ? next : null;
+}
+
 export async function signInWithGoogle(next?: string) {
   const supabase = await createClient();
   const callbackUrl = next
@@ -45,6 +53,8 @@ export async function verifyPhoneOtp(phone: string, token: string, next?: string
   const { error, data } = await supabase.auth.verifyOtp({ phone, token, type: "sms" });
   if (error) throw new Error(error.message);
 
+  const target = safeNext(next);
+
   // Redirect new users (placeholder name) to profile to set their name
   if (data.user) {
     const { data: profile } = await supabase
@@ -54,11 +64,11 @@ export async function verifyPhoneOtp(phone: string, token: string, next?: string
       .single();
 
     if (profile && /^User \d{4}$/.test(profile.display_name)) {
-      redirect(`/profile?welcome=true${next ? `&next=${encodeURIComponent(next)}` : ""}`);
+      redirect(`/profile?welcome=true${target ? `&next=${encodeURIComponent(target)}` : ""}`);
     }
   }
 
-  redirect(next ?? "/home");
+  redirect(target ?? "/menu");
 }
 
 export async function linkGoogleAccount() {

@@ -24,8 +24,20 @@ export async function GET(
     return d.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
   }
 
+  // RFC 5545 §3.3.11: backslash, semicolon and comma are delimiters inside a TEXT
+  // value, and a literal newline ends the property. A title or description carrying
+  // any of them — "Potluck, 6pm; bring a dish" is enough — produced a file the
+  // calendar app either mangled or rejected outright.
+  function icsText(value: string) {
+    return value
+      .replace(/\\/g, "\\\\")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,")
+      .replace(/\r?\n/g, "\\n");
+  }
+
   const description = [event.description, event.virtual_url ? `Virtual link: ${event.virtual_url}` : ""]
-    .filter(Boolean).join("\\n");
+    .filter(Boolean).map(String).map(icsText).join("\\n");
 
   const ics = [
     "BEGIN:VCALENDAR",
@@ -38,9 +50,9 @@ export async function GET(
     `DTSTAMP:${icsDate(new Date())}`,
     `DTSTART:${icsDate(start)}`,
     `DTEND:${icsDate(end)}`,
-    `SUMMARY:${event.title}`,
+    `SUMMARY:${icsText(event.title)}`,
     event.description ? `DESCRIPTION:${description}` : "",
-    event.location ? `LOCATION:${event.location}` : "",
+    event.location ? `LOCATION:${icsText(event.location)}` : "",
     "END:VEVENT",
     "END:VCALENDAR",
   ].filter(Boolean).join("\r\n");

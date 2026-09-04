@@ -30,7 +30,12 @@ export default async function ProfilePage({
   const [needs, myNeedIds] = await Promise.all([getNeeds(), getMyNeedIds()]);
   const params = await searchParams;
   const isWelcome = params.welcome === "true";
-  const nextUrl = params.next;
+  // `next` comes off the query string and is handed to router.push() after saving.
+  // Same-site paths only — "//evil.example" is a protocol-relative URL the browser
+  // resolves to another origin.
+  const rawNext = params.next;
+  const nextUrl =
+    rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : undefined;
 
   return (
     <>
